@@ -11,6 +11,7 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 //custom colors
+val Primary         = Color(0xFF167A62)  // report 3.1.1.1: Primary
 val BrandGreen      = Color(0xFF2F6A57)  // header, primary button
 val BrandGreenDark  = Color(0xFF27594A)  // gradient bottom
 val SheetBg         = Color(0xFFF7F9F8)  // off-white sheet

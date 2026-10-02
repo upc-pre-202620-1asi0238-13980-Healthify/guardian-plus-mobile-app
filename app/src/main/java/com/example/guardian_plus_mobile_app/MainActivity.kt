@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.guardian_plus_mobile_app.features.auth.presentation.LoginScreen
 import com.example.guardian_plus_mobile_app.ui.theme.GuardianplusmobileappTheme
 
 class MainActivity : ComponentActivity() {
@@ -31,11 +32,8 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun Greeting(name: String, modifier: Modifier = Modifier){ 
+    LoginScreen(modifier)
 }
 
 @Preview(showBackground = true)
