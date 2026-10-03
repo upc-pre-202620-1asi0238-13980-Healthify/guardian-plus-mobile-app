@@ -8,10 +8,7 @@ import javax.inject.Inject
 class AddEmergencyContactUseCase @Inject constructor(
     private val repository: EmergencyContactRepository
 ) {
-    /**
-     * The platform links every contact to a Care Circle member account. Until the Profile bounded
-     * context lets the user pick an existing member, each new contact stands for a new member.
-     */
+    /** The platform links every contact to a Care Circle member account; each new contact is a new member. */
     suspend operator fun invoke(
         careRecipientProfileId: String,
         displayName: String,

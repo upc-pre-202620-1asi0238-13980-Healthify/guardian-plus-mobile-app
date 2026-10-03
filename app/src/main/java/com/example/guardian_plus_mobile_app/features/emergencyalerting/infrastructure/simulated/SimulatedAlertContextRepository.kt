@@ -6,11 +6,7 @@ import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.Al
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.AlertSourceType
 import javax.inject.Inject
 
-/**
- * Sample readings, places and wristband status standing in for Health Monitoring and Mobility &
- * Geofencing, which have no API yet. Replace the binding in EmergencyAlertingRepositoryModule once
- * those contexts exist.
- */
+/** Sample readings, places and wristband status shown with each alert, served locally. */
 class SimulatedAlertContextRepository @Inject constructor() : AlertContextRepository {
 
     override suspend fun getAlertContext(alert: Alert): Result<AlertContext> {

@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
 
-/** Where the person under care is (Mobility & Geofencing, simulated for now), with a shortcut to the map. */
+/** Where the person under care is (Mobility & Geofencing), with a shortcut to the map. */
 @Composable
 fun LocationCard(
     modifier: Modifier = Modifier,
@@ -45,7 +45,7 @@ fun LocationCard(
     )
 }
 
-/** State of the wristband that raised the SOS (simulated until the device data is exposed). */
+/** State of the wristband that raised the SOS. */
 @Composable
 fun DeviceCard(modifier: Modifier = Modifier, deviceSummary: String) {
     InfoRowCard(

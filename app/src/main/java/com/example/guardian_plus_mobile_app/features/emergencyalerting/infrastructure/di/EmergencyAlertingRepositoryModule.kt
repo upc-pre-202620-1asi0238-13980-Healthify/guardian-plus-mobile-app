@@ -36,7 +36,7 @@ interface EmergencyAlertingRepositoryModule {
     @Binds
     fun bindEmergencyContactRepository(impl: EmergencyContactRepositoryImpl): EmergencyContactRepository
 
-    // Simulated until Health Monitoring and Mobility & Geofencing publish their APIs
+    // Readings and location shown with each alert come from local sample data
     @Binds
     fun bindAlertContextRepository(impl: SimulatedAlertContextRepository): AlertContextRepository
 }

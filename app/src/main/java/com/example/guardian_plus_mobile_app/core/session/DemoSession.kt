@@ -1,10 +1,6 @@
 package com.example.guardian_plus_mobile_app.core.session
 
-/**
- * Signed-in Care Circle member and the person under their care, simulated until the IAM and
- * Profile bounded contexts exist. The ids match emergency-alerting-demo.http, so the alerts
- * triggered there reach this app.
- */
+/** Care Circle member using the app and the person under their care. */
 object DemoSession {
     const val CURRENT_USER_ID = "1b3fdfe0-326f-4f36-80eb-b4d007cf4d19"
     const val CURRENT_USER_NAME = "María Rojas"

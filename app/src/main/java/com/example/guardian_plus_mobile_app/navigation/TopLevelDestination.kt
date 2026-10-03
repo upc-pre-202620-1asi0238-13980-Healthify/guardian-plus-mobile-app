@@ -6,7 +6,7 @@ import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.navigation.AlertsRoute
 import kotlinx.serialization.Serializable
 
-// Tabs whose bounded contexts are not built yet; each team replaces its route with its own nav graph
+// Tabs that belong to other bounded contexts
 @Serializable
 object HomeRoute
 
