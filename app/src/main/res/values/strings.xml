@@ -219,9 +219,9 @@
     <string name="settings_timeout_value">%1$d s</string>
     <string name="settings_broadcast_critical">Avisar a todos ante caídas y SOS</string>
     <string name="settings_broadcast_critical_detail">Las alertas críticas llegan a todo el círculo de cuidado al mismo tiempo.</string>
-    <string name="settings_section_wristband">Pulsera</string>
-    <string name="settings_silent_mode">Modo silencioso</string>
-    <string name="settings_silent_mode_detail">La pulsera vibra en lugar de sonar. Las alertas críticas y el SOS siempre suenan.</string>
+    <string name="settings_section_sound">Sonido de las alertas</string>
+    <string name="settings_silent_mode">Silenciar alertas no críticas</string>
+    <string name="settings_silent_mode_detail">Las alertas de %1$s que no son críticas llegan sin sonido a los celulares del círculo de cuidado. Las caídas y los SOS siempre suenan.</string>
     <string name="settings_section_channels">Cómo te avisamos a ti</string>
     <string name="settings_channel_push">Notificación push</string>
     <string name="settings_channel_sms">Mensaje de texto (SMS)</string>

@@ -92,8 +92,8 @@ fun SettingSwitchRow(
 private fun SettingSwitchRowPreview() {
     GuardianTheme(dynamicColor = false) {
         SettingSwitchRow(
-            title = "Modo silencioso",
-            detail = "La pulsera vibra en lugar de sonar.",
+            title = "Silenciar alertas no críticas",
+            detail = "Las caídas y los SOS siempre suenan.",
             iconRes = R.drawable.ic_bell_off,
             checked = true,
             onCheckedChange = {}

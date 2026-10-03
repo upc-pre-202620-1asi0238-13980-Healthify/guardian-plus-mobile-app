@@ -142,11 +142,11 @@ fun AlertSettingsContent(
                         onBroadcastChange = onBroadcastChange
                     )
                 }
-                item(key = "wristband") {
-                    SettingsSection(title = stringResource(R.string.settings_section_wristband)) {
+                item(key = "sound") {
+                    SettingsSection(title = stringResource(R.string.settings_section_sound)) {
                         SettingSwitchRow(
                             title = stringResource(R.string.settings_silent_mode),
-                            detail = stringResource(R.string.settings_silent_mode_detail),
+                            detail = stringResource(R.string.settings_silent_mode_detail, DemoSession.CARE_RECIPIENT_FIRST_NAME),
                             iconRes = R.drawable.ic_bell_off,
                             checked = settings.silentModeEnabled,
                             enabled = !uiState.isSavingSettings,

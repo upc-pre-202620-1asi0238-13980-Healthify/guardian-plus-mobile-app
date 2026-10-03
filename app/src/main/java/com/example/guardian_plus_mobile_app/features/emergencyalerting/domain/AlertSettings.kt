@@ -4,6 +4,7 @@ data class AlertSettings(
     val careRecipientProfileId: String,
     val primaryAckTimeoutSec: Int,
     val escalationEnabled: Boolean,
+    // Non-critical alerts reach the Care Circle phones without sound (US22)
     val silentModeEnabled: Boolean,
     val broadcastCriticalImmediately: Boolean
 )
