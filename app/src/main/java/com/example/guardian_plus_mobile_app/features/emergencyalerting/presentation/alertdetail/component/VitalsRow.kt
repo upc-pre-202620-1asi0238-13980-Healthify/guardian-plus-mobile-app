@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.StatusChip
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.dataMetric
 
 /** Heart rate and SpO2 at the moment of the alert (Health Monitoring, simulated for now). */

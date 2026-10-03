@@ -5,8 +5,19 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface AlertService {
+
+    @GET("alerts")
+    suspend fun getAlertHistory(
+        @Query("careRecipientProfileId") careRecipientProfileId: String,
+        @Query("severity") severity: String?,
+        @Query("from") from: String?,
+        @Query("to") to: String?,
+        @Query("page") page: Int,
+        @Query("size") size: Int
+    ): Response<PageDto<AlertSummaryDto>>
 
     @GET("alerts/active/care-recipient/{careRecipientProfileId}")
     suspend fun getActiveAlerts(

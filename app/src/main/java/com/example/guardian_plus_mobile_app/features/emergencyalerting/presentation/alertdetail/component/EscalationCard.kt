@@ -34,6 +34,7 @@ import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.Em
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.RecipientLevel
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alertdetail.ContactStatus
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alertdetail.EscalationContact
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.StatusChip
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.formatCountdown
 
 /**
@@ -177,33 +178,6 @@ private fun ContactStatusChip(modifier: Modifier = Modifier, status: ContactStat
         content = content,
         showCheck = positive
     )
-}
-
-@Composable
-fun StatusChip(
-    modifier: Modifier = Modifier,
-    text: String,
-    container: Color,
-    content: Color,
-    showCheck: Boolean = false
-) {
-    Row(
-        modifier = modifier
-            .background(container, MaterialTheme.shapes.extraLarge)
-            .padding(horizontal = 10.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        if (showCheck) {
-            Icon(
-                painter = painterResource(R.drawable.ic_check),
-                contentDescription = null,
-                tint = content,
-                modifier = Modifier.size(12.dp)
-            )
-        }
-        Text(text = text, style = MaterialTheme.typography.labelMedium, color = content)
-    }
 }
 
 @Preview(showBackground = true)

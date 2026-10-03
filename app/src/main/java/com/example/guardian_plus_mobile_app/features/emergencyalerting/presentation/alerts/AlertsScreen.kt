@@ -4,27 +4,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
 import com.example.guardian_plus_mobile_app.core.session.DemoSession
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.activealerts.ActiveAlertsScreen
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.activealerts.ActiveAlertsViewModel
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alerthistory.AlertHistoryScreen
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alerts.component.AlertsHeader
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alerts.component.AlertsTab
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alerts.component.AlertsTabRow
@@ -54,7 +49,7 @@ fun AlertsScreen(
                 onAlertClick = onAlertClick,
                 onCallClick = { context.dial(DemoSession.CARE_RECIPIENT_PHONE) }
             )
-            AlertsTab.HISTORY -> HistoryPlaceholder()
+            AlertsTab.HISTORY -> AlertHistoryScreen(onAlertClick = onAlertClick)
         }
     }
 }
@@ -84,23 +79,6 @@ fun AlertsContent(
     }
 }
 
-@Composable
-private fun HistoryPlaceholder(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = stringResource(R.string.alerts_history_coming_soon),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
 /** "María Rojas" → "MR". */
 private fun String.initials(): String =
     split(" ").filter { it.isNotBlank() }.take(2).joinToString("") { it.first().uppercase() }
@@ -109,8 +87,6 @@ private fun String.initials(): String =
 @Composable
 private fun AlertsContentPreview() {
     GuardianTheme(dynamicColor = false) {
-        AlertsContent(activeCount = 3, selectedTab = AlertsTab.HISTORY, onTabSelected = {}) {
-            HistoryPlaceholder()
-        }
+        AlertsContent(activeCount = 3, selectedTab = AlertsTab.ACTIVE, onTabSelected = {}) {}
     }
 }

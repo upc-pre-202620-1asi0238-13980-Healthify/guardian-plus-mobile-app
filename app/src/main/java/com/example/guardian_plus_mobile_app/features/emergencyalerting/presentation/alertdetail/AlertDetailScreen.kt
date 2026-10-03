@@ -35,8 +35,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
-import com.example.guardian_plus_mobile_app.core.designsystem.theme.noticeContainer
-import com.example.guardian_plus_mobile_app.core.designsystem.theme.onNoticeContainer
 import com.example.guardian_plus_mobile_app.core.session.DemoSession
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.Alert
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.AlertContext
@@ -61,6 +59,7 @@ import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentat
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alertdetail.component.LocationCard
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alertdetail.component.NotesDialog
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alertdetail.component.VitalsRow
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.colors
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.dial
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.labelRes
 import java.time.Instant
@@ -307,24 +306,10 @@ private fun DetailBody(
 
 /** Label and colors of the chip at the top right: the incident's state once there is one, else the alert's. */
 @Composable
-private fun statusChip(alert: Alert?, incident: Incident?): Pair<String?, Pair<Color, Color>> {
-    val colors = MaterialTheme.colorScheme
-    if (incident != null) {
-        val pair = when (incident.status) {
-            IncidentStatus.IN_ATTENTION -> colors.tertiaryContainer to colors.tertiary
-            IncidentStatus.STABILIZED -> colors.primaryContainer to colors.onPrimaryContainer
-            IncidentStatus.CLOSED -> colors.surfaceVariant to colors.onSurfaceVariant
-        }
-        return stringResource(incident.status.labelRes()) to pair
-    }
-    if (alert == null) return null to (colors.surfaceVariant to colors.onSurfaceVariant)
-    val pair = when (alert.status) {
-        AlertStatus.PENDING_CONFIRMATION -> colors.noticeContainer to colors.onNoticeContainer
-        AlertStatus.TRIGGERED, AlertStatus.ESCALATED -> colors.errorContainer to colors.onErrorContainer
-        AlertStatus.ACKNOWLEDGED -> colors.tertiaryContainer to colors.tertiary
-        AlertStatus.DISMISSED, AlertStatus.RESOLVED -> colors.surfaceVariant to colors.onSurfaceVariant
-    }
-    return stringResource(alert.status.labelRes()) to pair
+private fun statusChip(alert: Alert?, incident: Incident?): Pair<String?, Pair<Color, Color>> = when {
+    incident != null -> stringResource(incident.status.labelRes()) to incident.status.colors()
+    alert != null -> stringResource(alert.status.labelRes()) to alert.status.colors()
+    else -> null to (MaterialTheme.colorScheme.surfaceVariant to MaterialTheme.colorScheme.onSurfaceVariant)
 }
 
 @Composable

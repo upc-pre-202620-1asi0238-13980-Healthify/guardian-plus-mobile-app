@@ -97,10 +97,12 @@ private val clock: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 fun formatClockTime(instant: Instant, withSeconds: Boolean = false): String =
     (if (withSeconds) clockWithSeconds else clock).format(instant.atZone(ZoneId.systemDefault()))
 
-/** "48 s", "18 min" or "1 h 05 min". */
+/** "48 s", "1 min 22 s" (seconds matter while it is short), "18 min" or "1 h 05 min". */
 @Composable
 fun formatDuration(seconds: Long): String = when {
     seconds < 60 -> stringResource(R.string.duration_seconds, seconds.toInt())
+    seconds < 600 && seconds % 60 != 0L ->
+        stringResource(R.string.duration_minutes_seconds, (seconds / 60).toInt(), (seconds % 60).toInt())
     seconds < 3_600 -> stringResource(R.string.duration_minutes, (seconds / 60).toInt())
     else -> stringResource(R.string.duration_hours, (seconds / 3_600).toInt(), ((seconds % 3_600) / 60).toInt())
 }

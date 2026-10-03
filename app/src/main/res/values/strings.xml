@@ -49,7 +49,6 @@
     </plurals>
     <string name="alerts_tab_active">Activas</string>
     <string name="alerts_tab_history">Historial</string>
-    <string name="alerts_history_coming_soon">El historial de alertas estará disponible pronto.</string>
 
     <!-- Active alerts -->
     <string name="active_alerts_others">Otras alertas activas</string>
@@ -143,6 +142,7 @@
     <string name="detail_summary_notes">Notas</string>
     <string name="duration_seconds">%1$d s</string>
     <string name="duration_minutes">%1$d min</string>
+    <string name="duration_minutes_seconds">%1$d min %2$d s</string>
     <string name="duration_hours">%1$d h %2$d min</string>
     <string name="action_acknowledge_alert">Reconocer alerta</string>
     <string name="action_on_my_way">Voy en camino</string>
@@ -160,4 +160,22 @@
     <string name="notes_dialog_label">Notas (opcional)</string>
     <string name="notes_dialog_placeholder">Ej. Caída sin lesiones, ya está acostada.</string>
     <string name="someone_on_the_way">%1$s va en camino</string>
+    <!-- Alert history -->
+    <string name="history_filter_all">Todas</string>
+    <string name="history_filter_critical">Críticas</string>
+    <string name="history_filter_high">Altas</string>
+    <string name="history_filter_medium">Medias</string>
+    <string name="history_summary_total">Alertas · 7 días</string>
+    <string name="history_summary_response">Respuesta media</string>
+    <string name="history_summary_escalated">Escaladas</string>
+    <string name="history_summary_no_value">—</string>
+    <string name="history_today">Hoy</string>
+    <string name="history_yesterday">Ayer</string>
+    <string name="history_acknowledged_in">Reconocida en %1$s</string>
+    <string name="history_dismissed_detail">%1$s confirmó desde la pulsera que está bien</string>
+    <string name="history_waiting_acknowledgement">Sin reconocer</string>
+    <string name="history_waiting_confirmation">Esperando que %1$s confirme</string>
+    <string name="history_empty_title">Sin alertas en el historial</string>
+    <string name="history_empty_message">Cuando ocurra una alerta, quedará registrada aquí con todo su seguimiento.</string>
+    <string name="history_empty_filtered">No hay alertas de severidad %1$s.</string>
 </resources>

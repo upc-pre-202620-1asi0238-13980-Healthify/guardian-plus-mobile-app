@@ -2,6 +2,7 @@ package com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastr
 
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.Alert
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.AlertDelivery
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.AlertPage
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.AlertResponse
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.AlertSettings
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.AlertSourceType
@@ -66,4 +67,11 @@ fun AlertSettingsDto.toDomain(): AlertSettings = AlertSettings(
     escalationEnabled = escalationEnabled,
     silentModeEnabled = silentModeEnabled,
     broadcastCriticalImmediately = broadcastCriticalImmediately
+)
+
+fun PageDto<AlertSummaryDto>.toDomain(): AlertPage = AlertPage(
+    alerts = content.map { it.toDomain() },
+    page = page,
+    totalPages = totalPages,
+    totalElements = totalElements
 )
