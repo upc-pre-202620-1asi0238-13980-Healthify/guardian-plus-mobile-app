@@ -52,7 +52,8 @@ fun ActiveAlertsScreen(
     modifier: Modifier = Modifier,
     viewModel: ActiveAlertsViewModel = hiltViewModel(),
     onAlertClick: (String) -> Unit,
-    onCallClick: () -> Unit
+    onCallClick: () -> Unit,
+    onManageContactsClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -79,7 +80,8 @@ fun ActiveAlertsScreen(
             onAlertClick = onAlertClick,
             onAcknowledgeClick = viewModel::acknowledge,
             onCallClick = onCallClick,
-            onRetryClick = viewModel::loadAlerts
+            onRetryClick = viewModel::loadAlerts,
+            onManageContactsClick = onManageContactsClick
         )
         SnackbarHost(
             hostState = snackbarHostState,
@@ -95,7 +97,8 @@ fun ActiveAlertsContent(
     onAlertClick: (String) -> Unit,
     onAcknowledgeClick: (String) -> Unit,
     onCallClick: () -> Unit,
-    onRetryClick: () -> Unit
+    onRetryClick: () -> Unit,
+    onManageContactsClick: () -> Unit
 ) {
     val hasAlerts = uiState.activeCount > 0
 
@@ -153,7 +156,7 @@ fun ActiveAlertsContent(
             }
             if (uiState.escalationEnabled) {
                 item(key = "escalation-notice") {
-                    EscalationNotice(ackTimeoutSec = uiState.ackTimeoutSec)
+                    EscalationNotice(ackTimeoutSec = uiState.ackTimeoutSec, onManageContactsClick = onManageContactsClick)
                 }
             }
         }
@@ -291,7 +294,8 @@ private fun ActiveAlertsContentPreview() {
             onAlertClick = {},
             onAcknowledgeClick = {},
             onCallClick = {},
-            onRetryClick = {}
+            onRetryClick = {},
+            onManageContactsClick = {}
         )
     }
 }
@@ -305,7 +309,8 @@ private fun ActiveAlertsContentLoadingPreview() {
             onAlertClick = {},
             onAcknowledgeClick = {},
             onCallClick = {},
-            onRetryClick = {}
+            onRetryClick = {},
+            onManageContactsClick = {}
         )
     }
 }
@@ -319,7 +324,8 @@ private fun ActiveAlertsContentErrorPreview() {
             onAlertClick = {},
             onAcknowledgeClick = {},
             onCallClick = {},
-            onRetryClick = {}
+            onRetryClick = {},
+            onManageContactsClick = {}
         )
     }
 }
@@ -333,7 +339,8 @@ private fun ActiveAlertsContentEmptyPreview() {
             onAlertClick = {},
             onAcknowledgeClick = {},
             onCallClick = {},
-            onRetryClick = {}
+            onRetryClick = {},
+            onManageContactsClick = {}
         )
     }
 }

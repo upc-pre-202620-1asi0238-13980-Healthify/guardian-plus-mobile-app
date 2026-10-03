@@ -29,7 +29,9 @@ import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentat
 @Composable
 fun AlertsScreen(
     modifier: Modifier = Modifier,
-    onAlertClick: (String) -> Unit
+    onAlertClick: (String) -> Unit,
+    onSettingsClick: () -> Unit,
+    onManageContactsClick: () -> Unit
 ) {
     // Same instance that ActiveAlertsScreen uses, since both live in this navigation entry
     val activeAlertsViewModel: ActiveAlertsViewModel = hiltViewModel()
@@ -41,13 +43,15 @@ fun AlertsScreen(
         modifier = modifier,
         activeCount = activeAlertsState.activeCount,
         selectedTab = selectedTab,
-        onTabSelected = { selectedTab = it }
+        onTabSelected = { selectedTab = it },
+        onSettingsClick = onSettingsClick
     ) {
         when (selectedTab) {
             AlertsTab.ACTIVE -> ActiveAlertsScreen(
                 viewModel = activeAlertsViewModel,
                 onAlertClick = onAlertClick,
-                onCallClick = { context.dial(DemoSession.CARE_RECIPIENT_PHONE) }
+                onCallClick = { context.dial(DemoSession.CARE_RECIPIENT_PHONE) },
+                onManageContactsClick = onManageContactsClick
             )
             AlertsTab.HISTORY -> AlertHistoryScreen(onAlertClick = onAlertClick)
         }
@@ -60,13 +64,15 @@ fun AlertsContent(
     activeCount: Int,
     selectedTab: AlertsTab,
     onTabSelected: (AlertsTab) -> Unit,
+    onSettingsClick: () -> Unit,
     tabContent: @Composable () -> Unit
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         AlertsHeader(
             userInitials = DemoSession.CURRENT_USER_NAME.initials(),
             careRecipientName = DemoSession.CARE_RECIPIENT_NAME,
-            activeCount = activeCount
+            activeCount = activeCount,
+            onSettingsClick = onSettingsClick
         )
         AlertsTabRow(
             modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 16.dp),
@@ -87,6 +93,6 @@ private fun String.initials(): String =
 @Composable
 private fun AlertsContentPreview() {
     GuardianTheme(dynamicColor = false) {
-        AlertsContent(activeCount = 3, selectedTab = AlertsTab.ACTIVE, onTabSelected = {}) {}
+        AlertsContent(activeCount = 3, selectedTab = AlertsTab.ACTIVE, onTabSelected = {}, onSettingsClick = {}) {}
     }
 }

@@ -178,4 +178,53 @@
     <string name="history_empty_title">Sin alertas en el historial</string>
     <string name="history_empty_message">Cuando ocurra una alerta, quedará registrada aquí con todo su seguimiento.</string>
     <string name="history_empty_filtered">No hay alertas de severidad %1$s.</string>
+    <!-- Alert settings entry points -->
+    <string name="alerts_open_settings">Configurar alertas</string>
+    <string name="active_alerts_manage_contacts">Gestionar contactos de emergencia</string>
+
+    <!-- Emergency contacts -->
+    <string name="contacts_title">Contactos de emergencia</string>
+    <string name="contacts_order_explanation">Reciben las alertas de %1$s en este orden. Si el primero no responde en %2$d s, se avisa a los siguientes.</string>
+    <string name="contacts_role_primary">Principal</string>
+    <string name="contacts_role_secondary">Secundario %1$d</string>
+    <string name="contacts_move_up">Subir a %1$s</string>
+    <string name="contacts_move_down">Bajar a %1$s</string>
+    <string name="contacts_remove">Eliminar a %1$s</string>
+    <string name="contacts_add">Agregar contacto</string>
+    <string name="contacts_empty">%1$s todavía no tiene contactos de emergencia. Agrega al menos uno para que las alertas lleguen a alguien.</string>
+    <string name="contacts_last_one_hint">Debe quedar al menos un contacto: es quien recibe las alertas primero.</string>
+    <string name="contacts_remove_title">¿Eliminar a %1$s?</string>
+    <string name="contacts_remove_message">Dejará de recibir las alertas de %1$s. El resto de la lista sube un lugar.</string>
+    <string name="contacts_remove_confirm">Eliminar</string>
+    <string name="contacts_add_title">Nuevo contacto de emergencia</string>
+    <string name="contacts_add_subtitle">Se agregará al final de la lista de %1$s.</string>
+    <string name="contacts_field_name">Nombre completo</string>
+    <string name="contacts_field_relationship">Parentesco</string>
+    <string name="contacts_field_relationship_hint">Ej. Hija, vecino, cuidadora</string>
+    <string name="contacts_field_phone">Teléfono con código de país</string>
+    <string name="contacts_error_name">Escribe el nombre (máximo 100 caracteres)</string>
+    <string name="contacts_error_relationship">Escribe el parentesco (máximo 50 caracteres)</string>
+    <string name="contacts_error_phone">Usa el formato internacional, por ejemplo +51987654321</string>
+    <string name="contacts_save">Guardar contacto</string>
+
+    <!-- Alert settings -->
+    <string name="settings_title">Configuración de alertas</string>
+    <string name="settings_contacts_summary">%1$d contactos · %2$s es el principal</string>
+    <string name="settings_contacts_summary_one">1 contacto · %1$s</string>
+    <string name="settings_contacts_summary_none">Ningún contacto todavía</string>
+    <string name="settings_section_escalation">Escalamiento</string>
+    <string name="settings_escalation_enabled">Avisar a los siguientes contactos</string>
+    <string name="settings_escalation_enabled_detail">Si el contacto principal no reconoce una alerta crítica o alta, se envía a los demás.</string>
+    <string name="settings_timeout">Tiempo de espera antes de escalar</string>
+    <string name="settings_timeout_value">%1$d s</string>
+    <string name="settings_broadcast_critical">Avisar a todos ante caídas y SOS</string>
+    <string name="settings_broadcast_critical_detail">Las alertas críticas llegan a todo el círculo de cuidado al mismo tiempo.</string>
+    <string name="settings_section_wristband">Pulsera</string>
+    <string name="settings_silent_mode">Modo silencioso</string>
+    <string name="settings_silent_mode_detail">La pulsera vibra en lugar de sonar. Las alertas críticas y el SOS siempre suenan.</string>
+    <string name="settings_section_channels">Cómo te avisamos a ti</string>
+    <string name="settings_channel_push">Notificación push</string>
+    <string name="settings_channel_sms">Mensaje de texto (SMS)</string>
+    <string name="settings_channel_in_app">Dentro de la app</string>
+    <string name="settings_channels_note">Las alertas críticas siempre se respaldan por SMS. Debe quedar al menos un canal activo.</string>
 </resources>

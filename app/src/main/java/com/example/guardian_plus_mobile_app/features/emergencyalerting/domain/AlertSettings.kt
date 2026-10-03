@@ -7,3 +7,9 @@ data class AlertSettings(
     val silentModeEnabled: Boolean,
     val broadcastCriticalImmediately: Boolean
 )
+
+/** Limits the platform accepts for the acknowledgement timeout (AckTimeout value object). */
+object AckTimeoutLimits {
+    const val MIN_SECONDS = 15
+    const val MAX_SECONDS = 300
+}

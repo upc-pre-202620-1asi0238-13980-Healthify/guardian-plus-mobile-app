@@ -1,6 +1,8 @@
 package com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.activealerts.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,7 +25,11 @@ import com.example.guardian_plus_mobile_app.core.designsystem.theme.onNoticeCont
 
 /** Yellow notice that explains the escalation rule, using the timeout configured for the person under care. */
 @Composable
-fun EscalationNotice(modifier: Modifier = Modifier, ackTimeoutSec: Int) {
+fun EscalationNotice(
+    modifier: Modifier = Modifier,
+    ackTimeoutSec: Int,
+    onManageContactsClick: () -> Unit
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -37,11 +43,22 @@ fun EscalationNotice(modifier: Modifier = Modifier, ackTimeoutSec: Int) {
             modifier = Modifier.size(16.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = stringResource(R.string.active_alerts_escalation_notice, ackTimeoutSec),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onNoticeContainer
-        )
+        Column {
+            Text(
+                text = stringResource(R.string.active_alerts_escalation_notice, ackTimeoutSec),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onNoticeContainer
+            )
+            Text(
+                text = stringResource(R.string.active_alerts_manage_contacts),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .clickable(onClick = onManageContactsClick)
+                    .padding(vertical = 4.dp)
+            )
+        }
     }
 }
 
@@ -49,6 +66,6 @@ fun EscalationNotice(modifier: Modifier = Modifier, ackTimeoutSec: Int) {
 @Composable
 private fun EscalationNoticePreview() {
     GuardianTheme(dynamicColor = false) {
-        EscalationNotice(ackTimeoutSec = 60)
+        EscalationNotice(ackTimeoutSec = 60, onManageContactsClick = {})
     }
 }

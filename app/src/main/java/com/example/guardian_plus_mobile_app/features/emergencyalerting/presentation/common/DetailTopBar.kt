@@ -1,4 +1,4 @@
-package com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alertdetail.component
+package com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -25,16 +25,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
-import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.StatusChip
 
+/** Top bar of the screens opened from a list: back button, title, subtitle and an optional state chip. */
 @Composable
-fun AlertDetailTopBar(
+fun DetailTopBar(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String,
-    statusLabel: String?,
-    statusContainer: Color,
-    statusContent: Color,
+    statusLabel: String? = null,
+    statusContainer: Color = Color.Unspecified,
+    statusContent: Color = Color.Unspecified,
     onBackClick: () -> Unit
 ) {
     Column(modifier = modifier.background(MaterialTheme.colorScheme.surface)) {
@@ -76,9 +76,9 @@ fun AlertDetailTopBar(
 
 @Preview
 @Composable
-private fun AlertDetailTopBarPreview() {
+private fun DetailTopBarPreview() {
     GuardianTheme(dynamicColor = false) {
-        AlertDetailTopBar(
+        DetailTopBar(
             title = "Detalle de alerta",
             subtitle = "Elena Rojas",
             statusLabel = "Nueva",

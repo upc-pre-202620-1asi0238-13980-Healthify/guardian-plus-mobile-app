@@ -1,5 +1,6 @@
 package com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.di
 
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.remote.AlertChannelSettingService
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.remote.AlertService
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.remote.AlertSettingsService
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.remote.EmergencyContactService
@@ -25,6 +26,12 @@ object EmergencyAlertingApiModule {
     @Singleton
     fun provideAlertSettingsService(retrofit: Retrofit): AlertSettingsService {
         return retrofit.create(AlertSettingsService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAlertChannelSettingService(retrofit: Retrofit): AlertChannelSettingService {
+        return retrofit.create(AlertChannelSettingService::class.java)
     }
 
     @Provides

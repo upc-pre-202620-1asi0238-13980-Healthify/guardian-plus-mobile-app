@@ -1,5 +1,6 @@
 package com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alerts.component
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,11 +11,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,7 +32,8 @@ fun AlertsHeader(
     modifier: Modifier = Modifier,
     userInitials: String,
     careRecipientName: String,
-    activeCount: Int
+    activeCount: Int,
+    onSettingsClick: () -> Unit
 ) {
     Column(modifier = modifier.background(MaterialTheme.colorScheme.surface)) {
         Row(
@@ -72,6 +77,22 @@ fun AlertsHeader(
                         .padding(horizontal = 10.dp, vertical = 4.dp)
                 )
             }
+            // "Configurar" of the report: emergency contacts and alert settings
+            OutlinedIconButton(
+                onClick = onSettingsClick,
+                shape = MaterialTheme.shapes.medium,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .size(44.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_settings),
+                    contentDescription = stringResource(R.string.alerts_open_settings),
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outline)
     }
@@ -81,6 +102,6 @@ fun AlertsHeader(
 @Composable
 private fun AlertsHeaderPreview() {
     GuardianTheme(dynamicColor = false) {
-        AlertsHeader(userInitials = "MR", careRecipientName = "Elena Rojas", activeCount = 3)
+        AlertsHeader(userInitials = "MR", careRecipientName = "Elena Rojas", activeCount = 3, onSettingsClick = {})
     }
 }

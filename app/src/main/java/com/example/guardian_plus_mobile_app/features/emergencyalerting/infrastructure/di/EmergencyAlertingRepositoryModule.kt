@@ -1,10 +1,12 @@
 package com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.di
 
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.AlertChannelSettingRepository
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.AlertContextRepository
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.AlertRepository
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.AlertSettingsRepository
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.EmergencyContactRepository
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.IncidentRepository
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.repositories.AlertChannelSettingRepositoryImpl
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.repositories.AlertRepositoryImpl
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.repositories.AlertSettingsRepositoryImpl
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.repositories.EmergencyContactRepositoryImpl
@@ -24,6 +26,9 @@ interface EmergencyAlertingRepositoryModule {
 
     @Binds
     fun bindAlertSettingsRepository(impl: AlertSettingsRepositoryImpl): AlertSettingsRepository
+
+    @Binds
+    fun bindAlertChannelSettingRepository(impl: AlertChannelSettingRepositoryImpl): AlertChannelSettingRepository
 
     @Binds
     fun bindIncidentRepository(impl: IncidentRepositoryImpl): IncidentRepository

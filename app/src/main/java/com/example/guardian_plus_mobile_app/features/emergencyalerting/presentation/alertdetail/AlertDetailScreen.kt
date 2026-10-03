@@ -49,7 +49,6 @@ import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.No
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.RecipientLevel
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.Severity
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alertdetail.component.AlertDetailActions
-import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alertdetail.component.AlertDetailTopBar
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alertdetail.component.AlertHeroCard
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alertdetail.component.AvailableActions
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alertdetail.component.DeviceCard
@@ -59,6 +58,7 @@ import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentat
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alertdetail.component.LocationCard
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alertdetail.component.NotesDialog
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alertdetail.component.VitalsRow
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.DetailTopBar
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.colors
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.dial
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.labelRes
@@ -140,7 +140,7 @@ fun AlertDetailContent(
     val (statusLabel, statusColors) = statusChip(alert, uiState.incident)
 
     Column(modifier = modifier.fillMaxSize()) {
-        AlertDetailTopBar(
+        DetailTopBar(
             title = stringResource(
                 if (alert?.sourceType == AlertSourceType.SOS_TRIGGERED) R.string.detail_title_sos else R.string.detail_title
             ),
