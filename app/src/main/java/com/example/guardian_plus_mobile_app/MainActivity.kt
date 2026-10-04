@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier){ 
-    LoginScreen(modifier)
+    LoginScreen()
 }
 
 @Preview(showBackground = true)
@@ -42,4 +42,4 @@ fun GreetingPreview() {
     GuardianplusmobileappTheme {
         Greeting("Android")
     }
-}
+ }

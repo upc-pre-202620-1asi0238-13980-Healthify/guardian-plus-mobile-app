@@ -1,9 +1,10 @@
 package com.example.guardian_plus_mobile_app.features.auth.presentation
-
-
+import com.example.guardian_plus_mobile_app.features.auth.presentation.LoginUiState
 import com.example.guardian_plus_mobile_app.ui.theme.LabelCaps
-import android.graphics.Paint
+import com.example.guardian_plus_mobile_app.R
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,10 +20,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.materialIcon
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -38,53 +42,45 @@ import com.example.guardian_plus_mobile_app.ui.theme.SheetBg
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.VerifiedUser
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
-import androidx.core.content.res.FontResourcesParserCompat
+import com.example.guardian_plus_mobile_app.ui.theme.BrandGreen
 import com.example.guardian_plus_mobile_app.ui.theme.FieldBorder
+import com.example.guardian_plus_mobile_app.ui.theme.MintBg
 import com.example.guardian_plus_mobile_app.ui.theme.TextMuted
+import com.example.guardian_plus_mobile_app.ui.theme.TextPrimary
 
 
 @Composable
-fun LoginScreen(
-    modifier: Modifier = Modifier,
-    onLoginSuccess: () -> Unit = {},
-    onForgotPassword: () -> Unit = {},
-    onRegister: () -> Unit = {}
+fun LoginHeader(
+    
 ) {
 
     //useStates, para recordar variables y que se actualicen en tiempo real
 
-    var email by remember {
-        mutableStateOf("")
-    }
-    var password by remember { mutableStateOf("")}
-    var showPw by remember { mutableStateOf(false)}
-    var loading by remember { mutableStateOf(false)}
-    var error by remember{ mutableStateOf("")}
-
-
-    val scope = rememberCoroutineScope()
-
-    fun handleLogin() {
-        if (email.isBlank() || password.isBlank()) {
-            error = "Completa todos los campos para continuar"
-            return
-        }
-
-        error = ""
-        loading = true
-        scope.launch {
-            delay(1200)
-            loading = false
-            onLoginSuccess()
-        }
-    }
-    Column(
-        modifier = Modifier.fillMaxSize().background(SheetBg).verticalScroll(rememberScrollState())
+       Column(
+        modifier = Modifier.fillMaxWidth()
     ) {
         //header
         Column(
@@ -153,16 +149,30 @@ fun LoginScreen(
             
                 }
 
-                LoginSurface()
-
         
        
     }
 }
-
+ 
 @Composable
-private fun LoginSurface() {
+fun LoginSurface(
+    state: LoginUiState,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onTogglePasswordVisibility: () -> Unit,
+    onLoginClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    onForgotPassword: () -> Unit = {},
+    onRegister: () -> Unit = {},
+    onGoogleClick: () -> Unit = {},
+    onBiometricClick: () -> Unit = {}
+) {
 
+
+    Column(
+        modifier = modifier.fillMaxSize().background(SheetBg).verticalScroll(rememberScrollState())
+    ) {
+    LoginHeader()
     //Sheet
         Surface(
             color = SheetBg, shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
@@ -193,16 +203,235 @@ private fun LoginSurface() {
                    fontSize = 15.sp
                )
 
-               val email = remember {
-                   mutableStateOf("")
-               }
                //email
                FieldLabel(text = "CORREO ELECTRONICO")
                Spacer(modifier = Modifier.height(8.dp))
-                   onValueChange = "Email"
+               OutlinedTextField(
+                   value = state.email,
+                   onValueChange = onEmailChange,
+                   placeholder = {Text(text = "nombre@correo.com", color = TextMuted)},
+                   singleLine = true,
+                   keyboardOptions = KeyboardOptions(
+                       keyboardType = KeyboardType.Email,
+                       imeAction = ImeAction.Next
+                   ),
+                   shape = RoundedCornerShape(14.dp),
+                   modifier = Modifier.fillMaxWidth(),
+                   colors = loginFieldColors()
                )
-           } 
+
+               Spacer(modifier = Modifier.height(16.dp))
+
+               //password
+               FieldLabel("Password")
+               Spacer(modifier = Modifier.height(8.dp))
+               OutlinedTextField(
+                   value = state.password,
+                   onValueChange = onPasswordChange,
+                   placeholder = {Text(text= "Ingrese u contrasena aca", color = TextMuted)},
+                   shape = RoundedCornerShape(14.dp),
+                   singleLine = true,
+                   modifier = Modifier.fillMaxWidth(),
+                   colors = loginFieldColors(),
+                   visualTransformation = if (state.isPasswordHidden) {
+                       PasswordVisualTransformation()
+                   }
+                   else {
+                       VisualTransformation.None
+                   },
+                   keyboardActions = KeyboardActions(onDone = {onLoginClick()}),
+                   trailingIcon = {
+                       IconButton(onClick = onTogglePasswordVisibility) {
+                           Icon(
+                               imageVector = if (state.isPasswordHidden) Icons.Outlined.Visibility
+                               else Icons.Outlined.VisibilityOff,
+                               contentDescription = if(state.isPasswordHidden) "Mostrar Contrasena"
+                               else "Ocultar Contrasena",
+                               tint = TextMuted
+                           )
+                       }
+                   }
+               )
+
+               Spacer(modifier = Modifier.height(12.dp))
+
+
+               //Forgot Passowrd
+               Text(
+                    text = "¿Olvidaste tu contraseña?",
+                    color = BrandGreen,
+                    fontSize = 13.sp,
+                    fontFamily = FontFamily.Monospace,
+                    modifier = Modifier
+                        .align(Alignment.End).clickable(onClick = onForgotPassword)
+                )
+
+                state.errorMessage?.let {
+                    message ->
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+    
+                            text = message,
+    
+                            color = MaterialTheme.colorScheme.error,
+    
+                            fontSize = 13.sp
+
+                        )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                //Main button
+               Button(
+                   onClick = onLoginClick,
+                   enabled = !state.isLoading,
+
+                   shape = CircleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = BrandGreen,
+                        contentColor = Color.White,
+                        disabledContainerColor = BrandGreen.copy(alpha = 0.7f),
+                        disabledContentColor = Color.White
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                ) {
+                    if (state.isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Outlined.VerifiedUser,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Ingresar de forma segura",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+
+                // Divider "o continúa con"
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = FieldBorder)
+                    Text(
+                        text = "o continúa con",
+                        color = TextMuted,
+                        fontSize = 12.sp,
+                        fontFamily = FontFamily.Monospace,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = FieldBorder)
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Google
+                OutlinedButton(
+                    onClick = onGoogleClick,
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, FieldBorder),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color.White,
+                        contentColor = TextPrimary
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_google),
+                        contentDescription = null,
+                        tint = Color.Unspecified, // keeps the original Google colors
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(text = "Continuar con Google", fontSize = 16.sp)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Biometric
+                Button(
+                    onClick = onBiometricClick,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MintBg,
+                        contentColor = BrandGreen
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 0.dp,
+                        pressedElevation = 0.dp
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Fingerprint,
+                        contentDescription = null,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(text = "Acceso biométrico", fontSize = 16.sp)
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Register
+                Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                    Text(text = "¿No tienes cuenta? ", color = TextMuted, fontSize = 15.sp)
+                    Text(
+                        text = "Crear cuenta",
+                        color = BrandGreen,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.clickable(onClick = onRegister)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Terms
+                Text(
+                    text = buildAnnotatedString {
+                        append("Al ingresar, aceptas los ")
+                        withStyle(SpanStyle(color = BrandGreen)) { append("Términos de uso") }
+                        append(" y la ")
+                        withStyle(SpanStyle(color = BrandGreen)) { append("Política de privacidad") }
+                    },
+                    color = TextMuted,
+                    fontSize = 11.sp,
+                    lineHeight = 16.sp,
+                    fontFamily = FontFamily.Monospace,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+
+               
+           }  
+        }
+
+
     }
+
 
 }
 @Composable
@@ -236,5 +465,48 @@ private fun FieldLabel(text: String) {
         fontSize = 12.sp,
         letterSpacing = 1.sp,
         fontWeight = FontWeight.Medium
+    )
+}
+
+@Composable
+private fun loginFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedContainerColor = Color.White,
+    unfocusedContainerColor = Color.White,
+    focusedBorderColor = BrandGreen,
+    unfocusedBorderColor = FieldBorder,
+    focusedTextColor = TextPrimary,
+    unfocusedTextColor = TextPrimary,
+    cursorColor = BrandGreen
+)
+
+
+@Composable
+fun LoginScreen(
+    modifier: Modifier = Modifier,
+    onLoginSuccess: () -> Unit = {}
+) {
+    var state by remember { mutableStateOf(LoginUiState()) }
+    val scope = rememberCoroutineScope()
+
+    LoginSurface(
+        state = state,
+        modifier = modifier,
+        onEmailChange = { state = state.copy(email = it, errorMessage = null) },
+        onPasswordChange = { state = state.copy(password = it, errorMessage = null) },
+        onTogglePasswordVisibility = {
+            state = state.copy(isPasswordHidden = !state.isPasswordHidden)
+        },
+        onLoginClick = {
+            if (state.email.isBlank() || state.password.isBlank()) {
+                state = state.copy(errorMessage = "Completa todos los campos para continuar")
+            } else {
+                state = state.copy(isLoading = true, errorMessage = null)
+                scope.launch {
+                    delay(1200)
+                    state = state.copy(isLoading = false)
+                    onLoginSuccess()
+                }
+            }
+        }
     )
 }
