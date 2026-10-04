@@ -1,6 +1,6 @@
 package com.example.guardian_plus_mobile_app.features.auth.presentation
 import com.example.guardian_plus_mobile_app.features.auth.presentation.LoginUiState
-import com.example.guardian_plus_mobile_app.ui.theme.LabelCaps
+import com.example.guardian_plus_mobile_app.core.designsystem.theme.LabelCaps
 import com.example.guardian_plus_mobile_app.R
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -37,8 +37,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.guardian_plus_mobile_app.ui.theme.Primary
-import com.example.guardian_plus_mobile_app.ui.theme.SheetBg
+import com.example.guardian_plus_mobile_app.core.designsystem.theme.Primary
+import com.example.guardian_plus_mobile_app.core.designsystem.theme.SheetBg
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.material.icons.Icons
@@ -65,11 +65,11 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
-import com.example.guardian_plus_mobile_app.ui.theme.BrandGreen
-import com.example.guardian_plus_mobile_app.ui.theme.FieldBorder
-import com.example.guardian_plus_mobile_app.ui.theme.MintBg
-import com.example.guardian_plus_mobile_app.ui.theme.TextMuted
-import com.example.guardian_plus_mobile_app.ui.theme.TextPrimary
+import com.example.guardian_plus_mobile_app.core.designsystem.theme.BrandGreen
+import com.example.guardian_plus_mobile_app.core.designsystem.theme.FieldBorder
+import com.example.guardian_plus_mobile_app.core.designsystem.theme.MintBg
+import com.example.guardian_plus_mobile_app.core.designsystem.theme.TextMuted
+import com.example.guardian_plus_mobile_app.core.designsystem.theme.TextPrimary
 
 
 @Composable
