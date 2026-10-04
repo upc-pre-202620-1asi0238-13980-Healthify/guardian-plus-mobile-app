@@ -29,3 +29,13 @@ val PastelYellowText = Color(0xFF806600)
 // exposed as ColorScheme extensions and still read as MaterialTheme.colorScheme.noticeContainer.
 val ColorScheme.noticeContainer: Color get() = PastelYellow
 val ColorScheme.onNoticeContainer: Color get() = PastelYellowText
+
+// Login screen colors (Primary is defined above)
+val BrandGreen = Color(0xFF2F6A57)      // header, primary button
+val BrandGreenDark = Color(0xFF27594A)  // gradient bottom
+val SheetBg = Color(0xFFF7F9F8)         // off-white sheet
+val FieldBorder = Color(0xFFE3E8E5)
+val TextPrimary = Color(0xFF1E2C27)
+val TextMuted = Color(0xFF6C7B75)
+val LabelCaps = Color(0xFF5A6B64)
+val MintBg = Color(0xFFD9F0E5)          // biometric button
