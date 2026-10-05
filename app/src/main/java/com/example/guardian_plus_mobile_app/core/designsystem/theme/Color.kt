@@ -38,4 +38,4 @@ val FieldBorder = Color(0xFFE3E8E5)
 val TextPrimary = Color(0xFF1E2C27)
 val TextMuted = Color(0xFF6C7B75)
 val LabelCaps = Color(0xFF5A6B64)
-val MintBg = Color(0xFFD9F0E5)          // biometric button
+val MintBg = Color(0xFFD9F0E5)          // biometric button above
