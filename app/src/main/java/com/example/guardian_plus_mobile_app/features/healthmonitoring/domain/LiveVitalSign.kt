@@ -12,5 +12,6 @@ data class LiveVitalSign(
     val normalMinimum: Double,
     val normalMaximum: Double,
     val classification: ReadingClassification,
+    // false when the reading is older than the live window (60s): It's the last known value, not a live one
     val liveSignal: Boolean
 )
