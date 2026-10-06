@@ -3,6 +3,7 @@ package com.example.guardian_plus_mobile_app.features.healthmonitoring.presentat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.time.ServerClock
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetLiveVitalSignsUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetWearableDevicesUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.DeviceType
@@ -21,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LiveVitalsViewModel @Inject constructor(
     private val getLiveVitalSigns: GetLiveVitalSignsUseCase,
-    private val getWearableDevices: GetWearableDevicesUseCase
+    private val getWearableDevices: GetWearableDevicesUseCase,
+    private val serverClock: ServerClock
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
         LiveVitalsUiState(careRecipientFirstName = DemoSession.CARE_RECIPIENT_FIRST_NAME)
@@ -54,12 +56,12 @@ class LiveVitalsViewModel @Inject constructor(
                 .onSuccess {  vitals ->
                     //this is basically updating the states that we previously defined
                     _uiState.update { 
-                        it.copy(isLoading = false, errorMessage = null, vitals = vitals, hasWristband = hasWristband)
+                        it.copy(isLoading = false, errorMessage = null, vitals = vitals, hasWristband = hasWristband, now = serverClock.now())
                     }
                 }
                 .onFailure { e ->
                     _uiState.update {
-                        it.copy(isLoading = false, hasWristband = hasWristband, errorMessage = e.message?: "No se pudieron cargar los signos vitales")
+                        it.copy(isLoading = false, hasWristband = hasWristband, now = serverClock.now(), errorMessage = e.message?: "No se pudieron cargar los signos vitales")
                     }
                 }
                 
