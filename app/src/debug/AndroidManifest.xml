@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug builds only: from targetSdk 37 the local network, the emulator alias 10.0.2.2 included, is blocked
+     unless the app holds this runtime permission. Gradle grants it on install (installOptions "-g") so the
+     app can reach a backend running on the host machine without adb reverse -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
+
+</manifest>

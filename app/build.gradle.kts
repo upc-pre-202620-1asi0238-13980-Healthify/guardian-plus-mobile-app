@@ -54,6 +54,10 @@ android {
         compose = true
         buildConfig = true
     }
+    installation {
+        // Grant runtime permissions on install, e.g. the debug-only ACCESS_LOCAL_NETWORK (src/debug)
+        installOptions += "-g"
+    }
 }
 
 dependencies {
