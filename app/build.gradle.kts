@@ -24,7 +24,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // Deployed Guardian+ platform. To try a backend running on your machine, set api.base.url in your
-        // own (git-ignored) local.properties, e.g. http://127.0.0.1:8080/api/v1/ plus adb reverse tcp:8080 tcp:8080
+        // own (git-ignored) local.properties: http://10.0.2.2:8080/api/v1/ on the emulator (its alias for the
+        // host machine), or http://127.0.0.1:8080/api/v1/ plus adb reverse tcp:8080 tcp:8080 on a physical phone
         val localProperties = Properties().apply {
             rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
         }
