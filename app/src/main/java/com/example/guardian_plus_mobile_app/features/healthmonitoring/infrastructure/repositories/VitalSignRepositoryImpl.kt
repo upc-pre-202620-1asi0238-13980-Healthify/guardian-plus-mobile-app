@@ -4,10 +4,12 @@ import com.example.guardian_plus_mobile_app.core.network.apiCall
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.LiveVitalSign
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.LiveVitalSigns
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.ReadingClassification
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignReading
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.repositories.VitalSignRepository
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.infrastructure.remote.services.VitalSignService
 import java.time.Instant
+import java.time.LocalDate
 import javax.inject.Inject
 
 
@@ -38,4 +40,21 @@ class VitalSignRepositoryImpl @Inject constructor(
                 }
             )
         }
+
+    override suspend fun getVitalSignHistory(
+        careRecipientProfileId: String,
+        from: LocalDate,
+        to: LocalDate
+    ): Result<List<VitalSignReading>> = apiCall({service.getVitalSignHistory(careRecipientProfileId, from.toString(), to.toString())}){
+        dtos -> dtos.map{
+            dto ->
+            VitalSignReading(
+                id = dto.id,
+                type = VitalSignType.valueOf(dto.vitalSignType),
+                value = dto.value,
+                measuredAt = Instant.parse(dto.measuredAt)
+            )
+        }
+
+    }    
 }

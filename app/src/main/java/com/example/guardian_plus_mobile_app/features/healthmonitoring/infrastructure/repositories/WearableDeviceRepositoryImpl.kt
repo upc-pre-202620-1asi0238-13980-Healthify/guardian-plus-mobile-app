@@ -22,7 +22,7 @@ class WearableDeviceRepositoryImpl @Inject constructor(
                     deviceType = DeviceType.valueOf(dto.deviceType),
                     linkedAt = Instant.parse(dto.linkedAt)
                 )
-
             }
+
         }
 }
