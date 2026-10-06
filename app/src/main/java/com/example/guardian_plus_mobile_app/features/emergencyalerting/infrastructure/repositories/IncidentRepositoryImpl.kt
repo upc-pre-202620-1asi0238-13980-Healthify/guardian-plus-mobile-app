@@ -4,7 +4,7 @@ import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.In
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.IncidentRepository
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.remote.IncidentService
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.remote.NotesRequestDto
-import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.remote.apiCall
+import com.example.guardian_plus_mobile_app.core.network.apiCall
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.remote.toDomain
 import javax.inject.Inject
 
