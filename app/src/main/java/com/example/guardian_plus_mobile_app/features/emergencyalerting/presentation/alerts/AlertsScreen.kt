@@ -17,6 +17,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
 import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.text.initials
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.activealerts.ActiveAlertsScreen
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.activealerts.ActiveAlertsViewModel
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alerthistory.AlertHistoryScreen
@@ -84,10 +85,6 @@ fun AlertsContent(
         }
     }
 }
-
-/** "María Rojas" → "MR". */
-private fun String.initials(): String =
-    split(" ").filter { it.isNotBlank() }.take(2).joinToString("") { it.first().uppercase() }
 
 @Preview(showBackground = true)
 @Composable
