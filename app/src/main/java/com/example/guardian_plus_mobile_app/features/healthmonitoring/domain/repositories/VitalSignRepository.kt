@@ -4,5 +4,5 @@ import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.Liv
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.WearableDevice
 
 interface VitalSignRepository {
-    suspend fun getLiveVitalSigns(careRecipientProfileId: String): Result<List<LiveVitalSigns>>
+    suspend fun getLiveVitalSigns(careRecipientProfileId: String): Result<LiveVitalSigns>
 }
