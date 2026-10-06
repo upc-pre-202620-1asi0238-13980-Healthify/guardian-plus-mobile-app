@@ -1,4 +1,4 @@
-package com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation
+package com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.livevitals
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.LiveVitalsUiState
+
 import javax.inject.Inject
 
 

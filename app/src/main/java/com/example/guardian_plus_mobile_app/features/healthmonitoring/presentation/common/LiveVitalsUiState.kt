@@ -1,4 +1,4 @@
-package com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation
+package com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common
 
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.LiveVitalSigns
 

@@ -2,7 +2,6 @@ package com.example.guardian_plus_mobile_app.features.healthmonitoring.applicati
 
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignReading
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.repositories.VitalSignRepository
-import jdk.vm.ci.meta.Local
 import java.time.LocalDate
 import javax.inject.Inject
 
