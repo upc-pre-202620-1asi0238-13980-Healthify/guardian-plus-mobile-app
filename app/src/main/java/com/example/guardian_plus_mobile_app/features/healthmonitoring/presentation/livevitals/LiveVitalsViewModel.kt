@@ -81,5 +81,6 @@ class LiveVitalsViewModel @Inject constructor(
 
         private companion object {
             const val AUTO_REFRESH_MS = 10_000L
+
         }
 }
