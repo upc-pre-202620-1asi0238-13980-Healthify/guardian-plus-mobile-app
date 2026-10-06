@@ -19,8 +19,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.guardian_plus_mobile_app.R
-import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.navigation.AlertsRoute
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.navigation.emergencyAlertingNavGraph
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.navigation.HomeRoute
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.navigation.healthMonitoringNavGraph
 
 @Composable
 fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -52,11 +53,15 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = AlertsRoute,
+            // The prototype opens on "Inicio"
+            startDestination = HomeRoute,
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable<HomeRoute> { PlaceholderScreen(title = stringResource(R.string.nav_home)) }
-            composable<HealthRoute> { PlaceholderScreen(title = stringResource(R.string.nav_health)) }
+            healthMonitoringNavGraph(
+                onOpenHealth = { openTab(TopLevelDestination.HEALTH) },
+                onOpenAlerts = { openTab(TopLevelDestination.ALERTS) },
+                onOpenLocation = { openTab(TopLevelDestination.LOCATION) }
+            )
             composable<RoutinesRoute> { PlaceholderScreen(title = stringResource(R.string.nav_routines)) }
             composable<LocationRoute> { PlaceholderScreen(title = stringResource(R.string.nav_location)) }
             emergencyAlertingNavGraph(

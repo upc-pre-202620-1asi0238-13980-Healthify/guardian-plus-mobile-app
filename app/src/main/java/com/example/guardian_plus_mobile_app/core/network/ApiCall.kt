@@ -1,5 +1,6 @@
-package com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.remote
+package com.example.guardian_plus_mobile_app.core.network
 
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.remote.errorMessage
 import java.io.IOException
 import kotlin.coroutines.cancellation.CancellationException
 import retrofit2.Response
