@@ -227,4 +227,54 @@
     <string name="settings_channel_sms">Mensaje de texto (SMS)</string>
     <string name="settings_channel_in_app">Dentro de la app</string>
     <string name="settings_channels_note">Las alertas críticas siempre se respaldan por SMS. Debe quedar al menos un canal activo.</string>
+    <!-- Health monitoring: home -->
+    <string name="home_greeting_morning">Buenos días, %1$s</string>
+    <string name="home_greeting_afternoon">Buenas tardes, %1$s</string>
+    <string name="home_greeting_evening">Buenas noches, %1$s</string>
+    <string name="home_title_ok">Todo bajo control</string>
+    <string name="home_title_attention">Revisa a %1$s</string>
+    <string name="home_open_alerts">Abrir alertas</string>
+    <string name="home_caring_for">Estás cuidando a</string>
+    <string name="home_change">Cambiar</string>
+    <string name="home_status_online">ESTADO ACTUAL · EN LÍNEA</string>
+    <string name="home_status_offline">ESTADO ACTUAL · SIN SEÑAL</string>
+    <string name="home_status_ok">%1$s está bien</string>
+    <string name="home_status_attention">%1$s necesita atención</string>
+    <string name="home_status_stable">Lecturas estables · Actualizado %1$s</string>
+    <string name="home_status_unstable">Lecturas fuera de rango · Actualizado %1$s</string>
+    <string name="home_wristband_connected">Pulsera conectada</string>
+    <string name="home_wristband_missing">Sin pulsera vinculada</string>
+    <string name="home_action_call">Llamar</string>
+    <string name="home_action_video">Videollamada</string>
+    <string name="home_action_location">Ubicación</string>
+    <string name="home_vitals_title">Signos vitales</string>
+    <string name="home_see_detail">Ver detalle</string>
+    <string name="home_upcoming_title">Lo próximo</string>
+    <string name="home_see_agenda">Ver agenda</string>
+    <string name="home_upcoming_time">14:00 · EN 25 MIN</string>
+    <string name="home_upcoming_medication">Losartán 50 mg</string>
+    <string name="home_upcoming_dose">1 tableta · Después del almuerzo</string>
+    <string name="home_upcoming_routines">3 de 4 rutinas completadas</string>
+    <string name="home_upcoming_progress">75%</string>
+    <!-- Health monitoring: badges -->
+    <string name="reading_in_range">En rango normal</string>
+    <string name="reading_observation">En observación</string>
+    <!-- Health monitoring: health tab -->
+    <string name="health_title">Salud</string>
+    <string name="health_subtitle_online">%1$s · En línea</string>
+    <string name="health_subtitle_offline">%1$s · Sin señal</string>
+    <string name="health_tab_now">Ahora</string>
+    <string name="health_tab_history">Historial</string>
+    <string name="health_all_vitals">Todos los signos vitales</string>
+    <string name="health_weekly_average">PROMEDIO SEMANAL</string>
+    <string name="health_min">Mín</string>
+    <string name="health_max">Máx</string>
+    <string name="health_no_readings">Sin lecturas esta semana</string>
+    <string name="health_no_live_readings">La pulsera aún no envió lecturas</string>
+    <string name="health_normal_range">Normal: %1$s–%2$s %3$s</string>
+    <string name="health_export_pdf">Exportar PDF</string>
+    <string name="health_weekly_report">Reporte semanal</string>
+    <string name="health_today">Hoy</string>
+    <string name="health_yesterday">Ayer</string>
+    <string name="placeholder_soon">Próximamente</string>
 </resources>
