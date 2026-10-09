@@ -277,6 +277,17 @@
     <string name="health_today">Hoy</string>
     <string name="health_yesterday">Ayer</string>
     <string name="placeholder_soon">Próximamente</string>
+    <!-- Health monitoring: search and filter -->
+    <string name="filter_heart_rate">Ritmo cardíaco</string>
+    <string name="filter_blood_pressure">Presión arterial</string>
+    <string name="filter_oxygen_saturation">Saturación de oxígeno</string>
+    <string name="filter_temperature">Temperatura</string>
+    <string name="filter_respiration">Respiración</string>
+    <string name="filter_day">Día</string>
+    <string name="filter_week">Semana</string>
+    <string name="filter_month">Mes</string>
+    <string name="filter_normal">Normal</string>
+    <string name="filter_observation">En observación</string>
     <!-- Care Routines & Wellness: routines tab -->
     <string name="routines_title">Rutinas</string>
     <string name="routines_subtitle">Bienestar de %1$s</string>
