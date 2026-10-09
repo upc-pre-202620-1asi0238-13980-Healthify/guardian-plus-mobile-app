@@ -1,10 +1,12 @@
 package com.example.guardian_plus_mobile_app.navigation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,6 +20,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.guardian_plus_mobile_app.R
+import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.LoginRoute
+import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.authNavGraph
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.presentation.navigation.careRoutinesWellnessNavGraph
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.navigation.emergencyAlertingNavGraph
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.navigation.HomeRoute
@@ -30,6 +34,8 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
     val currentDestination = TopLevelDestination.entries.firstOrNull { destination ->
         backStackEntry?.destination?.hasRoute(destination.route::class) == true
     }
+    // The login draws its header behind the status bar and pads itself
+    val isOnLogin = backStackEntry?.destination?.hasRoute(LoginRoute::class) == true
     val openTab: (TopLevelDestination) -> Unit = { destination ->
         navController.navigate(destination.route) {
             // Each tab keeps its own state (report, navigation rules). Anchored on Home rather than the graph's
@@ -43,6 +49,7 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
     Scaffold(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.background,
+        contentWindowInsets = if (isOnLogin) WindowInsets(0) else ScaffoldDefaults.contentWindowInsets,
         bottomBar = {
             if (currentDestination != null) {
                 GuardianBottomBar(
@@ -54,10 +61,18 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            // The prototype opens on "Inicio"
-            startDestination = HomeRoute,
+            // The prototype opens on the login, then on "Inicio"
+            startDestination = LoginRoute,
             modifier = Modifier.padding(paddingValues)
         ) {
+            authNavGraph(
+                onLoginSuccess = {
+                    // Back from Home leaves the app instead of returning to the login
+                    navController.navigate(HomeRoute) {
+                        popUpTo<LoginRoute> { inclusive = true }
+                    }
+                }
+            )
             healthMonitoringNavGraph(
                 onOpenHealth = { openTab(TopLevelDestination.HEALTH) },
                 onOpenAlerts = { openTab(TopLevelDestination.ALERTS) },
