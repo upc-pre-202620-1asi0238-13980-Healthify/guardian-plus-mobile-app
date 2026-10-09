@@ -277,6 +277,21 @@
     <string name="health_today">Hoy</string>
     <string name="health_yesterday">Ayer</string>
     <string name="placeholder_soon">Próximamente</string>
+    <!-- Health monitoring: now tab -->
+    <string name="health_trend_stable">Estable</string>
+    <string name="health_trend_rising">En aumento</string>
+    <string name="health_trend_falling">En descenso</string>
+    <string name="health_hero_caption">%1$s · última lectura %2$s</string>
+    <string name="health_last_reading">Última lectura %1$s</string>
+    <string name="health_max_min">Máx %1$s · Mín %2$s</string>
+    <string name="health_wristband_connected">Pulsera conectada</string>
+    <string name="health_wristband_no_signal">Pulsera sin señal</string>
+    <string name="health_wristband_missing">Sin pulsera vinculada</string>
+    <string name="health_sync_title">Sincronización activa</string>
+    <string name="health_sync_body">Los datos sin conexión se enviarán automáticamente</string>
+    <string name="health_sync_done">Sincronizado</string>
+    <string name="health_sync_retrying">Reintentando</string>
+    <string name="health_no_filter_match">Ningún signo vital coincide con los filtros</string>
     <!-- Health monitoring: search and filter -->
     <string name="health_filter_title">Buscar y filtrar</string>
     <string name="health_filter_subtitle">Selecciona uno o más criterios</string>
