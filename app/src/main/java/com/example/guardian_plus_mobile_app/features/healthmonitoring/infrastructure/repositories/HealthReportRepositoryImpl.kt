@@ -3,6 +3,7 @@ package com.example.guardian_plus_mobile_app.features.healthmonitoring.infrastru
 import com.example.guardian_plus_mobile_app.core.network.apiCall
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.HealthReport
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.HealthReportType
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.NoReadingsInPeriodException
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.StabilityIndex
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignSummary
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
@@ -23,16 +24,20 @@ class HealthReportRepositoryImpl @Inject constructor(
         generatedByUserId: String,
         periodStart: LocalDate,
         periodEnd: LocalDate
-    ): Result<HealthReport> = apiCall({
-        service.generateHealthReport(
-            GenerateHealthReportRequestDto(
-                careRecipientProfileId = careRecipientProfileId,
-                generatedByUserId = generatedByUserId,
-                periodStart = periodStart.toString(),
-                periodEnd = periodEnd.toString()
+    ): Result<HealthReport> = apiCall(
+        request = {
+            service.generateHealthReport(
+                GenerateHealthReportRequestDto(
+                    careRecipientProfileId = careRecipientProfileId,
+                    generatedByUserId = generatedByUserId,
+                    periodStart = periodStart.toString(),
+                    periodEnd = periodEnd.toString()
+                )
             )
-        )
-    }) { it.toDomain() }
+        },
+        // 422 is the platform's "no readings in the selected period", which the screens show as "sin datos"
+        onError = { code, message -> if (code == HTTP_UNPROCESSABLE) NoReadingsInPeriodException(message) else Exception(message) }
+    ) { it.toDomain() }
 
     override suspend fun getHealthReport(reportId: String): Result<HealthReport> =
         apiCall({ service.getHealthReport(reportId) }) { it.toDomain() }
@@ -43,6 +48,8 @@ class HealthReportRepositoryImpl @Inject constructor(
             dtos.map { it.toDomain() }.sortedByDescending { it.generatedAt }
         }
 }
+
+private const val HTTP_UNPROCESSABLE = 422
 
 private fun HealthReportDto.toDomain() = HealthReport(
     id = id,
