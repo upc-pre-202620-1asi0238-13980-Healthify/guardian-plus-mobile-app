@@ -1,5 +1,6 @@
 package com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory
 
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.HealthReport
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignReading
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.HistoryPeriod
@@ -22,8 +23,9 @@ data class VitalHistoryUiState(
     val zone: ZoneId = ZoneId.systemDefault(),
     // The report being compiled on the platform, so its button shows progress and is not pressed twice
     val busyAction: ReportAction? = null,
-    // One-shot events for the screen: a report to open and a message to show
+    // One-shot events for the screen: a report to open, one to turn into a PDF and a message to show
     val reportToOpen: String? = null,
+    val reportToExport: HealthReport? = null,
     val actionMessage: String? = null
 ) {
     val days: List<LocalDate>
@@ -87,5 +89,6 @@ data class VitalHistoryUiState(
 }
 
 enum class ReportAction {
+    EXPORT_PDF,
     WEEKLY_REPORT
 }

@@ -7,6 +7,7 @@ import com.example.guardian_plus_mobile_app.core.time.ServerClock
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GenerateHealthReportUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetLiveVitalSignsUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetVitalSignHistoryUseCase
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.HealthReport
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.VitalFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -77,17 +78,33 @@ class VitalHistoryViewModel @Inject constructor(
 
     /** "Reporte semanal": the platform compiles the last seven days, today included, and the screen opens it. */
     fun generateWeeklyReport() {
+        generateReport(ReportAction.WEEKLY_REPORT, days = WEEK_DAYS) { report ->
+            _uiState.update { it.copy(reportToOpen = report.id) }
+        }
+    }
+
+    /** "Exportar PDF": compiles the period the filter shows (a day, a week or a month) for the screen to export. */
+    fun exportPdf() {
+        generateReport(ReportAction.EXPORT_PDF, days = _uiState.value.filter.period.dayCount.toLong()) { report ->
+            _uiState.update { it.copy(reportToExport = report) }
+        }
+    }
+
+    private fun generateReport(action: ReportAction, days: Long, onGenerated: (HealthReport) -> Unit) {
         if (_uiState.value.busyAction != null) return
         val today = _uiState.value.today
         viewModelScope.launch {
-            _uiState.update { it.copy(busyAction = ReportAction.WEEKLY_REPORT) }
+            _uiState.update { it.copy(busyAction = action) }
             generateHealthReport(
                 DemoSession.CARE_RECIPIENT_PROFILE_ID,
                 DemoSession.CURRENT_USER_ID,
-                today.minusDays(WEEK_DAYS - 1),
+                today.minusDays(days - 1),
                 today
             )
-                .onSuccess { report -> _uiState.update { it.copy(busyAction = null, reportToOpen = report.id) } }
+                .onSuccess { report ->
+                    _uiState.update { it.copy(busyAction = null) }
+                    onGenerated(report)
+                }
                 .onFailure { e ->
                     _uiState.update { it.copy(busyAction = null, actionMessage = e.message ?: "No se pudo generar el reporte") }
                 }
@@ -96,6 +113,10 @@ class VitalHistoryViewModel @Inject constructor(
 
     fun onReportOpened() {
         _uiState.update { it.copy(reportToOpen = null) }
+    }
+
+    fun onReportExported() {
+        _uiState.update { it.copy(reportToExport = null) }
     }
 
     fun onActionMessageShown() {

@@ -1,21 +1,34 @@
 package com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.healthreport
 
+import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,7 +45,9 @@ import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentati
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.healthreport.component.EarlierReportItem
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.healthreport.component.ReportOverviewCard
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.healthreport.component.SummaryCard
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.healthreport.pdf.exportHealthReport
 import java.time.LocalDate
+import kotlinx.coroutines.launch
 
 /** A health report compiled by the platform, and the earlier ones of the same person. */
 @Composable
@@ -44,6 +59,11 @@ fun HealthReportScreen(
     onOpenReport: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    // The report is already on screen, so exporting is only file work and stays in the UI
+    var isExporting by rememberSaveable { mutableStateOf(false) }
+    val exportFailed = stringResource(R.string.report_export_failed)
 
     LaunchedEffect(reportId) {
         viewModel.load(reportId)
@@ -52,8 +72,21 @@ fun HealthReportScreen(
     HealthReportContent(
         modifier = modifier,
         uiState = uiState,
+        isExporting = isExporting,
         onBackClick = onBackClick,
         onRetryClick = { viewModel.load(reportId) },
+        onExportClick = {
+            val report = uiState.report
+            if (report != null && !isExporting) {
+                scope.launch {
+                    isExporting = true
+                    if (!context.exportHealthReport(report, DemoSession.CARE_RECIPIENT_NAME)) {
+                        Toast.makeText(context, exportFailed, Toast.LENGTH_LONG).show()
+                    }
+                    isExporting = false
+                }
+            }
+        },
         onOpenReport = onOpenReport
     )
 }
@@ -62,8 +95,10 @@ fun HealthReportScreen(
 fun HealthReportContent(
     modifier: Modifier = Modifier,
     uiState: HealthReportUiState,
+    isExporting: Boolean = false,
     onBackClick: () -> Unit,
     onRetryClick: () -> Unit,
+    onExportClick: () -> Unit,
     onOpenReport: (String) -> Unit
 ) {
     val report = uiState.report
@@ -94,6 +129,31 @@ fun HealthReportContent(
                 item(key = "overview") { ReportOverviewCard(report = report) }
                 item(key = "vitals-title") { SectionHeading(text = stringResource(R.string.report_vital_signs)) }
                 items(report.summaryRows(), key = { it.type.name }) { row -> SummaryCard(row = row) }
+                item(key = "export") {
+                    OutlinedButton(
+                        onClick = onExportClick,
+                        enabled = !isExporting,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp)
+                            .height(52.dp),
+                        shape = MaterialTheme.shapes.medium,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                    ) {
+                        if (isExporting) {
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                        } else {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_download),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(end = 8.dp)
+                                    .size(18.dp)
+                            )
+                            Text(text = stringResource(R.string.health_export_pdf))
+                        }
+                    }
+                }
                 if (uiState.earlierReports.isNotEmpty()) {
                     item(key = "earlier-title") { SectionHeading(text = stringResource(R.string.report_earlier)) }
                     items(uiState.earlierReports, key = { it.id }) { earlier ->
@@ -128,6 +188,7 @@ private fun HealthReportContentPreview() {
             ),
             onBackClick = {},
             onRetryClick = {},
+            onExportClick = {},
             onOpenReport = {}
         )
     }

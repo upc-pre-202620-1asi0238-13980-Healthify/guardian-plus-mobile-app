@@ -33,12 +33,14 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
+import com.example.guardian_plus_mobile_app.core.session.DemoSession
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignReading
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.ErrorState
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.HistoryPeriod
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.VitalFilter
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.VitalFilterOption
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.healthreport.pdf.exportHealthReport
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.PeriodAverageCard
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.ReadingItem
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.VitalTypeFilterRow
@@ -66,6 +68,16 @@ fun VitalHistoryScreen(
         }
     }
 
+    val exportFailed = stringResource(R.string.report_export_failed)
+    LaunchedEffect(uiState.reportToExport) {
+        uiState.reportToExport?.let { report ->
+            if (!context.exportHealthReport(report, DemoSession.CARE_RECIPIENT_NAME)) {
+                Toast.makeText(context, exportFailed, Toast.LENGTH_LONG).show()
+            }
+            viewModel.onReportExported()
+        }
+    }
+
     LaunchedEffect(uiState.actionMessage) {
         uiState.actionMessage?.let { message ->
             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
@@ -73,16 +85,12 @@ fun VitalHistoryScreen(
         }
     }
 
-    val comingSoon = stringResource(R.string.placeholder_soon)
-    // The PDF export comes next; until then it says so
-    val showComingSoon = { Toast.makeText(context, comingSoon, Toast.LENGTH_SHORT).show() }
-
     VitalHistoryContent(
         modifier = modifier,
         uiState = uiState,
         onSelectType = viewModel::selectType,
         onRetryClick = viewModel::load,
-        onExportClick = showComingSoon,
+        onExportClick = viewModel::exportPdf,
         onWeeklyReportClick = viewModel::generateWeeklyReport
     )
 }
@@ -161,20 +169,25 @@ private fun ReportActions(busyAction: ReportAction?, onExportClick: () -> Unit, 
     ) {
         OutlinedButton(
             onClick = onExportClick,
+            enabled = busyAction == null,
             modifier = Modifier
                 .weight(1f)
                 .height(52.dp),
             shape = MaterialTheme.shapes.medium,
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
         ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_download),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(end = 8.dp)
-                    .size(18.dp)
-            )
-            Text(text = stringResource(R.string.health_export_pdf))
+            if (busyAction == ReportAction.EXPORT_PDF) {
+                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+            } else {
+                Icon(
+                    painter = painterResource(R.drawable.ic_download),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                        .size(18.dp)
+                )
+                Text(text = stringResource(R.string.health_export_pdf))
+            }
         }
         Button(
             onClick = onWeeklyReportClick,
