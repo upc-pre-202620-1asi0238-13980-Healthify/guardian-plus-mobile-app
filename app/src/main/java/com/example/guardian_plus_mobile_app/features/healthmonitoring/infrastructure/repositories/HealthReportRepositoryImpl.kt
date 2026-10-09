@@ -39,9 +39,6 @@ class HealthReportRepositoryImpl @Inject constructor(
         onError = { code, message -> if (code == HTTP_UNPROCESSABLE) NoReadingsInPeriodException(message) else Exception(message) }
     ) { it.toDomain() }
 
-    override suspend fun getHealthReport(reportId: String): Result<HealthReport> =
-        apiCall({ service.getHealthReport(reportId) }) { it.toDomain() }
-
     // Newest first, the order a caregiver looks for them in
     override suspend fun getHealthReports(careRecipientProfileId: String): Result<List<HealthReport>> =
         apiCall({ service.getHealthReports(careRecipientProfileId) }) { dtos ->

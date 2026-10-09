@@ -13,9 +13,6 @@ interface HealthReportService {
     @POST("health-reports")
     suspend fun generateHealthReport(@Body request: GenerateHealthReportRequestDto): Response<HealthReportDto>
 
-    @GET("health-reports/{reportId}")
-    suspend fun getHealthReport(@Path("reportId") reportId: String): Response<HealthReportDto>
-
     @GET("health-reports/care-recipient/{careRecipientProfileId}")
     suspend fun getHealthReports(
         @Path("careRecipientProfileId") careRecipientProfileId: String

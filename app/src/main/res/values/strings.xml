@@ -298,16 +298,12 @@
     <string name="health_no_filter_match">Ningún signo vital coincide con los filtros</string>
     <!-- Health monitoring: health reports -->
     <string name="report_title">Reporte de salud</string>
-    <string name="report_period">Periodo</string>
-    <string name="report_generated_at">Generado el %1$s</string>
     <string name="report_type_on_demand">A pedido</string>
     <string name="report_type_weekly">Semanal</string>
     <string name="report_readings">Lecturas</string>
     <string name="report_out_of_range">Fuera de rango</string>
     <string name="report_recurrent_anomalies">Anomalías recurrentes</string>
     <string name="report_vital_signs">Signos vitales</string>
-    <string name="report_earlier">Reportes anteriores</string>
-    <string name="report_average">Promedio</string>
     <string name="report_stable">Estable</string>
     <string name="report_stability_stable">Estable</string>
     <string name="report_stability_unstable">Inestable</string>
@@ -329,14 +325,38 @@
     <string name="pdf_legend">Estable: ninguna lectura fuera de rango · Inestable: de 1 a 3 · Recurrente: más de 3.</string>
     <string name="pdf_footer_source">Reporte compilado por Guardian+ a partir de las lecturas de la pulsera.</string>
     <string name="pdf_footer_disclaimer">No reemplaza la evaluación de un profesional de la salud.</string>
-    <plurals name="report_readings_count">
-        <item quantity="one">%1$d lectura</item>
-        <item quantity="other">%1$d lecturas</item>
+    <!-- Health monitoring: weekly report (US24) -->
+    <string name="weekly_title">Reporte semanal</string>
+    <string name="weekly_stability">Estabilidad</string>
+    <string name="weekly_stability_caption">signos vitales</string>
+    <string name="weekly_alerts">Alertas</string>
+    <string name="weekly_alerts_caption">disparadas</string>
+    <string name="weekly_adherence">Adherencia</string>
+    <string name="weekly_adherence_caption">medicación</string>
+    <string name="weekly_adherence_none">sin tomas programadas</string>
+    <string name="weekly_parameters">Comportamiento por parámetro</string>
+    <string name="weekly_no_anomalies">Sin anomalías esta semana</string>
+    <plurals name="weekly_anomalies">
+        <item quantity="one">%1$d anomalía esta semana</item>
+        <item quantity="other">%1$d anomalías esta semana</item>
     </plurals>
-    <plurals name="report_out_of_range_count">
-        <item quantity="one">%1$d fuera de rango</item>
-        <item quantity="other">%1$d fuera de rango</item>
+    <plurals name="weekly_recurrent_title">
+        <item quantity="one">Parámetro recurrente detectado</item>
+        <item quantity="other">Parámetros recurrentes detectados</item>
     </plurals>
+    <plurals name="weekly_recurrent_sentence">
+        <item quantity="one">%1$s superó el umbral en %2$d ocasión.</item>
+        <item quantity="other">%1$s superó el umbral en %2$d ocasiones.</item>
+    </plurals>
+    <string name="weekly_recurrent_advice">Se recomienda revisión médica preventiva con %1$s.</string>
+    <string name="weekly_and">" y "</string>
+    <string name="specialty_cardiology">cardiología</string>
+    <string name="specialty_pulmonology">neumología</string>
+    <string name="specialty_general_medicine">medicina general</string>
+    <string name="weekly_generated_automatic">Generado automáticamente el %1$s</string>
+    <string name="weekly_generated_on_demand">Generado a pedido el %1$s</string>
+    <string name="weekly_story_automatic">US24 · Síntesis semanal automatizada</string>
+    <string name="weekly_story_on_demand">US24 · Síntesis semanal a pedido</string>
     <!-- Health monitoring: search and filter -->
     <string name="health_filter_title">Buscar y filtrar</string>
     <string name="health_filter_subtitle">Selecciona uno o más criterios</string>

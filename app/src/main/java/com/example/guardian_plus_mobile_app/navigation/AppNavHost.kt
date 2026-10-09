@@ -74,7 +74,6 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
                 }
             )
             healthMonitoringNavGraph(
-                navController = navController,
                 onOpenHealth = { openTab(TopLevelDestination.HEALTH) },
                 onOpenAlerts = { openTab(TopLevelDestination.ALERTS) },
                 onOpenLocation = { openTab(TopLevelDestination.LOCATION) }

@@ -3,15 +3,22 @@ package com.example.guardian_plus_mobile_app.features.healthmonitoring.presentat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.GetAdherenceUseCase
+import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.ReminderType
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.application.GetAlertHistoryUseCase
 import com.example.guardian_plus_mobile_app.core.time.ServerClock
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GenerateHealthReportUseCase
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetHealthReportsUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetLiveVitalSignsUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetVitalSignHistoryUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.HealthReport
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.HealthReportType
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.VitalFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,6 +31,9 @@ class VitalHistoryViewModel @Inject constructor(
     private val getVitalSignHistory: GetVitalSignHistoryUseCase,
     private val getLiveVitalSigns: GetLiveVitalSignsUseCase,
     private val generateHealthReport: GenerateHealthReportUseCase,
+    private val getHealthReports: GetHealthReportsUseCase,
+    private val getAlertHistory: GetAlertHistoryUseCase,
+    private val getAdherence: GetAdherenceUseCase,
     private val serverClock: ServerClock
 ) : ViewModel() {
 
@@ -76,11 +86,55 @@ class VitalHistoryViewModel @Inject constructor(
         _uiState.update { it.copy(selectedType = type) }
     }
 
-    /** "Reporte semanal": the platform compiles the last seven days, today included, and the screen opens it. */
-    fun generateWeeklyReport() {
-        generateReport(ReportAction.WEEKLY_REPORT, days = WEEK_DAYS) { report ->
-            _uiState.update { it.copy(reportToOpen = report.id) }
+    /**
+     * "Reporte semanal": the platform compiles one every Sunday on its own (US24). The latest one is shown if it
+     * covers the last week; otherwise the last seven days are compiled now. The sheet adds the alerts triggered
+     * and the medication adherence of the same days.
+     */
+    fun openWeeklyReport() {
+        if (_uiState.value.busyAction != null) return
+        val today = _uiState.value.today
+        val zone = _uiState.value.zone
+        viewModelScope.launch {
+            _uiState.update { it.copy(busyAction = ReportAction.WEEKLY_REPORT) }
+            val latestWeekly = getHealthReports(DemoSession.CARE_RECIPIENT_PROFILE_ID).getOrNull()
+                ?.firstOrNull { it.reportType == HealthReportType.WEEKLY_AUTOMATIC && it.periodEnd >= today.minusDays(WEEK_DAYS) }
+            val result = latestWeekly?.let { Result.success(it) } ?: generateHealthReport(
+                DemoSession.CARE_RECIPIENT_PROFILE_ID,
+                DemoSession.CURRENT_USER_ID,
+                today.minusDays(WEEK_DAYS - 1),
+                today
+            )
+            result
+                .onSuccess { report ->
+                    // Both are extras of the sheet, so they are asked together and a failure only blanks its own box
+                    val (alerts, adherence) = coroutineScope {
+                        val alerts = async {
+                            getAlertHistory(
+                                DemoSession.CARE_RECIPIENT_PROFILE_ID,
+                                from = report.periodStart.atStartOfDay(zone).toInstant(),
+                                to = report.periodEnd.plusDays(1).atStartOfDay(zone).toInstant(),
+                                size = 1
+                            ).getOrNull()?.totalElements
+                        }
+                        val adherence = async {
+                            getAdherence(DemoSession.CARE_RECIPIENT_PROFILE_ID, ReminderType.MEDICATION, report.periodStart, report.periodEnd)
+                                .getOrNull()
+                        }
+                        alerts.await() to adherence.await()
+                    }
+                    _uiState.update {
+                        it.copy(busyAction = null, weeklyReport = WeeklyReport(report, alerts, adherence))
+                    }
+                }
+                .onFailure { e ->
+                    _uiState.update { it.copy(busyAction = null, actionMessage = e.message ?: "No se pudo generar el reporte") }
+                }
         }
+    }
+
+    fun closeWeeklyReport() {
+        _uiState.update { it.copy(weeklyReport = null) }
     }
 
     /** "Exportar PDF": compiles the period the filter shows (a day, a week or a month) for the screen to export. */
@@ -109,10 +163,6 @@ class VitalHistoryViewModel @Inject constructor(
                     _uiState.update { it.copy(busyAction = null, actionMessage = e.message ?: "No se pudo generar el reporte") }
                 }
         }
-    }
-
-    fun onReportOpened() {
-        _uiState.update { it.copy(reportToOpen = null) }
     }
 
     fun onReportExported() {

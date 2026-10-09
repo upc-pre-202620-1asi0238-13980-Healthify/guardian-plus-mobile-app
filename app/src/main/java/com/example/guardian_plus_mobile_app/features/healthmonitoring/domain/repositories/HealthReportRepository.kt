@@ -11,7 +11,5 @@ interface HealthReportRepository {
         periodEnd: LocalDate
     ): Result<HealthReport>
 
-    suspend fun getHealthReport(reportId: String): Result<HealthReport>
-
     suspend fun getHealthReports(careRecipientProfileId: String): Result<List<HealthReport>>
 }

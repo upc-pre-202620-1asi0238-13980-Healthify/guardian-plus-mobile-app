@@ -23,8 +23,9 @@ data class VitalHistoryUiState(
     val zone: ZoneId = ZoneId.systemDefault(),
     // The report being compiled on the platform, so its button shows progress and is not pressed twice
     val busyAction: ReportAction? = null,
-    // One-shot events for the screen: a report to open, one to turn into a PDF and a message to show
-    val reportToOpen: String? = null,
+    // The weekly report sheet is open while this is set
+    val weeklyReport: WeeklyReport? = null,
+    // One-shot events for the screen: a report to turn into a PDF and a message to show
     val reportToExport: HealthReport? = null,
     val actionMessage: String? = null
 ) {

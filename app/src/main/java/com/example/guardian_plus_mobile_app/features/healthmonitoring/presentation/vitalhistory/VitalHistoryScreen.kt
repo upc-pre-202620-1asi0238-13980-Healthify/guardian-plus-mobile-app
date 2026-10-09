@@ -44,6 +44,7 @@ import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentati
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.PeriodAverageCard
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.ReadingItem
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.VitalTypeFilterRow
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.WeeklyReportSheet
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -53,20 +54,12 @@ import java.time.ZoneId
 fun VitalHistoryScreen(
     modifier: Modifier = Modifier,
     viewModel: VitalHistoryViewModel = hiltViewModel(),
-    filter: VitalFilter = VitalFilter(),
-    onOpenReport: (String) -> Unit
+    filter: VitalFilter = VitalFilter()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     // The ViewModel decides whether the new filter needs another period from the platform
     LaunchedEffect(filter) { viewModel.applyFilter(filter) }
-
-    LaunchedEffect(uiState.reportToOpen) {
-        uiState.reportToOpen?.let { reportId ->
-            onOpenReport(reportId)
-            viewModel.onReportOpened()
-        }
-    }
 
     val exportFailed = stringResource(R.string.report_export_failed)
     LaunchedEffect(uiState.reportToExport) {
@@ -91,8 +84,16 @@ fun VitalHistoryScreen(
         onSelectType = viewModel::selectType,
         onRetryClick = viewModel::load,
         onExportClick = viewModel::exportPdf,
-        onWeeklyReportClick = viewModel::generateWeeklyReport
+        onWeeklyReportClick = viewModel::openWeeklyReport
     )
+
+    uiState.weeklyReport?.let { weeklyReport ->
+        WeeklyReportSheet(
+            weeklyReport = weeklyReport,
+            careRecipientName = DemoSession.CARE_RECIPIENT_NAME,
+            onDismiss = viewModel::closeWeeklyReport
+        )
+    }
 }
 
 @Composable

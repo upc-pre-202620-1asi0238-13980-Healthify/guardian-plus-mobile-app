@@ -19,7 +19,7 @@ import java.util.Locale
 private val spanish = Locale.forLanguageTag("es-PE")
 private val dayMonth = DateTimeFormatter.ofPattern("d MMM", spanish)
 private val dayMonthYear = DateTimeFormatter.ofPattern("d MMM yyyy", spanish)
-private val dateTime = DateTimeFormatter.ofPattern("d MMM yyyy, HH:mm", spanish)
+private val dateTime = DateTimeFormatter.ofPattern("d MMM yyyy · HH:mm", spanish)
 
 /** "3 – 9 oct 2026", "29 oct – 4 nov 2026", or "9 oct 2026" for a one-day report. */
 fun HealthReport.periodText(): String = when {
