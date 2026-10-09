@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,20 +36,25 @@ import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianThem
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignReading
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.ErrorState
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.HistoryPeriod
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.VitalFilter
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.VitalFilterOption
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.PeriodAverageCard
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.ReadingItem
-import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.VitalTypeFilterRow
-import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.WeeklyAverageCard
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-/** "Salud › Historial": the last seven days of one vital sign and the latest readings of all of them. */
+/** "Salud › Historial": the chosen period of every filtered vital sign and their latest readings. */
 @Composable
 fun VitalHistoryScreen(
     modifier: Modifier = Modifier,
-    viewModel: VitalHistoryViewModel = hiltViewModel()
+    viewModel: VitalHistoryViewModel = hiltViewModel(),
+    filter: VitalFilter = VitalFilter()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    // The ViewModel decides whether the new filter needs another period from the platform
+    LaunchedEffect(filter) { viewModel.applyFilter(filter) }
     val context = LocalContext.current
     val comingSoon = stringResource(R.string.placeholder_soon)
     // Reports belong to the Health Reports context, not built in the app yet
@@ -57,7 +63,6 @@ fun VitalHistoryScreen(
     VitalHistoryContent(
         modifier = modifier,
         uiState = uiState,
-        onSelectType = viewModel::selectType,
         onRetryClick = viewModel::load,
         onExportClick = showComingSoon,
         onWeeklyReportClick = showComingSoon
@@ -68,7 +73,6 @@ fun VitalHistoryScreen(
 fun VitalHistoryContent(
     modifier: Modifier = Modifier,
     uiState: VitalHistoryUiState,
-    onSelectType: (VitalSignType) -> Unit,
     onRetryClick: () -> Unit,
     onExportClick: () -> Unit,
     onWeeklyReportClick: () -> Unit
@@ -87,22 +91,20 @@ fun VitalHistoryContent(
             onRetryClick = onRetryClick
         )
 
-        // An empty week still shows the chips and the card with "Sin lecturas esta semana"
+        // An empty period still shows each card with "Sin lecturas esta semana"
         else -> LazyColumn(
             modifier = modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            item(key = "filters") {
-                VitalTypeFilterRow(selected = uiState.selectedType, onSelect = onSelectType)
-            }
-            item(key = "weekly") {
-                WeeklyAverageCard(
-                    type = uiState.selectedType,
-                    average = uiState.weeklyAverage,
-                    min = uiState.weeklyMin,
-                    max = uiState.weeklyMax,
-                    dailyAverages = uiState.dailyAverages,
+            items(uiState.chartTypes, key = { "chart-${it.name}" }) { type ->
+                PeriodAverageCard(
+                    type = type,
+                    period = uiState.period,
+                    average = uiState.average(type),
+                    min = uiState.min(type),
+                    max = uiState.max(type),
+                    values = uiState.chartValues(type),
                     days = uiState.days
                 )
             }
@@ -194,7 +196,6 @@ private fun VitalHistoryContentPreview(uiState: VitalHistoryUiState) {
     GuardianTheme(dynamicColor = false) {
         VitalHistoryContent(
             uiState = uiState,
-            onSelectType = {},
             onRetryClick = {},
             onExportClick = {},
             onWeeklyReportClick = {}
@@ -218,4 +219,15 @@ private fun VitalHistoryContentEmptyPreview() {
 @Composable
 private fun VitalHistoryContentErrorPreview() {
     VitalHistoryContentPreview(VitalHistoryUiState(errorMessage = "No se pudo conectar con el servidor. Revisa tu conexión."))
+}
+
+@Preview(showBackground = true, heightDp = 800)
+@Composable
+private fun VitalHistoryContentDayPreview() {
+    VitalHistoryContentPreview(
+        previewState.copy(
+            filter = VitalFilter().toggle(VitalFilterOption.HEART_RATE).toggle(VitalFilterOption.DAY),
+            period = HistoryPeriod.DAY
+        )
+    )
 }

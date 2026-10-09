@@ -2,51 +2,64 @@ package com.example.guardian_plus_mobile_app.features.healthmonitoring.presentat
 
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignReading
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.HistoryPeriod
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.VitalFilter
 import java.time.LocalDate
 import java.time.ZoneId
 
 data class VitalHistoryUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    // Oldest first, as the platform sends them; may include a few hours outside the week (see the ViewModel)
+    // Oldest first, as the platform sends them; may include a few hours outside the period (see the ViewModel)
     val readings: List<VitalSignReading> = emptyList(),
     // History readings carry no range, so it is taken from the live endpoint
     val ranges: Map<VitalSignType, ClosedFloatingPointRange<Double>> = emptyMap(),
-    val selectedType: VitalSignType = VitalSignType.HR,
+    val filter: VitalFilter = VitalFilter(),
+    // The period the readings were loaded for, which trails the filter's while a new one loads
+    val period: HistoryPeriod = HistoryPeriod.WEEK,
     val today: LocalDate = LocalDate.now(),
     val zone: ZoneId = ZoneId.systemDefault()
 ) {
     val days: List<LocalDate>
-        get() = (6 downTo 0).map { today.minusDays(it.toLong()) }
+        get() = (period.dayCount - 1 downTo 0).map { today.minusDays(it.toLong()) }
 
-    // Only what happened in the last seven days on the phone's calendar
-    val weekReadings: List<VitalSignReading>
+    // Only what happened in the period on the phone's calendar
+    val periodReadings: List<VitalSignReading>
         get() {
             val firstDay = days.first()
             return readings.filter { it.dayIn(zone) in firstDay..today }
         }
 
-    val selectedReadings: List<VitalSignReading>
-        get() = weekReadings.filter { it.type == selectedType }
+    // One chart per vital sign the filter keeps
+    val chartTypes: List<VitalSignType> get() = filter.types
+
+    fun readingsOf(type: VitalSignType): List<VitalSignReading> = periodReadings.filter { it.type == type }
 
     // average() of an empty list is NaN, which would print "NaN lpm"
-    val weeklyAverage: Double?
-        get() = selectedReadings.takeIf { it.isNotEmpty() }?.map { it.value }?.average()
+    fun average(type: VitalSignType): Double? = readingsOf(type).takeIf { it.isNotEmpty() }?.map { it.value }?.average()
 
-    val weeklyMin: Double? get() = selectedReadings.minOfOrNull { it.value }
+    fun min(type: VitalSignType): Double? = readingsOf(type).minOfOrNull { it.value }
 
-    val weeklyMax: Double? get() = selectedReadings.maxOfOrNull { it.value }
+    fun max(type: VitalSignType): Double? = readingsOf(type).maxOfOrNull { it.value }
 
-    // One point per day of the chart; null where the wearable sent nothing that day
-    val dailyAverages: List<Double?>
-        get() {
-            val byDay = selectedReadings.groupBy { it.dayIn(zone) }
-            return days.map { day -> byDay[day]?.map { it.value }?.average() }
+    /** One point per hour for a day and per day otherwise; null where the wearable sent nothing. */
+    fun chartValues(type: VitalSignType): List<Double?> {
+        val ofType = readingsOf(type)
+        return if (period == HistoryPeriod.DAY) {
+            val byHour = ofType.groupBy { it.measuredAt.atZone(zone).hour }
+            (0 until HOURS_PER_DAY).map { hour -> byHour[hour]?.map { it.value }?.average() }
+        } else {
+            val byDay = ofType.groupBy { it.dayIn(zone) }
+            days.map { day -> byDay[day]?.map { it.value }?.average() }
         }
+    }
 
     // Diastolic readings are shown inside their systolic row ("122/80"), never alone
     val recentReadings: List<VitalSignReading>
-        get() = weekReadings.filter { it.type != VitalSignType.BP_DIA }.takeLast(RECENT_COUNT).reversed()
+        get() = periodReadings
+            .filter { it.type != VitalSignType.BP_DIA && filter.includes(it.type) && filter.includesState(isWithinRange(it)) }
+            .takeLast(RECENT_COUNT)
+            .reversed()
 
     fun diastolicFor(systolic: VitalSignReading): VitalSignReading? =
         readings.firstOrNull { it.type == VitalSignType.BP_DIA && it.measuredAt == systolic.measuredAt }
@@ -63,5 +76,6 @@ data class VitalHistoryUiState(
 
     private companion object {
         const val RECENT_COUNT = 3
+        const val HOURS_PER_DAY = 24
     }
 }

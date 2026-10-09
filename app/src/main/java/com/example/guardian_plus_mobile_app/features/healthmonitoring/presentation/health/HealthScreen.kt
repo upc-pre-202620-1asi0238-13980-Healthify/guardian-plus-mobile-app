@@ -52,7 +52,7 @@ fun HealthScreen(modifier: Modifier = Modifier) {
     ) {
         when (selectedTab) {
             HealthTab.NOW -> LiveVitalsScreen(viewModel = liveVitalsViewModel, filter = filter)
-            HealthTab.HISTORY -> VitalHistoryScreen()
+            HealthTab.HISTORY -> VitalHistoryScreen(filter = filter)
         }
     }
 

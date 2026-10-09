@@ -18,9 +18,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
 
-/** Seven-day line of the prototype. Days without readings are skipped, the line joins the ones around them. */
+/** Line of the history card, one point per hour or per day. Empty points are skipped, the line joins the ones around them. */
 @Composable
-fun WeeklyLineChart(modifier: Modifier = Modifier, values: List<Double?>) {
+fun PeriodLineChart(modifier: Modifier = Modifier, values: List<Double?>) {
     val lineColor = MaterialTheme.colorScheme.primary
     val fillColor = MaterialTheme.colorScheme.primaryContainer
     val dotFill = MaterialTheme.colorScheme.surface
@@ -42,7 +42,7 @@ fun WeeklyLineChart(modifier: Modifier = Modifier, values: List<Double?>) {
 
         val points = values.mapIndexedNotNull { index, value ->
             value?.let {
-                // A flat week would divide by zero; draw it as a line in the middle instead
+                // A flat series would divide by zero; draw it as a line in the middle instead
                 val normalized = if (max == min) 0.5 else (it - min) / (max - min)
                 // Canvas y grows downwards, so higher values go nearer the top
                 Offset(inset + index * stepX, inset + usableHeight * (1 - normalized).toFloat())
@@ -50,7 +50,7 @@ fun WeeklyLineChart(modifier: Modifier = Modifier, values: List<Double?>) {
         }
 
         if (points.size == 1) {
-            // A single day has no line to draw yet; a dashed level keeps the card from looking empty
+            // A single point has no line to draw yet; a dashed level keeps the card from looking empty
             val y = points.first().y
             drawLine(
                 color = lineColor.copy(alpha = 0.4f),
@@ -88,9 +88,9 @@ private const val MAX_MARKED_POINTS = 10
 
 @Preview(showBackground = true)
 @Composable
-private fun WeeklyLineChartPreview() {
+private fun PeriodLineChartPreview() {
     GuardianTheme(dynamicColor = false) {
-        WeeklyLineChart(
+        PeriodLineChart(
             modifier = Modifier.padding(16.dp),
             values = listOf(75.0, 77.0, 73.0, 80.0, null, 77.0, 77.0)
         )
@@ -99,9 +99,9 @@ private fun WeeklyLineChartPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun WeeklyLineChartSingleDayPreview() {
+private fun PeriodLineChartSingleDayPreview() {
     GuardianTheme(dynamicColor = false) {
-        WeeklyLineChart(
+        PeriodLineChart(
             modifier = Modifier.padding(16.dp),
             values = listOf(null, null, null, null, null, null, 77.0)
         )

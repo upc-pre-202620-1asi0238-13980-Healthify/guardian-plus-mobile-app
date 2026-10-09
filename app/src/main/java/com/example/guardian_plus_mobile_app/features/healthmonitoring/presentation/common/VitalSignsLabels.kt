@@ -42,17 +42,6 @@ val VitalSignType.displayUnit: String
 
 
 
-// Chip text of the "Historial" filter row
-val VitalSignType.shortLabel: String
-    get() = when (this) {
-        VitalSignType.HR -> "Ritmo"
-        VitalSignType.BP_SYS, VitalSignType.BP_DIA -> "Presión"
-        VitalSignType.SPO2 -> "SpO₂"
-        VitalSignType.TEMP -> "Temp"
-        VitalSignType.RESP_RATE -> "Respir"
-    }
-
-
 @DrawableRes
 fun VitalSignType.iconRes(): Int = when (this) {
     VitalSignType.HR -> R.drawable.ic_heart

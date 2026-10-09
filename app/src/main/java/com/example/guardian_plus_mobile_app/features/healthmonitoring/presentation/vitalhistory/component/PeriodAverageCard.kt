@@ -24,20 +24,23 @@ import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianThem
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.dataLabel
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.dataMetric
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.HistoryPeriod
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.displayUnit
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.format
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.title
 import java.time.DayOfWeek
 import java.time.LocalDate
 
-/** "PROMEDIO SEMANAL 76.3 lpm · Mín 72 · Máx 80" and the chart of the selected vital sign. */
+/** "FRECUENCIA CARDÍACA · PROMEDIO SEMANAL 76.3 lpm · Mín 72 · Máx 80" and the chart of one vital sign. */
 @Composable
-fun WeeklyAverageCard(
+fun PeriodAverageCard(
     modifier: Modifier = Modifier,
     type: VitalSignType,
+    period: HistoryPeriod,
     average: Double?,
     min: Double?,
     max: Double?,
-    dailyAverages: List<Double?>,
+    values: List<Double?>,
     days: List<LocalDate>
 ) {
     Surface(
@@ -50,13 +53,13 @@ fun WeeklyAverageCard(
             Row(verticalAlignment = Alignment.Top) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = stringResource(R.string.health_weekly_average),
+                        text = stringResource(R.string.health_average_title, type.title, stringResource(period.averageRes())).uppercase(),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     if (average != null) {
                         Row(verticalAlignment = Alignment.Bottom, modifier = Modifier.padding(top = 4.dp)) {
-                            // One decimal even for whole-number signs: 76.3 lpm says more than 76 for a week
+                            // One decimal even for whole-number signs: 76.3 lpm says more than 76 over a period
                             Text(
                                 text = "%.1f".format(average),
                                 style = MaterialTheme.typography.dataMetric.copy(fontSize = 36.sp, lineHeight = 40.sp),
@@ -71,7 +74,7 @@ fun WeeklyAverageCard(
                         }
                     } else {
                         Text(
-                            text = stringResource(R.string.health_no_readings),
+                            text = stringResource(period.emptyRes()),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(top = 8.dp)
@@ -87,16 +90,16 @@ fun WeeklyAverageCard(
                     MinMax(label = stringResource(R.string.health_max), value = max?.let { type.format(it) })
                 }
             }
-            WeeklyLineChart(modifier = Modifier.padding(top = 20.dp), values = dailyAverages)
+            PeriodLineChart(modifier = Modifier.padding(top = 20.dp), values = values)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                days.forEach { day ->
+                axisLabels(period, days).forEach { label ->
                     Text(
-                        text = day.dayOfWeek.letter(),
+                        text = label,
                         style = MaterialTheme.typography.dataLabel,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -118,6 +121,25 @@ private fun MinMax(label: String, value: String?) {
     }
 }
 
+// Every day for a week; a few evenly spread marks for a day (hours) or a month (dates), or they would not fit
+private fun axisLabels(period: HistoryPeriod, days: List<LocalDate>): List<String> = when (period) {
+    HistoryPeriod.DAY -> listOf(0, 6, 12, 18, 23).map { "${it}h" }
+    HistoryPeriod.WEEK -> days.map { it.dayOfWeek.letter() }
+    HistoryPeriod.MONTH -> listOf(0, 7, 14, 22, days.lastIndex).map { days[it].dayOfMonth.toString() }
+}
+
+private fun HistoryPeriod.averageRes(): Int = when (this) {
+    HistoryPeriod.DAY -> R.string.health_average_day
+    HistoryPeriod.WEEK -> R.string.health_average_week
+    HistoryPeriod.MONTH -> R.string.health_average_month
+}
+
+private fun HistoryPeriod.emptyRes(): Int = when (this) {
+    HistoryPeriod.DAY -> R.string.health_no_readings_day
+    HistoryPeriod.WEEK -> R.string.health_no_readings
+    HistoryPeriod.MONTH -> R.string.health_no_readings_month
+}
+
 // Spanish weekday initials; Wednesday is "X" so it is not confused with Tuesday's "M"
 private fun DayOfWeek.letter(): String = when (this) {
     DayOfWeek.MONDAY -> "L"
@@ -131,16 +153,34 @@ private fun DayOfWeek.letter(): String = when (this) {
 
 @Preview
 @Composable
-private fun WeeklyAverageCardPreview() {
+private fun PeriodAverageCardPreview() {
     val today = LocalDate.parse("2026-10-06")
     GuardianTheme(dynamicColor = false) {
-        WeeklyAverageCard(
+        PeriodAverageCard(
             type = VitalSignType.HR,
+            period = HistoryPeriod.WEEK,
             average = 76.3,
             min = 72.0,
             max = 80.0,
-            dailyAverages = listOf(75.0, 77.0, 73.0, 80.0, 76.0, 77.0, 77.0),
+            values = listOf(75.0, 77.0, 73.0, 80.0, 76.0, 77.0, 77.0),
             days = (6 downTo 0).map { today.minusDays(it.toLong()) }
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PeriodAverageCardDayPreview() {
+    val today = LocalDate.parse("2026-10-06")
+    GuardianTheme(dynamicColor = false) {
+        PeriodAverageCard(
+            type = VitalSignType.SPO2,
+            period = HistoryPeriod.DAY,
+            average = 96.4,
+            min = 94.0,
+            max = 98.0,
+            values = List(24) { hour -> if (hour in 8..20) 94.0 + hour % 5 else null },
+            days = listOf(today)
         )
     }
 }

@@ -266,10 +266,15 @@
     <string name="health_tab_now">Ahora</string>
     <string name="health_tab_history">Historial</string>
     <string name="health_all_vitals">Todos los signos vitales</string>
-    <string name="health_weekly_average">PROMEDIO SEMANAL</string>
     <string name="health_min">Mín</string>
     <string name="health_max">Máx</string>
     <string name="health_no_readings">Sin lecturas esta semana</string>
+    <string name="health_no_readings_day">Sin lecturas hoy</string>
+    <string name="health_no_readings_month">Sin lecturas este mes</string>
+    <string name="health_average_title">%1$s · %2$s</string>
+    <string name="health_average_day">Promedio del día</string>
+    <string name="health_average_week">Promedio semanal</string>
+    <string name="health_average_month">Promedio mensual</string>
     <string name="health_no_live_readings">La pulsera aún no envió lecturas</string>
     <string name="health_normal_range">Normal: %1$s–%2$s %3$s</string>
     <string name="health_export_pdf">Exportar PDF</string>
