@@ -3,15 +3,13 @@ package com.example.guardian_plus_mobile_app.navigation
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.example.guardian_plus_mobile_app.R
+import com.example.guardian_plus_mobile_app.features.careroutineswellness.presentation.navigation.RoutinesRoute
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.navigation.AlertsRoute
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.navigation.HealthRoute
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.navigation.HomeRoute
 import kotlinx.serialization.Serializable
 
-// Tabs that belong to other bounded contexts
-@Serializable
-object RoutinesRoute
-
+// Tab that belongs to a bounded context not built yet
 @Serializable
 object LocationRoute
 

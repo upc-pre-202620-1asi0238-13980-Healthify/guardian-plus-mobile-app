@@ -19,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.guardian_plus_mobile_app.R
+import com.example.guardian_plus_mobile_app.features.careroutineswellness.presentation.navigation.careRoutinesWellnessNavGraph
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.navigation.emergencyAlertingNavGraph
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.navigation.HomeRoute
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.navigation.healthMonitoringNavGraph
@@ -62,7 +63,7 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
                 onOpenAlerts = { openTab(TopLevelDestination.ALERTS) },
                 onOpenLocation = { openTab(TopLevelDestination.LOCATION) }
             )
-            composable<RoutinesRoute> { PlaceholderScreen(title = stringResource(R.string.nav_routines)) }
+            careRoutinesWellnessNavGraph()
             composable<LocationRoute> { PlaceholderScreen(title = stringResource(R.string.nav_location)) }
             emergencyAlertingNavGraph(
                 navController = navController,
