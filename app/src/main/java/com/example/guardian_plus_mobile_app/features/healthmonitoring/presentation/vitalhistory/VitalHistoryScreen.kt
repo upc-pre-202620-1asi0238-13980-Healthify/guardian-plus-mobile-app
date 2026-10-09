@@ -41,11 +41,12 @@ import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentati
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.VitalFilterOption
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.PeriodAverageCard
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.ReadingItem
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.VitalTypeFilterRow
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-/** "Salud › Historial": the chosen period of every filtered vital sign and their latest readings. */
+/** "Salud › Historial": the chosen period of one vital sign and the latest readings of all of them. */
 @Composable
 fun VitalHistoryScreen(
     modifier: Modifier = Modifier,
@@ -63,6 +64,7 @@ fun VitalHistoryScreen(
     VitalHistoryContent(
         modifier = modifier,
         uiState = uiState,
+        onSelectType = viewModel::selectType,
         onRetryClick = viewModel::load,
         onExportClick = showComingSoon,
         onWeeklyReportClick = showComingSoon
@@ -73,6 +75,7 @@ fun VitalHistoryScreen(
 fun VitalHistoryContent(
     modifier: Modifier = Modifier,
     uiState: VitalHistoryUiState,
+    onSelectType: (VitalSignType) -> Unit,
     onRetryClick: () -> Unit,
     onExportClick: () -> Unit,
     onWeeklyReportClick: () -> Unit
@@ -91,13 +94,17 @@ fun VitalHistoryContent(
             onRetryClick = onRetryClick
         )
 
-        // An empty period still shows each card with "Sin lecturas esta semana"
+        // An empty period still shows the chips and the card with "Sin lecturas esta semana"
         else -> LazyColumn(
             modifier = modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(uiState.chartTypes, key = { "chart-${it.name}" }) { type ->
+            item(key = "filters") {
+                VitalTypeFilterRow(types = uiState.filter.types, selected = uiState.chartType, onSelect = onSelectType)
+            }
+            item(key = "average") {
+                val type = uiState.chartType
                 PeriodAverageCard(
                     type = type,
                     period = uiState.period,
@@ -196,6 +203,7 @@ private fun VitalHistoryContentPreview(uiState: VitalHistoryUiState) {
     GuardianTheme(dynamicColor = false) {
         VitalHistoryContent(
             uiState = uiState,
+            onSelectType = {},
             onRetryClick = {},
             onExportClick = {},
             onWeeklyReportClick = {}

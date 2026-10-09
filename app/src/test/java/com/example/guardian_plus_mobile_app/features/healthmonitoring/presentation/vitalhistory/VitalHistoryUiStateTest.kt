@@ -129,10 +129,11 @@ class VitalHistoryUiStateTest {
     }
 
     @Test
-    fun `charts follow the filtered types`() {
-        val filter = VitalFilter().toggle(VitalFilterOption.TEMPERATURE).toggle(VitalFilterOption.HEART_RATE)
-        assertEquals(listOf(VitalSignType.HR, VitalSignType.TEMP), filtered(filter, HistoryPeriod.WEEK).chartTypes)
-        assertEquals(5, state().chartTypes.size)
+    fun `chart falls back to the first kept type when the selected one is filtered out`() {
+        val filter = VitalFilter().toggle(VitalFilterOption.TEMPERATURE).toggle(VitalFilterOption.OXYGEN_SATURATION)
+        // HR is selected by default but the filter left it out
+        assertEquals(VitalSignType.SPO2, filtered(filter, HistoryPeriod.WEEK).chartType)
+        assertEquals(VitalSignType.HR, state().chartType)
     }
 
     @Test

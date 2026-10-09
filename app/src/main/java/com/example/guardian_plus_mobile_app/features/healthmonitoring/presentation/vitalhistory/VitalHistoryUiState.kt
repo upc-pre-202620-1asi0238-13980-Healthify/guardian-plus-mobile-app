@@ -15,6 +15,7 @@ data class VitalHistoryUiState(
     // History readings carry no range, so it is taken from the live endpoint
     val ranges: Map<VitalSignType, ClosedFloatingPointRange<Double>> = emptyMap(),
     val filter: VitalFilter = VitalFilter(),
+    val selectedType: VitalSignType = VitalSignType.HR,
     // The period the readings were loaded for, which trails the filter's while a new one loads
     val period: HistoryPeriod = HistoryPeriod.WEEK,
     val today: LocalDate = LocalDate.now(),
@@ -30,8 +31,8 @@ data class VitalHistoryUiState(
             return readings.filter { it.dayIn(zone) in firstDay..today }
         }
 
-    // One chart per vital sign the filter keeps
-    val chartTypes: List<VitalSignType> get() = filter.types
+    // The chips only offer what the filter keeps, so a chip left out hands the chart to the first one kept
+    val chartType: VitalSignType get() = selectedType.takeIf { it in filter.types } ?: filter.types.first()
 
     fun readingsOf(type: VitalSignType): List<VitalSignReading> = periodReadings.filter { it.type == type }
 

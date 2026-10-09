@@ -6,6 +6,7 @@ import com.example.guardian_plus_mobile_app.core.session.DemoSession
 import com.example.guardian_plus_mobile_app.core.time.ServerClock
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetLiveVitalSignsUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetVitalSignHistoryUseCase
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.VitalFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -65,6 +66,11 @@ class VitalHistoryViewModel @Inject constructor(
                     }
                 }
         }
+    }
+
+    // Every type of the period is already loaded, so switching is local
+    fun selectType(type: VitalSignType) {
+        _uiState.update { it.copy(selectedType = type) }
     }
 
     // Every type of the period is already loaded, so only a new period goes back to the platform

@@ -27,11 +27,10 @@ import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.Vit
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.HistoryPeriod
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.displayUnit
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.format
-import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.title
 import java.time.DayOfWeek
 import java.time.LocalDate
 
-/** "FRECUENCIA CARDÍACA · PROMEDIO SEMANAL 76.3 lpm · Mín 72 · Máx 80" and the chart of one vital sign. */
+/** "PROMEDIO SEMANAL 76.3 lpm · Mín 72 · Máx 80" and the chart of the selected vital sign. */
 @Composable
 fun PeriodAverageCard(
     modifier: Modifier = Modifier,
@@ -53,7 +52,7 @@ fun PeriodAverageCard(
             Row(verticalAlignment = Alignment.Top) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = stringResource(R.string.health_average_title, type.title, stringResource(period.averageRes())).uppercase(),
+                        text = stringResource(period.averageRes()).uppercase(),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
