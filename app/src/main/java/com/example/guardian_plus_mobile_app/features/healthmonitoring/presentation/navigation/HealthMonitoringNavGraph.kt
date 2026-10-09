@@ -33,7 +33,7 @@ fun NavGraphBuilder.healthMonitoringNavGraph(
     }
 
     composable<HealthRoute> {
-        HealthScreen()
+        HealthScreen(onOpenReport = { reportId -> navController.navigate(HealthReportRoute(reportId = reportId)) })
     }
 
     composable<HealthReportRoute> { backStackEntry ->

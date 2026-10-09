@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.guardian_plus_mobile_app.core.session.DemoSession
 import com.example.guardian_plus_mobile_app.core.time.ServerClock
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GenerateHealthReportUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetLiveVitalSignsUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetVitalSignHistoryUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
@@ -21,6 +22,7 @@ import javax.inject.Inject
 class VitalHistoryViewModel @Inject constructor(
     private val getVitalSignHistory: GetVitalSignHistoryUseCase,
     private val getLiveVitalSigns: GetLiveVitalSignsUseCase,
+    private val generateHealthReport: GenerateHealthReportUseCase,
     private val serverClock: ServerClock
 ) : ViewModel() {
 
@@ -73,10 +75,41 @@ class VitalHistoryViewModel @Inject constructor(
         _uiState.update { it.copy(selectedType = type) }
     }
 
+    /** "Reporte semanal": the platform compiles the last seven days, today included, and the screen opens it. */
+    fun generateWeeklyReport() {
+        if (_uiState.value.busyAction != null) return
+        val today = _uiState.value.today
+        viewModelScope.launch {
+            _uiState.update { it.copy(busyAction = ReportAction.WEEKLY_REPORT) }
+            generateHealthReport(
+                DemoSession.CARE_RECIPIENT_PROFILE_ID,
+                DemoSession.CURRENT_USER_ID,
+                today.minusDays(WEEK_DAYS - 1),
+                today
+            )
+                .onSuccess { report -> _uiState.update { it.copy(busyAction = null, reportToOpen = report.id) } }
+                .onFailure { e ->
+                    _uiState.update { it.copy(busyAction = null, actionMessage = e.message ?: "No se pudo generar el reporte") }
+                }
+        }
+    }
+
+    fun onReportOpened() {
+        _uiState.update { it.copy(reportToOpen = null) }
+    }
+
+    fun onActionMessageShown() {
+        _uiState.update { it.copy(actionMessage = null) }
+    }
+
     // Every type of the period is already loaded, so only a new period goes back to the platform
     fun applyFilter(filter: VitalFilter) {
         val previous = _uiState.value.filter
         _uiState.update { it.copy(filter = filter) }
         if (filter.period != previous.period) load()
+    }
+
+    private companion object {
+        const val WEEK_DAYS = 7L
     }
 }

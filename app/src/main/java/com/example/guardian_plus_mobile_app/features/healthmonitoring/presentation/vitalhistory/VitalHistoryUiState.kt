@@ -19,7 +19,12 @@ data class VitalHistoryUiState(
     // The period the readings were loaded for, which trails the filter's while a new one loads
     val period: HistoryPeriod = HistoryPeriod.WEEK,
     val today: LocalDate = LocalDate.now(),
-    val zone: ZoneId = ZoneId.systemDefault()
+    val zone: ZoneId = ZoneId.systemDefault(),
+    // The report being compiled on the platform, so its button shows progress and is not pressed twice
+    val busyAction: ReportAction? = null,
+    // One-shot events for the screen: a report to open and a message to show
+    val reportToOpen: String? = null,
+    val actionMessage: String? = null
 ) {
     val days: List<LocalDate>
         get() = (period.dayCount - 1 downTo 0).map { today.minusDays(it.toLong()) }
@@ -79,4 +84,8 @@ data class VitalHistoryUiState(
         const val RECENT_COUNT = 3
         const val HOURS_PER_DAY = 24
     }
+}
+
+enum class ReportAction {
+    WEEKLY_REPORT
 }

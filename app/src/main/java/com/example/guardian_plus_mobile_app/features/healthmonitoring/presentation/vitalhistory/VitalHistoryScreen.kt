@@ -51,14 +51,30 @@ import java.time.ZoneId
 fun VitalHistoryScreen(
     modifier: Modifier = Modifier,
     viewModel: VitalHistoryViewModel = hiltViewModel(),
-    filter: VitalFilter = VitalFilter()
+    filter: VitalFilter = VitalFilter(),
+    onOpenReport: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     // The ViewModel decides whether the new filter needs another period from the platform
     LaunchedEffect(filter) { viewModel.applyFilter(filter) }
-    val context = LocalContext.current
+
+    LaunchedEffect(uiState.reportToOpen) {
+        uiState.reportToOpen?.let { reportId ->
+            onOpenReport(reportId)
+            viewModel.onReportOpened()
+        }
+    }
+
+    LaunchedEffect(uiState.actionMessage) {
+        uiState.actionMessage?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            viewModel.onActionMessageShown()
+        }
+    }
+
     val comingSoon = stringResource(R.string.placeholder_soon)
-    // Reports belong to the Health Reports context, not built in the app yet
+    // The PDF export comes next; until then it says so
     val showComingSoon = { Toast.makeText(context, comingSoon, Toast.LENGTH_SHORT).show() }
 
     VitalHistoryContent(
@@ -67,7 +83,7 @@ fun VitalHistoryScreen(
         onSelectType = viewModel::selectType,
         onRetryClick = viewModel::load,
         onExportClick = showComingSoon,
-        onWeeklyReportClick = showComingSoon
+        onWeeklyReportClick = viewModel::generateWeeklyReport
     )
 }
 
@@ -125,14 +141,18 @@ fun VitalHistoryContent(
                 )
             }
             item(key = "actions") {
-                ReportActions(onExportClick = onExportClick, onWeeklyReportClick = onWeeklyReportClick)
+                ReportActions(
+                    busyAction = uiState.busyAction,
+                    onExportClick = onExportClick,
+                    onWeeklyReportClick = onWeeklyReportClick
+                )
             }
         }
     }
 }
 
 @Composable
-private fun ReportActions(onExportClick: () -> Unit, onWeeklyReportClick: () -> Unit) {
+private fun ReportActions(busyAction: ReportAction?, onExportClick: () -> Unit, onWeeklyReportClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -158,12 +178,21 @@ private fun ReportActions(onExportClick: () -> Unit, onWeeklyReportClick: () -> 
         }
         Button(
             onClick = onWeeklyReportClick,
+            enabled = busyAction == null,
             modifier = Modifier
                 .weight(1f)
                 .height(52.dp),
             shape = MaterialTheme.shapes.medium
         ) {
-            Text(text = stringResource(R.string.health_weekly_report))
+            if (busyAction == ReportAction.WEEKLY_REPORT) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            } else {
+                Text(text = stringResource(R.string.health_weekly_report))
+            }
         }
     }
 }

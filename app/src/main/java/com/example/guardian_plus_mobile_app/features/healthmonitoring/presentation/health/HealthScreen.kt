@@ -31,7 +31,7 @@ import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentati
 
 /** Health tab of the bottom bar: shared header, the "Ahora · Historial" tabs and the search bar over both. */
 @Composable
-fun HealthScreen(modifier: Modifier = Modifier) {
+fun HealthScreen(modifier: Modifier = Modifier, onOpenReport: (String) -> Unit) {
     // Same instance that LiveVitalsScreen uses, since both live in this navigation entry
     val liveVitalsViewModel: LiveVitalsViewModel = hiltViewModel()
     val liveState by liveVitalsViewModel.uiState.collectAsStateWithLifecycle()
@@ -52,7 +52,7 @@ fun HealthScreen(modifier: Modifier = Modifier) {
     ) {
         when (selectedTab) {
             HealthTab.NOW -> LiveVitalsScreen(viewModel = liveVitalsViewModel, filter = filter)
-            HealthTab.HISTORY -> VitalHistoryScreen(filter = filter)
+            HealthTab.HISTORY -> VitalHistoryScreen(filter = filter, onOpenReport = onOpenReport)
         }
     }
 
