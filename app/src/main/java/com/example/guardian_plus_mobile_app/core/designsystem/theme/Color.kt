@@ -30,6 +30,17 @@ val PastelYellowText = Color(0xFF806600)
 val ColorScheme.noticeContainer: Color get() = PastelYellow
 val ColorScheme.onNoticeContainer: Color get() = PastelYellowText
 
+// Category tints of the routines prototype (appointments and hydration in blue, sleep in violet)
+val PastelBlue = Color(0xFFE1F4F7)
+val PastelBlueText = Color(0xFF24798B)
+val PastelViolet = Color(0xFFEBE8F8)
+val PastelVioletText = Color(0xFF5D4D8C)
+
+val ColorScheme.infoContainer: Color get() = PastelBlue
+val ColorScheme.onInfoContainer: Color get() = PastelBlueText
+val ColorScheme.restContainer: Color get() = PastelViolet
+val ColorScheme.onRestContainer: Color get() = PastelVioletText
+
 // Login screen colors (Primary is defined above)
 val BrandGreen = Color(0xFF2F6A57)      // header, primary button
 val BrandGreenDark = Color(0xFF27594A)  // gradient bottom
