@@ -278,6 +278,13 @@
     <string name="health_yesterday">Ayer</string>
     <string name="placeholder_soon">Próximamente</string>
     <!-- Health monitoring: search and filter -->
+    <string name="health_filter_title">Buscar y filtrar</string>
+    <string name="health_filter_subtitle">Selecciona uno o más criterios</string>
+    <string name="health_filter_search">Buscar entre las opciones</string>
+    <string name="health_filter_no_match">Ninguna opción coincide con la búsqueda</string>
+    <string name="health_filter_clear">Limpiar</string>
+    <string name="health_filter_apply">Aplicar · %1$d</string>
+    <string name="health_filter_close">Cerrar</string>
     <string name="filter_heart_rate">Ritmo cardíaco</string>
     <string name="filter_blood_pressure">Presión arterial</string>
     <string name="filter_oxygen_saturation">Saturación de oxígeno</string>
