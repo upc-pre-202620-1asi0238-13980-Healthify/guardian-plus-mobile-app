@@ -11,7 +11,7 @@ import com.example.guardian_plus_mobile_app.features.healthmonitoring.applicatio
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetHealthReportsUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetLiveVitalSignsUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetVitalSignHistoryUseCase
-import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.HealthReport
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.NoReadingsInPeriodException
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.HealthReportType
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.VitalFilter
@@ -137,30 +137,34 @@ class VitalHistoryViewModel @Inject constructor(
         _uiState.update { it.copy(weeklyReport = null) }
     }
 
-    /** "Exportar PDF": compiles the period the filter shows (a day, a week or a month) for the screen to export. */
-    fun exportPdf() {
-        generateReport(ReportAction.EXPORT_PDF, days = _uiState.value.filter.period.dayCount.toLong()) { report ->
-            _uiState.update { it.copy(reportToExport = report) }
-        }
+    fun openExportSheet() {
+        _uiState.update { it.copy(isExportSheetOpen = true) }
     }
 
-    private fun generateReport(action: ReportAction, days: Long, onGenerated: (HealthReport) -> Unit) {
-        if (_uiState.value.busyAction != null) return
-        val today = _uiState.value.today
+    fun closeExportSheet() {
+        _uiState.update { it.copy(isExportSheetOpen = false) }
+    }
+
+    /** "Generar y exportar PDF": the platform compiles the range, then the screen draws the chosen signs. */
+    fun exportRecord(range: ExportRange, metrics: Set<VitalSignType>) {
+        if (_uiState.value.busyAction != null || metrics.isEmpty()) return
         viewModelScope.launch {
-            _uiState.update { it.copy(busyAction = action) }
-            generateHealthReport(
-                DemoSession.CARE_RECIPIENT_PROFILE_ID,
-                DemoSession.CURRENT_USER_ID,
-                today.minusDays(days - 1),
-                today
-            )
+            _uiState.update { it.copy(busyAction = ReportAction.EXPORT_PDF) }
+            generateHealthReport(DemoSession.CARE_RECIPIENT_PROFILE_ID, DemoSession.CURRENT_USER_ID, range.start, range.end)
                 .onSuccess { report ->
-                    _uiState.update { it.copy(busyAction = null) }
-                    onGenerated(report)
+                    _uiState.update {
+                        it.copy(busyAction = null, isExportSheetOpen = false, reportToExport = ExportRequest(report, metrics))
+                    }
                 }
                 .onFailure { e ->
-                    _uiState.update { it.copy(busyAction = null, actionMessage = e.message ?: "No se pudo generar el reporte") }
+                    // An empty range stays open and marked, so another one can be picked right away
+                    _uiState.update {
+                        it.copy(
+                            busyAction = null,
+                            emptyRanges = if (e is NoReadingsInPeriodException) it.emptyRanges + range else it.emptyRanges,
+                            actionMessage = e.message ?: "No se pudo generar el reporte"
+                        )
+                    }
                 }
         }
     }

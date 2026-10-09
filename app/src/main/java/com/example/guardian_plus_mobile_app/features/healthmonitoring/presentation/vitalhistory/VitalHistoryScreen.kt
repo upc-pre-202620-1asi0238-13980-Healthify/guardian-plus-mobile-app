@@ -42,6 +42,7 @@ import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentati
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.VitalFilterOption
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.healthreport.pdf.exportHealthReport
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.PeriodAverageCard
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.ExportRecordSheet
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.ReadingItem
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.VitalTypeFilterRow
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.WeeklyReportSheet
@@ -63,8 +64,8 @@ fun VitalHistoryScreen(
 
     val exportFailed = stringResource(R.string.report_export_failed)
     LaunchedEffect(uiState.reportToExport) {
-        uiState.reportToExport?.let { report ->
-            if (!context.exportHealthReport(report, DemoSession.CARE_RECIPIENT_NAME)) {
+        uiState.reportToExport?.let { request ->
+            if (!context.exportHealthReport(request.report, DemoSession.CARE_RECIPIENT_NAME, request.metrics)) {
                 Toast.makeText(context, exportFailed, Toast.LENGTH_LONG).show()
             }
             viewModel.onReportExported()
@@ -83,9 +84,20 @@ fun VitalHistoryScreen(
         uiState = uiState,
         onSelectType = viewModel::selectType,
         onRetryClick = viewModel::load,
-        onExportClick = viewModel::exportPdf,
+        onExportClick = viewModel::openExportSheet,
         onWeeklyReportClick = viewModel::openWeeklyReport
     )
+
+    if (uiState.isExportSheetOpen) {
+        ExportRecordSheet(
+            today = uiState.today,
+            careRecipientName = DemoSession.CARE_RECIPIENT_NAME,
+            emptyRanges = uiState.emptyRanges,
+            isExporting = uiState.busyAction == ReportAction.EXPORT_PDF,
+            onExport = viewModel::exportRecord,
+            onDismiss = viewModel::closeExportSheet
+        )
+    }
 
     uiState.weeklyReport?.let { weeklyReport ->
         WeeklyReportSheet(

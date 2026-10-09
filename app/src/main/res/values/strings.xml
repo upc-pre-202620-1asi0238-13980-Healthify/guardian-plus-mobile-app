@@ -297,7 +297,6 @@
     <string name="health_sync_retrying">Reintentando</string>
     <string name="health_no_filter_match">Ningún signo vital coincide con los filtros</string>
     <!-- Health monitoring: health reports -->
-    <string name="report_title">Reporte de salud</string>
     <string name="report_type_on_demand">A pedido</string>
     <string name="report_type_weekly">Semanal</string>
     <string name="report_readings">Lecturas</string>
@@ -325,6 +324,19 @@
     <string name="pdf_legend">Estable: ninguna lectura fuera de rango · Inestable: de 1 a 3 · Recurrente: más de 3.</string>
     <string name="pdf_footer_source">Reporte compilado por Guardian+ a partir de las lecturas de la pulsera.</string>
     <string name="pdf_footer_disclaimer">No reemplaza la evaluación de un profesional de la salud.</string>
+    <!-- Health monitoring: export record -->
+    <string name="export_title">Exportar expediente</string>
+    <string name="export_subtitle">%1$s · Signos vitales</string>
+    <string name="export_period">Período de tiempo</string>
+    <string name="export_last_30_days">Últimos 30 días</string>
+    <string name="export_last_7_days">Últimos 7 días</string>
+    <string name="export_custom">Personalizado</string>
+    <string name="export_pick_dates">Elige las fechas</string>
+    <string name="export_pick_confirm">Listo</string>
+    <string name="export_no_data">sin datos</string>
+    <string name="export_metrics">Métricas incluidas</string>
+    <string name="export_generate">Generar y exportar PDF</string>
+    <string name="pdf_title">Expediente de signos vitales</string>
     <!-- Health monitoring: weekly report (US24) -->
     <string name="weekly_title">Reporte semanal</string>
     <string name="weekly_stability">Estabilidad</string>

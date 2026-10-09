@@ -21,19 +21,18 @@ private val dayMonth = DateTimeFormatter.ofPattern("d MMM", spanish)
 private val dayMonthYear = DateTimeFormatter.ofPattern("d MMM yyyy", spanish)
 private val dateTime = DateTimeFormatter.ofPattern("d MMM yyyy · HH:mm", spanish)
 
-/** "3 – 9 oct 2026", "29 oct – 4 nov 2026", or "9 oct 2026" for a one-day report. */
-fun HealthReport.periodText(): String = when {
-    periodStart == periodEnd -> periodEnd.format(dayMonthYear)
-    periodStart.year == periodEnd.year && periodStart.month == periodEnd.month ->
-        "${periodStart.dayOfMonth} – ${periodEnd.format(dayMonthYear)}"
-    periodStart.year == periodEnd.year -> "${periodStart.format(dayMonth)} – ${periodEnd.format(dayMonthYear)}"
-    else -> "${periodStart.format(dayMonthYear)} – ${periodEnd.format(dayMonthYear)}"
+fun HealthReport.periodText(): String = periodText(periodStart, periodEnd)
+
+/** "3 – 9 oct 2026", "29 oct – 4 nov 2026", or "9 oct 2026" for a single day. */
+fun periodText(start: LocalDate, end: LocalDate): String = when {
+    start == end -> end.format(dayMonthYear)
+    start.year == end.year && start.month == end.month -> "${start.dayOfMonth} – ${end.format(dayMonthYear)}"
+    start.year == end.year -> "${start.format(dayMonth)} – ${end.format(dayMonthYear)}"
+    else -> "${start.format(dayMonthYear)} – ${end.format(dayMonthYear)}"
 }.cleanAbbreviations()
 
 fun HealthReport.generatedAtText(zone: ZoneId = ZoneId.systemDefault()): String =
     generatedAt.atZone(zone).format(dateTime).cleanAbbreviations()
-
-fun LocalDate.shortText(): String = format(dayMonthYear).cleanAbbreviations()
 
 // Some JDKs abbreviate Spanish months with a dot ("oct.") and others do not; the prototype has none
 private fun String.cleanAbbreviations(): String = replace(".", "")

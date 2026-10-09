@@ -18,8 +18,11 @@ import com.example.guardian_plus_mobile_app.core.designsystem.theme.PastelYellow
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.Primary
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.HealthReport
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.StabilityIndex
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.displayedVitalTypes
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.displayUnit
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.title
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.healthreport.SummaryRow
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.healthreport.generatedAtText
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.healthreport.labelRes
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.healthreport.periodText
@@ -41,17 +44,22 @@ private const val CONTENT_WIDTH = PAGE_WIDTH - 2 * MARGIN
 private val columnWidths = floatArrayOf(130f, 95f, 60f, 60f, 55f, 60f, 55f)
 
 /**
- * Draws a health report on one A4 page, in the app's palette, and saves it in the cache where only the
- * share sheet can reach it. Blocking: call it off the main thread.
+ * Draws the vital sign record of a report on one A4 page, in the app's palette, with only the [metrics] chosen,
+ * and saves it in the cache where only the share sheet can reach it. Blocking: call it off the main thread.
  */
-fun writeHealthReportPdf(context: Context, report: HealthReport, careRecipientName: String): File {
+fun writeHealthReportPdf(
+    context: Context,
+    report: HealthReport,
+    careRecipientName: String,
+    metrics: Set<VitalSignType> = displayedVitalTypes.toSet()
+): File {
     val document = PdfDocument()
     val page = document.startPage(PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, 1).create())
-    page.canvas.drawReport(context, report, careRecipientName)
+    page.canvas.drawReport(context, report, careRecipientName, report.summaryRows().filter { it.type in metrics })
     document.finishPage(page)
 
     val directory = File(context.cacheDir, REPORTS_DIRECTORY).apply { mkdirs() }
-    val file = File(directory, "reporte-salud-${report.periodStart}-${report.periodEnd}.pdf")
+    val file = File(directory, "expediente-${report.periodStart}-${report.periodEnd}.pdf")
     try {
         file.outputStream().use { document.writeTo(it) }
     } finally {
@@ -61,9 +69,13 @@ fun writeHealthReportPdf(context: Context, report: HealthReport, careRecipientNa
 }
 
 /** Writes the PDF off the main thread and opens the share sheet with it; false when the file could not be made. */
-suspend fun Context.exportHealthReport(report: HealthReport, careRecipientName: String): Boolean {
+suspend fun Context.exportHealthReport(
+    report: HealthReport,
+    careRecipientName: String,
+    metrics: Set<VitalSignType> = displayedVitalTypes.toSet()
+): Boolean {
     val file = try {
-        withContext(Dispatchers.IO) { writeHealthReportPdf(this@exportHealthReport, report, careRecipientName) }
+        withContext(Dispatchers.IO) { writeHealthReportPdf(this@exportHealthReport, report, careRecipientName, metrics) }
     } catch (e: CancellationException) {
         throw e
     } catch (_: Exception) {
@@ -88,7 +100,9 @@ fun Context.sharePdf(file: File) {
 // Same folder as res/xml/file_paths.xml
 private const val REPORTS_DIRECTORY = "reports"
 
-private fun Canvas.drawReport(context: Context, report: HealthReport, careRecipientName: String) {
+// Totals and the overall state follow the included signs only, so the page never speaks of what it leaves out
+private fun Canvas.drawReport(context: Context, report: HealthReport, careRecipientName: String, rows: List<SummaryRow>) {
+    val stable = rows.all { it.stability == StabilityIndex.STABLE }
     val sans = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL)
     val sansBold = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
     val mono = Typeface.MONOSPACE
@@ -101,13 +115,13 @@ private fun Canvas.drawReport(context: Context, report: HealthReport, careRecipi
     // Header band
     drawRect(0f, 0f, PAGE_WIDTH.toFloat(), 118f, paint(Primary, 0f))
     drawText(context.getString(R.string.pdf_brand), MARGIN, 38f, paint(ComposeColor.White.copy(alpha = 0.8f), 10f, sansBold))
-    drawText(context.getString(R.string.report_title), MARGIN, 68f, paint(ComposeColor.White, 24f, sansBold))
+    drawText(context.getString(R.string.pdf_title), MARGIN, 68f, paint(ComposeColor.White, 24f, sansBold))
     drawText("$careRecipientName · ${report.periodText()}", MARGIN, 94f, paint(ComposeColor.White.copy(alpha = 0.85f), 12f))
 
     // Kind, date and overall state
     var y = 156f
     val infoWidth = CONTENT_WIDTH / 3
-    val overall = context.getString(if (report.clinicallyStable) R.string.report_stable else R.string.reading_observation)
+    val overall = context.getString(if (stable) R.string.report_stable else R.string.reading_observation)
     listOf(
         context.getString(R.string.pdf_type) to context.getString(report.reportType.labelRes),
         context.getString(R.string.pdf_generated) to report.generatedAtText(),
@@ -115,7 +129,7 @@ private fun Canvas.drawReport(context: Context, report: HealthReport, careRecipi
     ).forEachIndexed { index, (label, value) ->
         val x = MARGIN + index * infoWidth
         drawText(label.uppercase(), x, y, paint(MutedForeground, 8.5f, sansBold))
-        val valueColor = if (index == 2 && !report.clinicallyStable) PastelYellowText else NeutralForeground
+        val valueColor = if (index == 2 && !stable) PastelYellowText else NeutralForeground
         drawText(value, x, y + 18f, paint(valueColor, 12f, sansBold))
     }
 
@@ -124,9 +138,9 @@ private fun Canvas.drawReport(context: Context, report: HealthReport, careRecipi
     val gap = 12f
     val boxWidth = (CONTENT_WIDTH - 2 * gap) / 3
     listOf(
-        report.readingsCount to context.getString(R.string.report_readings),
-        report.outOfRangeCount to context.getString(R.string.report_out_of_range),
-        report.recurrentAnomaliesCount to context.getString(R.string.report_recurrent_anomalies)
+        rows.sumOf { it.readingsCount } to context.getString(R.string.report_readings),
+        rows.sumOf { it.outOfRangeCount } to context.getString(R.string.report_out_of_range),
+        rows.count { it.stability == StabilityIndex.RECURRENT } to context.getString(R.string.report_recurrent_anomalies)
     ).forEachIndexed { index, (value, label) ->
         val x = MARGIN + index * (boxWidth + gap)
         val box = RectF(x, y, x + boxWidth, y + 64f)
@@ -150,7 +164,7 @@ private fun Canvas.drawReport(context: Context, report: HealthReport, careRecipi
     val rowText = paint(NeutralForeground, 10.5f)
     val rowNumbers = paint(NeutralForeground, 10.5f, mono)
     val divider = paint(Border, 0f).apply { strokeWidth = 0.75f }
-    report.summaryRows().forEach { row ->
+    rows.forEach { row ->
         val cells = listOf(
             row.type.title,
             "${row.averageText} ${row.type.displayUnit}",

@@ -1,6 +1,5 @@
 package com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory
 
-import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.HealthReport
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignReading
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.HistoryPeriod
@@ -25,8 +24,11 @@ data class VitalHistoryUiState(
     val busyAction: ReportAction? = null,
     // The weekly report sheet is open while this is set
     val weeklyReport: WeeklyReport? = null,
+    val isExportSheetOpen: Boolean = false,
+    // Ranges the platform said have no readings, marked "sin datos" in the export sheet
+    val emptyRanges: Set<ExportRange> = emptySet(),
     // One-shot events for the screen: a report to turn into a PDF and a message to show
-    val reportToExport: HealthReport? = null,
+    val reportToExport: ExportRequest? = null,
     val actionMessage: String? = null
 ) {
     val days: List<LocalDate>
