@@ -34,8 +34,9 @@ fun periodText(start: LocalDate, end: LocalDate): String = when {
 fun HealthReport.generatedAtText(zone: ZoneId = ZoneId.systemDefault()): String =
     generatedAt.atZone(zone).format(dateTime).cleanAbbreviations()
 
-// Some JDKs abbreviate Spanish months with a dot ("oct.") and others do not; the prototype has none
-private fun String.cleanAbbreviations(): String = replace(".", "")
+// Some JDKs abbreviate Spanish months with a dot ("oct.") and Android capitalizes them ("Oct"); the prototype
+// writes "oct", and nothing else in these texts has letters to lose their case
+private fun String.cleanAbbreviations(): String = replace(".", "").lowercase(spanish)
 
 @get:StringRes
 val HealthReportType.labelRes: Int

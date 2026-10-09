@@ -235,8 +235,10 @@ private fun RecurrentNotice(modifier: Modifier = Modifier, rows: List<SummaryRow
         pluralStringResource(R.plurals.weekly_recurrent_sentence, row.outOfRangeCount, row.type.title, row.outOfRangeCount)
     }
     val specialties = rows.map { stringResource(it.type.specialtyRes()) }.distinct()
-    val body = sentences.joinToString(" ") + " " +
-        stringResource(R.string.weekly_recurrent_advice, specialties.joinToString(stringResource(R.string.weekly_and)))
+    // "cardiología, neumología y medicina general"
+    val conjunction = stringResource(R.string.weekly_and)
+    val specialtyList = if (specialties.size == 1) specialties.first() else specialties.dropLast(1).joinToString(", ") + conjunction + specialties.last()
+    val body = sentences.joinToString(" ") + " " + stringResource(R.string.weekly_recurrent_advice, specialtyList)
 
     Surface(
         modifier = modifier.fillMaxWidth(),

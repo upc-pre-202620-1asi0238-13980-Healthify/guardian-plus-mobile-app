@@ -41,7 +41,7 @@ private const val MARGIN = 40f
 private const val CONTENT_WIDTH = PAGE_WIDTH - 2 * MARGIN
 
 // Widths of "Signo vital · Promedio · Mín · Máx · Lecturas · Fuera de rango · Estabilidad", adding up to CONTENT_WIDTH
-private val columnWidths = floatArrayOf(130f, 95f, 60f, 60f, 55f, 60f, 55f)
+private val columnWidths = floatArrayOf(118f, 100f, 55f, 62f, 52f, 68f, 60f)
 
 /**
  * Draws the vital sign record of a report on one A4 page, in the app's palette, with only the [metrics] chosen,
