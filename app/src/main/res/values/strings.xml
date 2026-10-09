@@ -277,4 +277,77 @@
     <string name="health_today">Hoy</string>
     <string name="health_yesterday">Ayer</string>
     <string name="placeholder_soon">Próximamente</string>
+    <!-- Care Routines & Wellness: routines tab -->
+    <string name="routines_title">Rutinas</string>
+    <string name="routines_subtitle">Bienestar de %1$s</string>
+    <string name="routines_today_label">HOY · %1$s</string>
+    <string name="routines_today_in_progress">Tu día está en marcha</string>
+    <string name="routines_today_done">Rutinas del día completadas</string>
+    <string name="routines_today_empty">Sin rutinas para hoy</string>
+    <string name="routines_today_progress">%1$d de %2$d rutinas completadas</string>
+    <string name="routines_percent">%1$d%%</string>
+    <plurals name="routines_completed_count">
+        <item quantity="one">%1$d completada</item>
+        <item quantity="many">%1$d completadas</item>
+        <item quantity="other">%1$d completadas</item>
+    </plurals>
+    <plurals name="routines_pending_count">
+        <item quantity="one">%1$d pendiente</item>
+        <item quantity="many">%1$d pendientes</item>
+        <item quantity="other">%1$d pendientes</item>
+    </plurals>
+    <plurals name="routines_missed_count">
+        <item quantity="one">%1$d omitida</item>
+        <item quantity="many">%1$d omitidas</item>
+        <item quantity="other">%1$d omitidas</item>
+    </plurals>
+    <string name="routines_next_title">Siguiente</string>
+    <string name="routines_all_title">Todas las rutinas</string>
+    <string name="routines_next_now">AHORA</string>
+    <string name="routines_next_in_minutes">EN %1$d MIN</string>
+    <string name="routines_next_in_hours">EN %1$d H</string>
+    <string name="routines_next_in_hours_minutes">EN %1$d H %2$d MIN</string>
+    <string name="routines_activity_duration">%1$d minutos</string>
+    <string name="routines_category_medication">Medicación</string>
+    <string name="routines_category_appointments">Citas médicas</string>
+    <string name="routines_category_activity">Actividad ligera</string>
+    <string name="routines_category_hydration">Hidratación</string>
+    <string name="routines_category_sleep">Sueño</string>
+    <string name="routines_category_inactivity">Inactividad</string>
+    <string name="routines_category_stock">Stock de medicinas</string>
+    <plurals name="routines_medication_doses_today">
+        <item quantity="one">%1$d toma hoy</item>
+        <item quantity="many">%1$d tomas hoy</item>
+        <item quantity="other">%1$d tomas hoy</item>
+    </plurals>
+    <string name="routines_medication_none">Sin tomas hoy</string>
+    <string name="routines_appointment_next">Próxima: %1$s, %2$s</string>
+    <string name="routines_day_today">hoy</string>
+    <string name="routines_day_tomorrow">mañana</string>
+    <string name="routines_appointment_none">Sin citas próximas</string>
+    <string name="routines_activity_progress">%1$d de %2$d completadas</string>
+    <string name="routines_activity_none">Sin actividades hoy</string>
+    <string name="routines_hydration_every_hour">Cada hora</string>
+    <string name="routines_hydration_every_hours">Cada %1$d horas</string>
+    <string name="routines_hydration_active">Activa</string>
+    <string name="routines_hydration_paused">Pausada</string>
+    <string name="routines_hydration_none">Sin configurar</string>
+    <string name="routines_sleep_last_night">%1$s anoche</string>
+    <string name="routines_sleep_on_date">%1$s el %2$s</string>
+    <string name="routines_sleep_none">Sin registros de sueño</string>
+    <string name="routines_sleep_fragmented">Fragmentado</string>
+    <string name="routines_sleep_regular">Regular</string>
+    <string name="routines_inactivity_watching">Vigilancia diurna activa</string>
+    <string name="routines_inactivity_disabled">Vigilancia desactivada</string>
+    <string name="routines_inactivity_detected">Sin movimiento desde las %1$s</string>
+    <string name="routines_inactivity_badge">Inactividad</string>
+    <string name="routines_inactivity_none">Sin datos de la pulsera</string>
+    <plurals name="routines_stock_supply">
+        <item quantity="one">%1$s para %2$d día</item>
+        <item quantity="many">%1$s para %2$d días</item>
+        <item quantity="other">%1$s para %2$d días</item>
+    </plurals>
+    <string name="routines_stock_restock">Reponer</string>
+    <string name="routines_stock_none">Sin medicamentos registrados</string>
+    <string name="routines_wristband_synced">Pulsera sincronizada · %1$s</string>
 </resources>
