@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -33,8 +32,9 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
     }
     val openTab: (TopLevelDestination) -> Unit = { destination ->
         navController.navigate(destination.route) {
-            // Each tab keeps its own state (report, navigation rules)
-            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+            // Each tab keeps its own state (report, navigation rules). Anchored on Home rather than the graph's
+            // start destination, which is not on the back stack once it has been left for good
+            popUpTo<HomeRoute> { saveState = true }
             launchSingleTop = true
             restoreState = true
         }
