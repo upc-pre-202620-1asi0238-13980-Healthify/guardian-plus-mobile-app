@@ -18,9 +18,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,38 +33,79 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
+import com.example.guardian_plus_mobile_app.core.session.DemoSession
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignReading
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.ErrorState
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.HistoryPeriod
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.VitalFilter
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.VitalFilterOption
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.healthreport.pdf.exportHealthReport
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.PeriodAverageCard
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.ExportRecordSheet
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.ReadingItem
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.VitalTypeFilterRow
-import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.WeeklyAverageCard
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.component.WeeklyReportSheet
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-/** "Salud › Historial": the last seven days of one vital sign and the latest readings of all of them. */
+/** "Salud › Historial": the chosen period of one vital sign and the latest readings of all of them. */
 @Composable
 fun VitalHistoryScreen(
     modifier: Modifier = Modifier,
     viewModel: VitalHistoryViewModel = hiltViewModel(),
-    onSeeAllClick: () -> Unit
+    filter: VitalFilter = VitalFilter()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val comingSoon = stringResource(R.string.placeholder_soon)
-    // Reports belong to the Health Reports context, not built in the app yet
-    val showComingSoon = { Toast.makeText(context, comingSoon, Toast.LENGTH_SHORT).show() }
+    // The ViewModel decides whether the new filter needs another period from the platform
+    LaunchedEffect(filter) { viewModel.applyFilter(filter) }
+
+    val exportFailed = stringResource(R.string.report_export_failed)
+    LaunchedEffect(uiState.reportToExport) {
+        uiState.reportToExport?.let { request ->
+            if (!context.exportHealthReport(request.report, DemoSession.CARE_RECIPIENT_NAME, request.metrics)) {
+                Toast.makeText(context, exportFailed, Toast.LENGTH_LONG).show()
+            }
+            viewModel.onReportExported()
+        }
+    }
+
+    LaunchedEffect(uiState.actionMessage) {
+        uiState.actionMessage?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            viewModel.onActionMessageShown()
+        }
+    }
 
     VitalHistoryContent(
         modifier = modifier,
         uiState = uiState,
         onSelectType = viewModel::selectType,
         onRetryClick = viewModel::load,
-        onSeeAllClick = onSeeAllClick,
-        onExportClick = showComingSoon,
-        onWeeklyReportClick = showComingSoon
+        onExportClick = viewModel::openExportSheet,
+        onWeeklyReportClick = viewModel::openWeeklyReport
     )
+
+    if (uiState.isExportSheetOpen) {
+        ExportRecordSheet(
+            today = uiState.today,
+            careRecipientName = DemoSession.CARE_RECIPIENT_NAME,
+            emptyRanges = uiState.emptyRanges,
+            isExporting = uiState.busyAction == ReportAction.EXPORT_PDF,
+            onExport = viewModel::exportRecord,
+            onDismiss = viewModel::closeExportSheet
+        )
+    }
+
+    uiState.weeklyReport?.let { weeklyReport ->
+        WeeklyReportSheet(
+            weeklyReport = weeklyReport,
+            careRecipientName = DemoSession.CARE_RECIPIENT_NAME,
+            onDismiss = viewModel::closeWeeklyReport
+        )
+    }
 }
 
 @Composable
@@ -73,7 +114,6 @@ fun VitalHistoryContent(
     uiState: VitalHistoryUiState,
     onSelectType: (VitalSignType) -> Unit,
     onRetryClick: () -> Unit,
-    onSeeAllClick: () -> Unit,
     onExportClick: () -> Unit,
     onWeeklyReportClick: () -> Unit
 ) {
@@ -91,23 +131,24 @@ fun VitalHistoryContent(
             onRetryClick = onRetryClick
         )
 
-        // An empty week still shows the chips and the card with "Sin lecturas esta semana"
+        // An empty period still shows the chips and the card with "Sin lecturas esta semana"
         else -> LazyColumn(
             modifier = modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            item(key = "all-vitals") { AllVitalsRow(onClick = onSeeAllClick) }
             item(key = "filters") {
-                VitalTypeFilterRow(selected = uiState.selectedType, onSelect = onSelectType)
+                VitalTypeFilterRow(types = uiState.filter.types, selected = uiState.chartType, onSelect = onSelectType)
             }
-            item(key = "weekly") {
-                WeeklyAverageCard(
-                    type = uiState.selectedType,
-                    average = uiState.weeklyAverage,
-                    min = uiState.weeklyMin,
-                    max = uiState.weeklyMax,
-                    dailyAverages = uiState.dailyAverages,
+            item(key = "average") {
+                val type = uiState.chartType
+                PeriodAverageCard(
+                    type = type,
+                    period = uiState.period,
+                    average = uiState.average(type),
+                    min = uiState.min(type),
+                    max = uiState.max(type),
+                    values = uiState.chartValues(type),
                     days = uiState.days
                 )
             }
@@ -121,49 +162,18 @@ fun VitalHistoryContent(
                 )
             }
             item(key = "actions") {
-                ReportActions(onExportClick = onExportClick, onWeeklyReportClick = onWeeklyReportClick)
+                ReportActions(
+                    busyAction = uiState.busyAction,
+                    onExportClick = onExportClick,
+                    onWeeklyReportClick = onWeeklyReportClick
+                )
             }
         }
     }
 }
 
-// The prototype's search box is a link to every vital sign, which is what the "Ahora" tab shows
 @Composable
-private fun AllVitalsRow(onClick: () -> Unit) {
-    Surface(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
-    ) {
-        Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                painter = painterResource(R.drawable.ic_search),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(18.dp)
-            )
-            Text(
-                text = stringResource(R.string.health_all_vitals),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 10.dp)
-            )
-            Icon(
-                painter = painterResource(R.drawable.ic_chevron_right),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(18.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun ReportActions(onExportClick: () -> Unit, onWeeklyReportClick: () -> Unit) {
+private fun ReportActions(busyAction: ReportAction?, onExportClick: () -> Unit, onWeeklyReportClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -172,29 +182,43 @@ private fun ReportActions(onExportClick: () -> Unit, onWeeklyReportClick: () -> 
     ) {
         OutlinedButton(
             onClick = onExportClick,
+            enabled = busyAction == null,
             modifier = Modifier
                 .weight(1f)
                 .height(52.dp),
             shape = MaterialTheme.shapes.medium,
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
         ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_download),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(end = 8.dp)
-                    .size(18.dp)
-            )
-            Text(text = stringResource(R.string.health_export_pdf))
+            if (busyAction == ReportAction.EXPORT_PDF) {
+                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+            } else {
+                Icon(
+                    painter = painterResource(R.drawable.ic_download),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                        .size(18.dp)
+                )
+                Text(text = stringResource(R.string.health_export_pdf))
+            }
         }
         Button(
             onClick = onWeeklyReportClick,
+            enabled = busyAction == null,
             modifier = Modifier
                 .weight(1f)
                 .height(52.dp),
             shape = MaterialTheme.shapes.medium
         ) {
-            Text(text = stringResource(R.string.health_weekly_report))
+            if (busyAction == ReportAction.WEEKLY_REPORT) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            } else {
+                Text(text = stringResource(R.string.health_weekly_report))
+            }
         }
     }
 }
@@ -236,7 +260,6 @@ private fun VitalHistoryContentPreview(uiState: VitalHistoryUiState) {
             uiState = uiState,
             onSelectType = {},
             onRetryClick = {},
-            onSeeAllClick = {},
             onExportClick = {},
             onWeeklyReportClick = {}
         )
@@ -259,4 +282,15 @@ private fun VitalHistoryContentEmptyPreview() {
 @Composable
 private fun VitalHistoryContentErrorPreview() {
     VitalHistoryContentPreview(VitalHistoryUiState(errorMessage = "No se pudo conectar con el servidor. Revisa tu conexión."))
+}
+
+@Preview(showBackground = true, heightDp = 800)
+@Composable
+private fun VitalHistoryContentDayPreview() {
+    VitalHistoryContentPreview(
+        previewState.copy(
+            filter = VitalFilter().toggle(VitalFilterOption.HEART_RATE).toggle(VitalFilterOption.DAY),
+            period = HistoryPeriod.DAY
+        )
+    )
 }

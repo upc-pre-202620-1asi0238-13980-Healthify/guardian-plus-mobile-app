@@ -14,21 +14,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.displayedVitalTypes
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.shortLabel
 
-// One "Presión" chip for both halves of the blood pressure: the chart follows the systolic value
-private val filterTypes = listOf(
-    VitalSignType.HR,
-    VitalSignType.BP_SYS,
-    VitalSignType.SPO2,
-    VitalSignType.TEMP,
-    VitalSignType.RESP_RATE
-)
-
-/** "Ritmo · Presión · SpO₂ · Temp · Respir": which vital sign the weekly chart shows. */
+/**
+ * "Ritmo · Presión · SpO₂ · Temp · Respir": which vital sign the chart shows. One "Presión" chip covers both
+ * halves of the blood pressure, the chart follows the systolic value. Only the types the filter keeps are offered.
+ */
 @Composable
 fun VitalTypeFilterRow(
     modifier: Modifier = Modifier,
+    types: List<VitalSignType> = displayedVitalTypes,
     selected: VitalSignType,
     onSelect: (VitalSignType) -> Unit
 ) {
@@ -36,7 +32,7 @@ fun VitalTypeFilterRow(
         modifier = modifier.horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        filterTypes.forEach { type ->
+        types.forEach { type ->
             val isSelected = type == selected
             Surface(
                 onClick = { onSelect(type) },

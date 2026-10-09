@@ -7,11 +7,13 @@ import retrofit2.Response
 
 /**
  * Runs a request and turns every possible outcome into a Result with a message the user understands.
- * [onNotFound] lets a lookup treat 404 as an expected empty answer instead of an error.
+ * [onNotFound] lets a lookup treat 404 as an expected empty answer instead of an error, and [onError] lets
+ * a caller turn a status it expects (such as a 422 business rule) into its own exception.
  */
 suspend fun <T, R> apiCall(
     request: suspend () -> Response<T>,
     onNotFound: (() -> R)? = null,
+    onError: ((code: Int, message: String) -> Exception)? = null,
     map: (T) -> R
 ): Result<R> {
     return try {
@@ -19,7 +21,10 @@ suspend fun <T, R> apiCall(
         val body = response.body()
         when {
             response.code() == 404 && onNotFound != null -> Result.success(onNotFound())
-            !response.isSuccessful -> Result.failure(Exception(response.errorMessage()))
+            !response.isSuccessful -> {
+                val message = response.errorMessage()
+                Result.failure(onError?.invoke(response.code(), message) ?: Exception(message))
+            }
             body == null -> Result.failure(Exception("El servidor no devolvió datos"))
             else -> Result.success(map(body))
         }

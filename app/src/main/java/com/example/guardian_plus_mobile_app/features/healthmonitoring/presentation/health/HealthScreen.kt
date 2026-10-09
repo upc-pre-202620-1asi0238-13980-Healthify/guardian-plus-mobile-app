@@ -18,15 +18,18 @@ import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianThem
 import com.example.guardian_plus_mobile_app.core.session.DemoSession
 import com.example.guardian_plus_mobile_app.core.text.initials
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.LiveVitalsUiState
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.VitalFilter
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.previewLiveVitals
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.health.component.HealthHeader
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.health.component.HealthTab
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.health.component.HealthTabRow
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.health.component.VitalFilterSheet
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.health.component.VitalSearchBar
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.livevitals.LiveVitalsScreen
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.livevitals.LiveVitalsViewModel
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.vitalhistory.VitalHistoryScreen
 
-/** Health tab of the bottom bar: shared header and the "Ahora · Historial" tabs. */
+/** Health tab of the bottom bar: shared header, the "Ahora · Historial" tabs and the search bar over both. */
 @Composable
 fun HealthScreen(modifier: Modifier = Modifier) {
     // Same instance that LiveVitalsScreen uses, since both live in this navigation entry
@@ -34,17 +37,34 @@ fun HealthScreen(modifier: Modifier = Modifier) {
     val liveState by liveVitalsViewModel.uiState.collectAsStateWithLifecycle()
     // A pure UI choice, so it survives rotation with rememberSaveable instead of living in a ViewModel
     var selectedTab by rememberSaveable { mutableStateOf(HealthTab.NOW) }
+    // The filter is UI state shared by both tabs; saved as option names so it survives rotation too
+    var filterNames by rememberSaveable { mutableStateOf(emptyList<String>()) }
+    val filter = VitalFilter.fromNames(filterNames)
+    var showFilters by rememberSaveable { mutableStateOf(false) }
 
     HealthContent(
         modifier = modifier,
         liveState = liveState,
         selectedTab = selectedTab,
-        onTabSelected = { selectedTab = it }
+        onTabSelected = { selectedTab = it },
+        filter = filter,
+        onSearchClick = { showFilters = true }
     ) {
         when (selectedTab) {
-            HealthTab.NOW -> LiveVitalsScreen(viewModel = liveVitalsViewModel)
-            HealthTab.HISTORY -> VitalHistoryScreen(onSeeAllClick = { selectedTab = HealthTab.NOW })
+            HealthTab.NOW -> LiveVitalsScreen(viewModel = liveVitalsViewModel, filter = filter)
+            HealthTab.HISTORY -> VitalHistoryScreen(filter = filter)
         }
+    }
+
+    if (showFilters) {
+        VitalFilterSheet(
+            applied = filter,
+            onApply = { applied ->
+                filterNames = applied.options.map { it.name }
+                showFilters = false
+            },
+            onDismiss = { showFilters = false }
+        )
     }
 }
 
@@ -54,6 +74,8 @@ fun HealthContent(
     liveState: LiveVitalsUiState,
     selectedTab: HealthTab,
     onTabSelected: (HealthTab) -> Unit,
+    filter: VitalFilter,
+    onSearchClick: () -> Unit,
     tabContent: @Composable () -> Unit
 ) {
     Column(modifier = modifier.fillMaxSize()) {
@@ -69,6 +91,11 @@ fun HealthContent(
             selectedTab = selectedTab,
             onTabSelected = onTabSelected
         )
+        VitalSearchBar(
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 12.dp),
+            filter = filter,
+            onClick = onSearchClick
+        )
         Box(modifier = Modifier.weight(1f)) {
             tabContent()
         }
@@ -82,7 +109,9 @@ private fun HealthContentPreview() {
         HealthContent(
             liveState = LiveVitalsUiState(vitals = previewLiveVitals()),
             selectedTab = HealthTab.HISTORY,
-            onTabSelected = {}
+            onTabSelected = {},
+            filter = VitalFilter(),
+            onSearchClick = {}
         ) {}
     }
 }

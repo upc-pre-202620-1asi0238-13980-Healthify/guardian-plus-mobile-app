@@ -1,7 +1,9 @@
 package com.example.guardian_plus_mobile_app.features.healthmonitoring.infrastructure.di
 
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.repositories.HealthReportRepository
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.repositories.VitalSignRepository
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.repositories.WearableDeviceRepository
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.infrastructure.repositories.HealthReportRepositoryImpl
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.infrastructure.repositories.VitalSignRepositoryImpl
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.infrastructure.repositories.WearableDeviceRepositoryImpl
 import dagger.Binds
@@ -19,4 +21,7 @@ interface HealthMonitoringRepositoryModule {
 
     @Binds
     fun bindWearableDeviceRepository(impl: WearableDeviceRepositoryImpl) : WearableDeviceRepository
+
+    @Binds
+    fun bindHealthReportRepository(impl: HealthReportRepositoryImpl): HealthReportRepository
 }

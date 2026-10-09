@@ -5,8 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.guardian_plus_mobile_app.core.session.DemoSession
 import com.example.guardian_plus_mobile_app.core.time.ServerClock
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetLiveVitalSignsUseCase
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetVitalSignHistoryUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetWearableDevicesUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.DeviceType
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignReading
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +25,7 @@ import javax.inject.Inject
 class LiveVitalsViewModel @Inject constructor(
     private val getLiveVitalSigns: GetLiveVitalSignsUseCase,
     private val getWearableDevices: GetWearableDevicesUseCase,
+    private val getVitalSignHistory: GetVitalSignHistoryUseCase,
     private val serverClock: ServerClock
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
@@ -41,6 +44,7 @@ class LiveVitalsViewModel @Inject constructor(
         viewModelScope.launch{
             _uiState.update { it.copy(isLoading = true, errorMessage = null)}
             refresh()
+            loadToday()
         }
 
     }
@@ -57,6 +61,7 @@ class LiveVitalsViewModel @Inject constructor(
                     //this is basically updating the states that we previously defined
                     _uiState.update { 
                         it.copy(isLoading = false, errorMessage = null, vitals = vitals, hasWristband = hasWristband, now = serverClock.now())
+                            .withReadings(vitals.vitalSigns.map { sign -> VitalSignReading(sign.id, sign.type, sign.value, sign.measuredAt) })
                     }
                 }
                 .onFailure { e ->
@@ -65,6 +70,14 @@ class LiveVitalsViewModel @Inject constructor(
                     }
                 }
                 
+        }
+
+        // Once per load: the sparkline and today's max and min start from the history, then grow with each refresh
+        private suspend fun loadToday() {
+            val today = serverClock.now().atZone(_uiState.value.zone).toLocalDate()
+            // The platform filters by UTC date, so the next day is asked too and the state keeps the local one
+            getVitalSignHistory(DemoSession.CARE_RECIPIENT_PROFILE_ID, today, today.plusDays(1))
+                .onSuccess { readings -> _uiState.update { it.withReadings(readings) } }
         }
 
         private fun startAutoRefresh() {

@@ -4,6 +4,7 @@ package com.example.guardian_plus_mobile_app.features.healthmonitoring.presentat
 import com.example.guardian_plus_mobile_app.R
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
 import kotlin.math.roundToInt
 
@@ -16,6 +17,16 @@ val VitalSignType.label: String
         VitalSignType.HR -> "Ritmo cardíaco"
         VitalSignType.BP_SYS, VitalSignType.BP_DIA -> "Presión arterial"
         VitalSignType.SPO2 -> "Saturación"
+        VitalSignType.TEMP -> "Temperatura"
+        VitalSignType.RESP_RATE -> "Respiración"
+    }
+
+// Card titles of "Ahora", shown in capitals
+val VitalSignType.title: String
+    get() = when (this) {
+        VitalSignType.HR -> "Frecuencia cardíaca"
+        VitalSignType.BP_SYS, VitalSignType.BP_DIA -> "Presión arterial"
+        VitalSignType.SPO2 -> "Saturación O₂"
         VitalSignType.TEMP -> "Temperatura"
         VitalSignType.RESP_RATE -> "Respiración"
     }
@@ -55,4 +66,11 @@ fun VitalSignType.iconRes(): Int = when (this) {
 fun VitalSignType.format(value: Double): String = when (this) {
     VitalSignType.TEMP -> "%.1f".format(value)
     else -> value.roundToInt().toString()
+}
+
+@StringRes
+fun VitalTrend.labelRes(): Int = when (this) {
+    VitalTrend.STABLE -> R.string.health_trend_stable
+    VitalTrend.RISING -> R.string.health_trend_rising
+    VitalTrend.FALLING -> R.string.health_trend_falling
 }
