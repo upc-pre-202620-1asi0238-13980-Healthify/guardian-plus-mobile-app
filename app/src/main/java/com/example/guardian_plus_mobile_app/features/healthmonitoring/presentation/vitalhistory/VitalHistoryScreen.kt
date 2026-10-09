@@ -18,7 +18,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,8 +46,7 @@ import java.time.ZoneId
 @Composable
 fun VitalHistoryScreen(
     modifier: Modifier = Modifier,
-    viewModel: VitalHistoryViewModel = hiltViewModel(),
-    onSeeAllClick: () -> Unit
+    viewModel: VitalHistoryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -61,7 +59,6 @@ fun VitalHistoryScreen(
         uiState = uiState,
         onSelectType = viewModel::selectType,
         onRetryClick = viewModel::load,
-        onSeeAllClick = onSeeAllClick,
         onExportClick = showComingSoon,
         onWeeklyReportClick = showComingSoon
     )
@@ -73,7 +70,6 @@ fun VitalHistoryContent(
     uiState: VitalHistoryUiState,
     onSelectType: (VitalSignType) -> Unit,
     onRetryClick: () -> Unit,
-    onSeeAllClick: () -> Unit,
     onExportClick: () -> Unit,
     onWeeklyReportClick: () -> Unit
 ) {
@@ -97,7 +93,6 @@ fun VitalHistoryContent(
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            item(key = "all-vitals") { AllVitalsRow(onClick = onSeeAllClick) }
             item(key = "filters") {
                 VitalTypeFilterRow(selected = uiState.selectedType, onSelect = onSelectType)
             }
@@ -123,41 +118,6 @@ fun VitalHistoryContent(
             item(key = "actions") {
                 ReportActions(onExportClick = onExportClick, onWeeklyReportClick = onWeeklyReportClick)
             }
-        }
-    }
-}
-
-// The prototype's search box is a link to every vital sign, which is what the "Ahora" tab shows
-@Composable
-private fun AllVitalsRow(onClick: () -> Unit) {
-    Surface(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
-    ) {
-        Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                painter = painterResource(R.drawable.ic_search),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(18.dp)
-            )
-            Text(
-                text = stringResource(R.string.health_all_vitals),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 10.dp)
-            )
-            Icon(
-                painter = painterResource(R.drawable.ic_chevron_right),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(18.dp)
-            )
         }
     }
 }
@@ -236,7 +196,6 @@ private fun VitalHistoryContentPreview(uiState: VitalHistoryUiState) {
             uiState = uiState,
             onSelectType = {},
             onRetryClick = {},
-            onSeeAllClick = {},
             onExportClick = {},
             onWeeklyReportClick = {}
         )
