@@ -78,7 +78,7 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
                 onOpenAlerts = { openTab(TopLevelDestination.ALERTS) },
                 onOpenLocation = { openTab(TopLevelDestination.LOCATION) }
             )
-            careRoutinesWellnessNavGraph()
+            careRoutinesWellnessNavGraph(navController = navController)
             composable<LocationRoute> { PlaceholderScreen(title = stringResource(R.string.nav_location)) }
             emergencyAlertingNavGraph(
                 navController = navController,
