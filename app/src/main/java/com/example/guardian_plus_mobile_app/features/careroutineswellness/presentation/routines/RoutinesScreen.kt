@@ -1,28 +1,20 @@
 package com.example.guardian_plus_mobile_app.features.careroutineswellness.presentation.routines
 
-import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -40,6 +32,8 @@ import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.ReminderType
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.SleepClassification
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.SleepCycleRecord
+import com.example.guardian_plus_mobile_app.features.careroutineswellness.presentation.common.RoutineErrorState
+import com.example.guardian_plus_mobile_app.features.careroutineswellness.presentation.common.RoutineLoadingState
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.presentation.common.formatWeekdayAndDay
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.presentation.routines.component.NextRoutineCard
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.presentation.routines.component.RoutineCategoryCard
@@ -54,20 +48,22 @@ import java.time.LocalTime
 @Composable
 fun RoutinesScreen(
     modifier: Modifier = Modifier,
-    viewModel: RoutinesViewModel = hiltViewModel()
+    viewModel: RoutinesViewModel = hiltViewModel(),
+    onCategoryClick: (RoutineCategory) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-    val comingSoon = stringResource(R.string.placeholder_soon)
-    // The detail screen of each routine is not built yet
-    val showComingSoon = { Toast.makeText(context, comingSoon, Toast.LENGTH_SHORT).show() }
+
+    // Coming back from a routine screen, the day may have changed there
+    LaunchedEffect(Unit) {
+        viewModel.onScreenShown()
+    }
 
     RoutinesContent(
         modifier = modifier,
         uiState = uiState,
         onRetryClick = viewModel::load,
-        onNextClick = showComingSoon,
-        onCategoryClick = { showComingSoon() }
+        onNextClick = { uiState.nextReminder?.let { onCategoryClick(RoutineCategory.of(it.type)) } },
+        onCategoryClick = onCategoryClick
     )
 }
 
@@ -87,14 +83,9 @@ fun RoutinesContent(
         Box(modifier = Modifier.weight(1f)) {
             when {
                 // Old data stays visible during refreshes; the spinner is only for the very first load
-                !uiState.isLoaded && uiState.errorMessage == null -> Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+                !uiState.isLoaded && uiState.errorMessage == null -> RoutineLoadingState()
 
-                !uiState.isLoaded -> ErrorState(
+                !uiState.isLoaded -> RoutineErrorState(
                     message = uiState.errorMessage.orEmpty(),
                     onRetryClick = onRetryClick
                 )
@@ -155,43 +146,6 @@ private fun SectionTitle(text: String) {
     )
 }
 
-@Composable
-private fun ErrorState(modifier: Modifier = Modifier, message: String, onRetryClick: () -> Unit) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(20.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Surface(
-            shape = MaterialTheme.shapes.medium,
-            color = MaterialTheme.colorScheme.surface,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = message,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Center
-                )
-                OutlinedButton(
-                    onClick = onRetryClick,
-                    modifier = Modifier.padding(top = 12.dp),
-                    shape = MaterialTheme.shapes.medium
-                ) {
-                    Text(text = stringResource(R.string.action_retry))
-                }
-            }
-        }
-    }
-}
-
 private val previewNow: Instant = Instant.parse("2026-10-08T18:35:00Z")
 
 private fun previewReminder(
@@ -236,6 +190,8 @@ private val previewState = RoutinesUiState(
         dailyGoalGlasses = 6,
         intervalHours = 2,
         respectSleepWindow = true,
+        sleepWindowStart = LocalTime.of(22, 0),
+        sleepWindowEnd = LocalTime.of(7, 0),
         glassesConsumedToday = 4,
         remainingGlassesToday = 2,
         nextReminderAt = null
@@ -246,11 +202,13 @@ private val previewState = RoutinesUiState(
         endTime = previewNow - Duration.ofHours(12),
         durationMinutes = 444,
         interruptionCount = 5,
+        continuityScore = 76,
         classification = SleepClassification.FRAGMENTED
     ),
     activityMonitor = ActivityMonitor(
         status = ActivityStatus.NORMAL,
         inactivitySince = null,
+        inactiveMinutes = 3.3,
         lastMovementAt = previewNow - Duration.ofMinutes(3),
         lastSampleAt = previewNow - Duration.ofMinutes(1),
         detectionEnabled = true,
@@ -265,7 +223,9 @@ private val previewState = RoutinesUiState(
             dosage = "50 mg",
             remainingDoses = 6,
             dailyConsumption = 2.0,
+            packageSize = 30,
             remainingDaysOfSupply = 3.0,
+            estimatedDepletionDate = null,
             restockRecommended = true
         )
     ),

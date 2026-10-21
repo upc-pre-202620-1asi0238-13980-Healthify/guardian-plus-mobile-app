@@ -2,12 +2,17 @@ package com.example.guardian_plus_mobile_app.features.careroutineswellness.prese
 
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.Reminder
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.ReminderType
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.formatDuration
+import java.time.DayOfWeek
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -80,3 +85,44 @@ fun formatWeekdayAndDay(at: Instant): String =
 @Composable
 fun formatSleepDuration(minutes: Long): String =
     stringResource(R.string.duration_hours, (minutes / 60).toInt(), (minutes % 60).toInt())
+
+/** "25 min" or "1 h 05 min" until [at]; never negative. */
+@Composable
+fun durationUntil(at: Instant, now: Instant): String =
+    formatDuration(Duration.between(now, at).seconds.coerceAtLeast(60))
+
+/** "Aviso 1 hora antes", "Aviso 1 día antes", "Aviso 30 min antes" or "Sin aviso previo". */
+@Composable
+fun leadTimeLabel(minutes: Int): String = when {
+    minutes <= 0 -> stringResource(R.string.routines_lead_none)
+    minutes % MINUTES_PER_DAY == 0 -> pluralStringResource(R.plurals.routines_lead_days, minutes / MINUTES_PER_DAY, minutes / MINUTES_PER_DAY)
+    minutes % 60 == 0 -> pluralStringResource(R.plurals.routines_lead_hours, minutes / 60, minutes / 60)
+    else -> stringResource(R.string.routines_lead_minutes, minutes)
+}
+
+private const val MINUTES_PER_DAY = 1_440
+
+/** "12 de mayo". */
+fun formatDayOfMonth(date: LocalDate): String = dayOfMonth.format(date)
+
+/** "Lun", "Mar"… for the rows of a weekly history. */
+fun formatShortWeekday(date: LocalDate): String =
+    shortWeekday.format(date).replace(".", "").replaceFirstChar { it.titlecase(spanish) }
+
+/** "L", "M", "X"… the single-letter days under the weekly bars. */
+fun weekdayInitial(day: DayOfWeek): String = when (day) {
+    DayOfWeek.MONDAY -> "L"
+    DayOfWeek.TUESDAY -> "M"
+    DayOfWeek.WEDNESDAY -> "X"
+    DayOfWeek.THURSDAY -> "J"
+    DayOfWeek.FRIDAY -> "V"
+    DayOfWeek.SATURDAY -> "S"
+    DayOfWeek.SUNDAY -> "D"
+}
+
+/** "22:00" for a time of day. */
+fun formatTimeOfDay(time: LocalTime): String = timeOfDay.format(time)
+
+private val dayOfMonth: DateTimeFormatter = DateTimeFormatter.ofPattern("d 'de' MMMM", spanish)
+private val shortWeekday: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE", spanish)
+private val timeOfDay: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")

@@ -10,8 +10,8 @@ import com.example.guardian_plus_mobile_app.features.careroutineswellness.applic
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.GetRemindersUseCase
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.GetSleepCycleRecordsUseCase
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.ReminderType
+import com.example.guardian_plus_mobile_app.features.careroutineswellness.presentation.common.todayBounds
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.time.ZoneId
 import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -47,14 +47,18 @@ class RoutinesViewModel @Inject constructor(
         }
     }
 
+    /** Doses confirmed or plans changed on a routine screen show up as soon as the tab is back. */
+    fun onScreenShown() {
+        if (_uiState.value.isLoaded && !_uiState.value.isLoading) {
+            viewModelScope.launch { refresh() }
+        }
+    }
+
     // The sections are independent, so they are requested together instead of one after another
     private suspend fun refresh() = coroutineScope {
         val personUnderCareId = DemoSession.CARE_RECIPIENT_PROFILE_ID
         val now = serverClock.now()
-        val zone = ZoneId.systemDefault()
-        val today = now.atZone(zone).toLocalDate()
-        val startOfDay = today.atStartOfDay(zone).toInstant()
-        val startOfTomorrow = today.plusDays(1).atStartOfDay(zone).toInstant()
+        val (startOfDay, startOfTomorrow) = todayBounds(now)
 
         val todayReminders = async { getReminders(personUnderCareId, from = startOfDay, to = startOfTomorrow) }
         val appointments = async { getReminders(personUnderCareId, from = now, type = ReminderType.APPOINTMENT) }

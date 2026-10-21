@@ -28,7 +28,17 @@ enum class RoutineCategory(
     HYDRATION(R.drawable.ic_droplet, R.string.routines_category_hydration, RoutineTone.BLUE),
     SLEEP(R.drawable.ic_moon, R.string.routines_category_sleep, RoutineTone.VIOLET),
     INACTIVITY(R.drawable.ic_triangle_alert, R.string.routines_category_inactivity, RoutineTone.ORANGE),
-    STOCK(R.drawable.ic_layers, R.string.routines_category_stock, RoutineTone.YELLOW)
+    STOCK(R.drawable.ic_layers, R.string.routines_category_stock, RoutineTone.YELLOW);
+
+    companion object {
+        /** The routine screen a reminder of [type] belongs to, e.g. for the "Siguiente" card. */
+        fun of(type: ReminderType): RoutineCategory = when (type) {
+            ReminderType.MEDICATION -> MEDICATION
+            ReminderType.APPOINTMENT -> APPOINTMENTS
+            ReminderType.PHYSICAL_ACTIVITY -> ACTIVITY
+            ReminderType.HYDRATION -> HYDRATION
+        }
+    }
 }
 
 /** Second line of a category card and its optional badge ("1 pendiente", "Fragmentado", "Reponer"…). */

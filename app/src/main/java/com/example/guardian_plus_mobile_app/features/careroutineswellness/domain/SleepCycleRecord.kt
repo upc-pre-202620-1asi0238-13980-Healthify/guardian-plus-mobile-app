@@ -9,5 +9,7 @@ data class SleepCycleRecord(
     val endTime: Instant,
     val durationMinutes: Long,
     val interruptionCount: Int,
+    // How continuous the night was, from 0 to 100
+    val continuityScore: Int,
     val classification: SleepClassification
 )
