@@ -9,8 +9,17 @@ data class Adherence(
     val to: LocalDate,
     val due: Int,
     val confirmed: Int,
-    val percentage: Int
+    val percentage: Int,
+    // One entry for every day of the period
+    val days: List<DailyAdherence> = emptyList()
 ) {
     // 0 % with nothing due means "no doses scheduled", not "none taken"
     val hasDueReminders: Boolean get() = due > 0
 }
+
+data class DailyAdherence(
+    val date: LocalDate,
+    val due: Int,
+    val confirmed: Int,
+    val percentage: Int
+)
