@@ -1,6 +1,6 @@
 package com.example.guardian_plus_mobile_app.features.auth.presentation
 
-import com.example.guardian_plus_mobile_app.features.auth.domain.model.UserAccount
+import com.example.guardian_plus_mobile_app.features.auth.domain.model.aggregates.UserAccount
 
 
 data class LoginUiState(
