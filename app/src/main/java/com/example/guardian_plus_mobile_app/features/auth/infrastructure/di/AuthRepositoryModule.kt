@@ -1,7 +1,9 @@
 package com.example.guardian_plus_mobile_app.features.auth.infrastructure.di
 
 import com.example.guardian_plus_mobile_app.features.auth.domain.repositories.AuthRepository
+import com.example.guardian_plus_mobile_app.features.auth.domain.repositories.SessionRepository
 import com.example.guardian_plus_mobile_app.features.auth.domain.repositories.UserAccountRepository
+import com.example.guardian_plus_mobile_app.features.auth.infrastructure.local.SharedPreferencesSessionRepository
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.simulated.SimulatedAuthRepository
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.simulated.SimulatedUserAccountRepository
 import dagger.Binds
@@ -22,4 +24,7 @@ interface AuthRepositoryModule {
 
     @Binds
     fun bindUserAccountRepository(impl: SimulatedUserAccountRepository): UserAccountRepository
+
+    @Binds
+    fun bindSessionRepository(impl: SharedPreferencesSessionRepository): SessionRepository
 }
