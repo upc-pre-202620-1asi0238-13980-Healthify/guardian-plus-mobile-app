@@ -20,7 +20,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.guardian_plus_mobile_app.R
+import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.ForgotPasswordRoute
 import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.LoginRoute
+import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.RegisterRoute
+import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.ResetPasswordRoute
+import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.TwoFactorRoute
+import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.VerifyEmailRoute
 import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.authNavGraph
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.presentation.navigation.careRoutinesWellnessNavGraph
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.navigation.emergencyAlertingNavGraph
@@ -34,8 +39,15 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
     val currentDestination = TopLevelDestination.entries.firstOrNull { destination ->
         backStackEntry?.destination?.hasRoute(destination.route::class) == true
     }
-    // The login draws its header behind the status bar and pads itself
-    val isOnLogin = backStackEntry?.destination?.hasRoute(LoginRoute::class) == true
+    // The login and the rest of IAM's screens draw behind the system bars and pad themselves
+    val isOnLogin = listOf(
+        LoginRoute::class,
+        RegisterRoute::class,
+        VerifyEmailRoute::class,
+        TwoFactorRoute::class,
+        ForgotPasswordRoute::class,
+        ResetPasswordRoute::class
+    ).any { route -> backStackEntry?.destination?.hasRoute(route) == true }
     val openTab: (TopLevelDestination) -> Unit = { destination ->
         navController.navigate(destination.route) {
             // Each tab keeps its own state (report, navigation rules). Anchored on Home rather than the graph's
@@ -66,6 +78,7 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
             modifier = Modifier.padding(paddingValues)
         ) {
             authNavGraph(
+                navController = navController,
                 onLoginSuccess = {
                     // Back from Home leaves the app instead of returning to the login
                     navController.navigate(HomeRoute) {
