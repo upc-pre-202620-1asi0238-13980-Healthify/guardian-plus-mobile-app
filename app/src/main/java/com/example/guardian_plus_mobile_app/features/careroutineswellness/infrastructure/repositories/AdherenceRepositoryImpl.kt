@@ -3,12 +3,12 @@ package com.example.guardian_plus_mobile_app.features.careroutineswellness.infra
 import com.example.guardian_plus_mobile_app.core.network.apiCall
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.Adherence
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.AdherenceRepository
+import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.DailyAdherence
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.ReminderType
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.infrastructure.remote.services.AdherenceService
 import java.time.LocalDate
 import javax.inject.Inject
 
-/** First routine read from the platform; the rest still come from the simulated repositories. */
 class AdherenceRepositoryImpl @Inject constructor(
     private val service: AdherenceService
 ) : AdherenceRepository {
@@ -25,7 +25,15 @@ class AdherenceRepositoryImpl @Inject constructor(
             to = LocalDate.parse(dto.to),
             due = dto.due,
             confirmed = dto.confirmed,
-            percentage = dto.percentage
+            percentage = dto.percentage,
+            days = dto.days.orEmpty().map { day ->
+                DailyAdherence(
+                    date = LocalDate.parse(day.date),
+                    due = day.due,
+                    confirmed = day.confirmed,
+                    percentage = day.percentage
+                )
+            }
         )
     }
 }
