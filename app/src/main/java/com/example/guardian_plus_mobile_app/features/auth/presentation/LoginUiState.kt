@@ -1,15 +1,19 @@
 package com.example.guardian_plus_mobile_app.features.auth.presentation
 
-import com.example.guardian_plus_mobile_app.features.auth.domain.model.aggregates.UserAccount
-
-
 data class LoginUiState(
-val email: String = "",
+    val email: String = "",
     val password: String = "",
     val isPasswordHidden: Boolean = true,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val user: UserAccount? = null,
-    val isAuthenticated: Boolean = false
+    // Next step once the credentials are accepted; the screen navigates and clears it
+    val navigation: LoginNavigation? = null
 )
 
+sealed interface LoginNavigation {
+    data object Home : LoginNavigation
+
+    data class TwoFactor(val userAccountId: String) : LoginNavigation
+
+    data class VerifyEmail(val userAccountId: String, val email: String) : LoginNavigation
+}

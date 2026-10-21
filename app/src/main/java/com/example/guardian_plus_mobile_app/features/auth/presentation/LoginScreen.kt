@@ -37,10 +37,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.Primary
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.SheetBg
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.VerifiedUser
@@ -483,30 +483,34 @@ private fun loginFieldColors() = OutlinedTextFieldDefaults.colors(
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
-    onLoginSuccess: () -> Unit = {}
+    viewModel: LoginViewModel = hiltViewModel(),
+    onLoginSuccess: () -> Unit = {},
+    onSecondFactorRequired: (userAccountId: String) -> Unit = {},
+    onEmailVerificationRequired: (userAccountId: String, email: String) -> Unit = { _, _ -> },
+    onForgotPassword: () -> Unit = {},
+    onRegister: () -> Unit = {}
 ) {
-    var state by remember { mutableStateOf(LoginUiState()) }
-    val scope = rememberCoroutineScope()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // IAM decides the next step: the app, the OTP challenge or the pending email verification
+    LaunchedEffect(state.navigation) {
+        when (val navigation = state.navigation) {
+            LoginNavigation.Home -> onLoginSuccess()
+            is LoginNavigation.TwoFactor -> onSecondFactorRequired(navigation.userAccountId)
+            is LoginNavigation.VerifyEmail -> onEmailVerificationRequired(navigation.userAccountId, navigation.email)
+            null -> return@LaunchedEffect
+        }
+        viewModel.onNavigationHandled()
+    }
 
     LoginSurface(
         state = state,
         modifier = modifier,
-        onEmailChange = { state = state.copy(email = it, errorMessage = null) },
-        onPasswordChange = { state = state.copy(password = it, errorMessage = null) },
-        onTogglePasswordVisibility = {
-            state = state.copy(isPasswordHidden = !state.isPasswordHidden)
-        },
-        onLoginClick = {
-            if (state.email.isBlank() || state.password.isBlank()) {
-                state = state.copy(errorMessage = "Completa todos los campos para continuar")
-            } else {
-                state = state.copy(isLoading = true, errorMessage = null)
-                scope.launch {
-                    delay(1200)
-                    state = state.copy(isLoading = false)
-                    onLoginSuccess()
-                }
-            }
-        }
+        onEmailChange = viewModel::onEmailChange,
+        onPasswordChange = viewModel::onPasswordChange,
+        onTogglePasswordVisibility = viewModel::togglePasswordVisibility,
+        onLoginClick = viewModel::login,
+        onForgotPassword = onForgotPassword,
+        onRegister = onRegister
     )
 }
