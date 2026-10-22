@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -15,9 +16,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
 import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthErrorMessage
+import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthLayout
 import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthPasswordField
 import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthPrimaryButton
-import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthStepLayout
+import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthSheetTitle
 import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthTextField
 
 /** Sets the new password with the token of the recovery email, which IAM consumes on use. */
@@ -60,17 +62,23 @@ private fun ResetPasswordContent(
     onTogglePasswordVisibility: () -> Unit,
     onResetClick: () -> Unit
 ) {
-    AuthStepLayout(
+    AuthLayout(
         modifier = modifier,
-        title = stringResource(R.string.auth_reset_password_title),
-        subtitle = stringResource(R.string.auth_reset_password_subtitle),
-        onBackClick = onBackClick
+        headerTitle = stringResource(R.string.auth_reset_header_title),
+        headerSubtitle = stringResource(R.string.auth_reset_header_subtitle)
     ) {
+        AuthSheetTitle(
+            title = stringResource(R.string.auth_reset_password_title),
+            subtitle = stringResource(R.string.auth_reset_password_subtitle),
+            onBackClick = onBackClick
+        )
+        Spacer(modifier = Modifier.height(24.dp))
         AuthTextField(
             label = stringResource(R.string.auth_code_label),
             value = uiState.token,
             onValueChange = onTokenChange,
-            placeholder = stringResource(R.string.auth_code_placeholder)
+            placeholder = stringResource(R.string.auth_code_placeholder),
+            keyboardType = KeyboardType.Number
         )
         Spacer(modifier = Modifier.height(16.dp))
         AuthPasswordField(
