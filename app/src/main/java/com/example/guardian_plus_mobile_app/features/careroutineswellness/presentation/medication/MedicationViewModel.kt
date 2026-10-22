@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.guardian_plus_mobile_app.R
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.core.time.ServerClock
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.ConfirmReminderUseCase
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.GetAdherenceUseCase
@@ -35,8 +35,12 @@ class MedicationViewModel @Inject constructor(
     private val confirmReminder: ConfirmReminderUseCase,
     private val markReminderAsMissed: MarkReminderAsMissedUseCase,
     private val serverClock: ServerClock,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val careContextStore: CareContextStore
 ) : ViewModel() {
+
+    // Whose data this screen shows: the signed-in account and the person under its care
+    private val careContext = careContextStore.require()
 
     private val _uiState = MutableStateFlow(MedicationUiState())
     val uiState: StateFlow<MedicationUiState> = _uiState.asStateFlow()
@@ -85,7 +89,7 @@ class MedicationViewModel @Inject constructor(
     }
 
     private suspend fun refresh() = coroutineScope {
-        val personUnderCareId = DemoSession.CARE_RECIPIENT_PROFILE_ID
+        val personUnderCareId = careContext.careRecipientProfileId
         val now = serverClock.now()
         val (startOfDay, startOfTomorrow) = todayBounds(now)
         val (weekStart, weekEnd) = lastWeek(now)

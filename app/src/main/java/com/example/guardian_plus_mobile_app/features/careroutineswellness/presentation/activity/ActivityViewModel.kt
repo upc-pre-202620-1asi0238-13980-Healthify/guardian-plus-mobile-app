@@ -3,7 +3,7 @@ package com.example.guardian_plus_mobile_app.features.careroutineswellness.prese
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.guardian_plus_mobile_app.R
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.core.time.ServerClock
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.ConfirmReminderUseCase
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.GetAdherenceUseCase
@@ -60,8 +60,12 @@ class ActivityViewModel @Inject constructor(
     private val getAdherence: GetAdherenceUseCase,
     private val confirmReminder: ConfirmReminderUseCase,
     private val scheduleReminder: ScheduleReminderUseCase,
-    private val serverClock: ServerClock
+    private val serverClock: ServerClock,
+    private val careContextStore: CareContextStore
 ) : ViewModel() {
+
+    // Whose data this screen shows: the signed-in account and the person under its care
+    private val careContext = careContextStore.require()
 
     private val _uiState = MutableStateFlow(ActivityUiState())
     val uiState: StateFlow<ActivityUiState> = _uiState.asStateFlow()
@@ -95,7 +99,7 @@ class ActivityViewModel @Inject constructor(
             _uiState.update { it.copy(isSaving = true) }
             val zone = ZoneId.systemDefault()
             val request = ScheduleReminderRequest(
-                personUnderCareId = DemoSession.CARE_RECIPIENT_PROFILE_ID,
+                personUnderCareId = careContext.careRecipientProfileId,
                 type = ReminderType.PHYSICAL_ACTIVITY,
                 scheduledTime = serverClock.now().atZone(zone).toLocalDate().atTime(time).atZone(zone).toInstant(),
                 title = name,
@@ -138,7 +142,7 @@ class ActivityViewModel @Inject constructor(
     }
 
     private suspend fun refresh() = coroutineScope {
-        val personUnderCareId = DemoSession.CARE_RECIPIENT_PROFILE_ID
+        val personUnderCareId = careContext.careRecipientProfileId
         val now = serverClock.now()
         val (startOfDay, startOfTomorrow) = todayBounds(now)
         val (weekStart, weekEnd) = lastWeek(now)

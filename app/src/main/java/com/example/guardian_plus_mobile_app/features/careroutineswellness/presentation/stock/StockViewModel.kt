@@ -3,7 +3,7 @@ package com.example.guardian_plus_mobile_app.features.careroutineswellness.prese
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.guardian_plus_mobile_app.R
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.ConfirmMedicationAcquisitionUseCase
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.GetMedicationStocksUseCase
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.MedicationStock
@@ -32,8 +32,12 @@ data class StockUiState(
 @HiltViewModel
 class StockViewModel @Inject constructor(
     private val getMedicationStocks: GetMedicationStocksUseCase,
-    private val confirmMedicationAcquisition: ConfirmMedicationAcquisitionUseCase
+    private val confirmMedicationAcquisition: ConfirmMedicationAcquisitionUseCase,
+    private val careContextStore: CareContextStore
 ) : ViewModel() {
+
+    // Whose data this screen shows: the signed-in account and the person under its care
+    private val careContext = careContextStore.require()
 
     private val _uiState = MutableStateFlow(StockUiState())
     val uiState: StateFlow<StockUiState> = _uiState.asStateFlow()
@@ -45,7 +49,7 @@ class StockViewModel @Inject constructor(
     fun load() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            getMedicationStocks(DemoSession.CARE_RECIPIENT_PROFILE_ID)
+            getMedicationStocks(careContext.careRecipientProfileId)
                 .onSuccess { stocks -> _uiState.update { it.copy(isLoading = false, isLoaded = true, stocks = stocks) } }
                 .onFailure { e ->
                     _uiState.update { it.copy(isLoading = false, errorMessage = e.message ?: "No se pudo cargar el stock") }

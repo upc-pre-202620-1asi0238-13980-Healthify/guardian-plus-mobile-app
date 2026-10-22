@@ -2,7 +2,7 @@ package com.example.guardian_plus_mobile_app.features.careroutineswellness.prese
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.core.time.ServerClock
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.GetSleepCycleRecordsUseCase
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.SleepCycleRecord
@@ -30,8 +30,12 @@ data class SleepUiState(
 @HiltViewModel
 class SleepViewModel @Inject constructor(
     private val getSleepCycleRecords: GetSleepCycleRecordsUseCase,
-    private val serverClock: ServerClock
+    private val serverClock: ServerClock,
+    private val careContextStore: CareContextStore
 ) : ViewModel() {
+
+    // Whose data this screen shows: the signed-in account and the person under its care
+    private val careContext = careContextStore.require()
 
     private val _uiState = MutableStateFlow(SleepUiState())
     val uiState: StateFlow<SleepUiState> = _uiState.asStateFlow()
@@ -44,7 +48,7 @@ class SleepViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             val now = serverClock.now()
-            getSleepCycleRecords(DemoSession.CARE_RECIPIENT_PROFILE_ID, from = now - Duration.ofDays(HISTORY_DAYS))
+            getSleepCycleRecords(careContext.careRecipientProfileId, from = now - Duration.ofDays(HISTORY_DAYS))
                 .onSuccess { nights ->
                     _uiState.update { it.copy(isLoading = false, isLoaded = true, nights = nights, now = now) }
                 }

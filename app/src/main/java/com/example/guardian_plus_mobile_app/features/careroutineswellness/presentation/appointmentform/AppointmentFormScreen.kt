@@ -25,7 +25,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.LocalCareContext
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.presentation.common.RoutineBanner
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.presentation.common.RoutineDateField
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.presentation.common.RoutineFormBody
@@ -89,6 +89,7 @@ fun AppointmentFormContent(
     onBackClick: () -> Unit,
     onSave: (specialty: String, dateTime: LocalDateTime, location: String, leadTimeMinutes: Int) -> Unit
 ) {
+    val careContext = LocalCareContext.current
     val today = now.atZone(ZoneId.systemDefault()).toLocalDate()
     var specialty by rememberSaveable { mutableStateOf("") }
     var date by rememberSaveable { mutableStateOf(today.plusDays(1)) }
@@ -160,7 +161,7 @@ fun AppointmentFormContent(
             RoutineBanner(
                 iconRes = R.drawable.ic_bell,
                 title = stringResource(R.string.appointment_form_notice_title),
-                message = stringResource(R.string.appointment_form_notice_message, DemoSession.CARE_RECIPIENT_FIRST_NAME),
+                message = stringResource(R.string.appointment_form_notice_message, careContext.careRecipientFirstName),
                 tone = RoutineTone.MINT
             )
         }
