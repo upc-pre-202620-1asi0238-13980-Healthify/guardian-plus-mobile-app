@@ -16,15 +16,16 @@ interface AuthRepository {
 
     suspend fun resendEmailVerification(userAccountId: String): Result<Unit>
 
+    /** A right password always leads to the OTP emailed to the account, or to the email verification. */
     suspend fun login(email: Email, rawPassword: String): Result<LoginOutcome>
 
-    /** Checks the LOGIN code of an account with two-factor enabled and returns the session. */
+    /** Checks the LOGIN code of the sign-in in progress and returns the session. */
     suspend fun verifyOtp(userAccountId: String, code: String): Result<AuthenticatedSession>
 
     /** Issues a new LOGIN code; the previous one stops being usable. */
     suspend fun resendOtp(userAccountId: String): Result<Unit>
 
-    /** Succeeds whether or not the email belongs to an account, so it never reveals which ones exist. */
+    /** Emails a recovery code; fails if no account uses the email. */
     suspend fun requestPasswordReset(email: Email): Result<Unit>
 
     suspend fun resetPassword(token: String, newRawPassword: String): Result<Unit>

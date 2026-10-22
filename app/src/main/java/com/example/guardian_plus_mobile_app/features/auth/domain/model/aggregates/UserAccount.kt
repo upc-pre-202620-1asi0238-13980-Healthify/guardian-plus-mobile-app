@@ -11,10 +11,7 @@ data class UserAccount(
     val id: String,
     val email: Email,
     val emailVerified: Boolean,
-    val twoFactorEnabled: Boolean,
     val status: UserAccountStatus
 ) {
-    fun requiresSecondFactor(): Boolean = twoFactorEnabled
-
     fun canAuthenticate(): Boolean = emailVerified && status.canAuthenticate()
 }
