@@ -4,9 +4,10 @@ import com.example.guardian_plus_mobile_app.features.auth.domain.model.aggregate
 import com.example.guardian_plus_mobile_app.features.auth.domain.model.valueobjects.Email
 
 interface UserAccountRepository {
+    /** The account of the current session, as the platform resolves it from the token. */
+    suspend fun getCurrentUserAccount(): Result<UserAccount>
+
     suspend fun getUserAccount(userAccountId: String): Result<UserAccount>
 
     suspend fun isEmailAvailable(email: Email): Result<Boolean>
-
-    suspend fun setTwoFactor(userAccountId: String, enabled: Boolean): Result<UserAccount>
 }
