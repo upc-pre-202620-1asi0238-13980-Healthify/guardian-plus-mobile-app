@@ -730,7 +730,6 @@
     <string name="auth_otp_header_subtitle">Confirmamos que eres tú antes de darte acceso.</string>
     <string name="auth_otp_title">Código de verificación</string>
     <string name="auth_otp_subtitle">Enviamos un código de 6 dígitos a</string>
-    <string name="auth_otp_demo_code">Código de demostración:\u0020</string>
     <string name="auth_otp_submit">Verificar código</string>
     <string name="auth_otp_resend_in">Reenviar código en\u0020</string>
     <string name="auth_otp_expiry">El código expira en %1$s. Nunca lo compartas con nadie, incluyendo el soporte de Guardian+.</string>
@@ -738,10 +737,10 @@
     <string name="auth_resend_code">Reenviar código</string>
     <string name="auth_code_resent">Te enviamos un nuevo código</string>
     <string name="auth_forgot_header_title">Recupera\ntu acceso.</string>
-    <string name="auth_forgot_header_subtitle">Te enviaremos un enlace para restablecer tu contraseña.</string>
+    <string name="auth_forgot_header_subtitle">Te enviaremos un código para restablecer tu contraseña.</string>
     <string name="auth_forgot_password_title">Recuperar contraseña</string>
     <string name="auth_forgot_password_subtitle">Ingresa el correo asociado a tu cuenta</string>
-    <string name="auth_forgot_password_submit">Enviar enlace de restablecimiento</string>
+    <string name="auth_forgot_password_submit">Enviar código de recuperación</string>
     <string name="auth_reset_header_title">Crea una\nnueva clave.</string>
     <string name="auth_reset_header_subtitle">Elige una contraseña que solo tú conozcas.</string>
     <string name="auth_reset_password_title">Nueva contraseña</string>
@@ -749,4 +748,35 @@
     <string name="auth_reset_password_submit">Guardar nueva contraseña</string>
     <string name="auth_reset_password_done">Tu contraseña se actualizó. Ya puedes iniciar sesión.</string>
     <string name="auth_email_verified">Tu correo quedó verificado. Ya puedes iniciar sesión.</string>
+    <!-- Profile: loading the signed-in account's care context and the onboarding -->
+    <string name="session_start_loading">Preparando tu cuenta…</string>
+    <string name="session_start_error_title">No pudimos cargar tu cuenta</string>
+    <string name="session_start_retry">Reintentar</string>
+    <string name="session_start_logout">Cerrar sesión</string>
+    <string name="onboarding_header_title">Completa\ntu perfil.</string>
+    <string name="onboarding_header_subtitle">Un último paso para empezar a cuidar con Guardian+.</string>
+    <string name="onboarding_title">Tu círculo de cuidado</string>
+    <string name="onboarding_subtitle">Cuéntanos quién eres y a quién cuidas</string>
+    <string name="onboarding_you_section">TUS DATOS</string>
+    <string name="onboarding_recipient_section">PERSONA QUE CUIDAS</string>
+    <string name="onboarding_first_name_label">NOMBRES</string>
+    <string name="onboarding_last_name_label">APELLIDOS</string>
+    <string name="onboarding_phone_label">CELULAR</string>
+    <string name="onboarding_phone_placeholder">+51 987 654 321</string>
+    <string name="onboarding_first_name_placeholder">Elena</string>
+    <string name="onboarding_last_name_placeholder">Rojas Pérez</string>
+    <string name="onboarding_birth_date_label">FECHA DE NACIMIENTO</string>
+    <string name="onboarding_birth_date_placeholder">Selecciona una fecha</string>
+    <string name="onboarding_relationship_label">TU RELACIÓN CON ELLA O ÉL</string>
+    <string name="onboarding_relationship_family">Familiar</string>
+    <string name="onboarding_relationship_caregiver">Cuidador</string>
+    <string name="onboarding_submit">Empezar a cuidar</string>
+    <string name="onboarding_date_confirm">Aceptar</string>
+    <string name="onboarding_date_cancel">Cancelar</string>
+    <string name="home_logout_title">¿Cerrar sesión?</string>
+    <string name="home_logout_message">Tendrás que ingresar tu correo, contraseña y código para volver a entrar.</string>
+    <string name="home_logout_confirm">Cerrar sesión</string>
+    <string name="home_logout_cancel">Cancelar</string>
+    <string name="home_open_account">Cuenta</string>
+    <string name="call_no_emergency_contact">Agrega un contacto de emergencia para poder llamar</string>
 </resources>
