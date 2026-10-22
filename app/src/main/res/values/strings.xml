@@ -779,4 +779,16 @@
     <string name="home_logout_cancel">Cancelar</string>
     <string name="home_open_account">Cuenta</string>
     <string name="call_no_emergency_contact">Agrega un contacto de emergencia para poder llamar</string>
+    <!-- Health Monitoring: linking the care recipient's wearable -->
+    <string name="home_wristband_link">Vincular</string>
+    <string name="wearable_link_title">Vincular pulsera</string>
+    <string name="wearable_link_subtitle">Ingresa el número de serie que aparece en el dispositivo de %1$s.</string>
+    <string name="wearable_link_serial_label">Número de serie</string>
+    <string name="wearable_link_serial_placeholder">GP-ESP32-S3-0001</string>
+    <string name="wearable_link_type_label">Tipo de dispositivo</string>
+    <string name="wearable_type_wristband">Pulsera</string>
+    <string name="wearable_type_smartwatch">Reloj</string>
+    <string name="wearable_type_patch">Parche</string>
+    <string name="wearable_link_submit">Vincular dispositivo</string>
+    <string name="wearable_linked">Dispositivo vinculado</string>
 </resources>
