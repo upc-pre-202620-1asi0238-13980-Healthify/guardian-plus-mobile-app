@@ -2,6 +2,7 @@ package com.example.guardian_plus_mobile_app.features.healthmonitoring.presentat
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,13 +33,16 @@ fun HomeHeader(
     careRecipientFirstName: String,
     allWithinRange: Boolean,
     hour: Int,
-    onBellClick: () -> Unit
+    onBellClick: () -> Unit,
+    onAvatarClick: () -> Unit = {}
 ) {
     Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        // The member's initials open the account options, such as signing out
         Box(
             modifier = Modifier
                 .size(48.dp)
-                .background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium),
+                .background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
+                .clickable(onClickLabel = stringResource(R.string.home_open_account), onClick = onAvatarClick),
             contentAlignment = Alignment.Center
         ) {
             Text(

@@ -2,7 +2,7 @@ package com.example.guardian_plus_mobile_app.features.healthmonitoring.presentat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.core.time.ServerClock
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetLiveVitalSignsUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetVitalSignHistoryUseCase
@@ -26,10 +26,14 @@ class LiveVitalsViewModel @Inject constructor(
     private val getLiveVitalSigns: GetLiveVitalSignsUseCase,
     private val getWearableDevices: GetWearableDevicesUseCase,
     private val getVitalSignHistory: GetVitalSignHistoryUseCase,
-    private val serverClock: ServerClock
+    private val serverClock: ServerClock,
+    private val careContextStore: CareContextStore
 ) : ViewModel() {
+
+    // Whose data this screen shows: the signed-in account and the person under its care
+    private val careContext = careContextStore.require()
     private val _uiState = MutableStateFlow(
-        LiveVitalsUiState(careRecipientFirstName = DemoSession.CARE_RECIPIENT_FIRST_NAME)
+        LiveVitalsUiState(careRecipientFirstName = careContext.careRecipientFirstName)
     )
 
     val uiState: StateFlow<LiveVitalsUiState> = _uiState.asStateFlow()
@@ -52,11 +56,11 @@ class LiveVitalsViewModel @Inject constructor(
 
 
         private suspend fun refresh() {
-            val hasWristband = getWearableDevices(DemoSession.CARE_RECIPIENT_PROFILE_ID)
+            val hasWristband = getWearableDevices(careContext.careRecipientProfileId)
                 .getOrDefault(emptyList())
                 .any { it.deviceType == DeviceType.WRISTBAND}
 
-                getLiveVitalSigns(DemoSession.CARE_RECIPIENT_PROFILE_ID)
+                getLiveVitalSigns(careContext.careRecipientProfileId)
                 .onSuccess {  vitals ->
                     //this is basically updating the states that we previously defined
                     _uiState.update { 
@@ -76,7 +80,7 @@ class LiveVitalsViewModel @Inject constructor(
         private suspend fun loadToday() {
             val today = serverClock.now().atZone(_uiState.value.zone).toLocalDate()
             // The platform filters by UTC date, so the next day is asked too and the state keeps the local one
-            getVitalSignHistory(DemoSession.CARE_RECIPIENT_PROFILE_ID, today, today.plusDays(1))
+            getVitalSignHistory(careContext.careRecipientProfileId, today, today.plusDays(1))
                 .onSuccess { readings -> _uiState.update { it.withReadings(readings) } }
         }
 

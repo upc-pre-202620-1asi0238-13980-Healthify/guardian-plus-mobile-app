@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.LocalCareContext
 import com.example.guardian_plus_mobile_app.core.text.initials
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.LiveVitalsUiState
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.VitalFilter
@@ -78,10 +78,11 @@ fun HealthContent(
     onSearchClick: () -> Unit,
     tabContent: @Composable () -> Unit
 ) {
+    val careContext = LocalCareContext.current
     Column(modifier = modifier.fillMaxSize()) {
         HealthHeader(
-            userInitials = DemoSession.CURRENT_USER_NAME.initials(),
-            careRecipientName = DemoSession.CARE_RECIPIENT_NAME,
+            userInitials = careContext.userFullName.initials(),
+            careRecipientName = careContext.careRecipientName,
             hasLiveSignal = liveState.hasLiveSignal,
             allWithinRange = liveState.allWithinRange,
             hasReadings = !liveState.vitals?.vitalSigns.isNullOrEmpty()
