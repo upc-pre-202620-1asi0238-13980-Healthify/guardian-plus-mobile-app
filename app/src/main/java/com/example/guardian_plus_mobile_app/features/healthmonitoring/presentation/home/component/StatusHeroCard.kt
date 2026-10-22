@@ -1,6 +1,7 @@
 package com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.home.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,7 +32,8 @@ fun StatusHeroCard(
     allWithinRange: Boolean,
     hasLiveSignal: Boolean,
     updatedText: String,
-    hasWristband: Boolean
+    hasWristband: Boolean,
+    onLinkWristbandClick: () -> Unit = {}
 ) {
     val scheme = MaterialTheme.colorScheme
     // Orange instead of green as soon as one reading leaves its range
@@ -79,11 +82,14 @@ fun StatusHeroCard(
                     )
                 }
             }
+            // Without a wristband the chip is where it gets linked
             Row(
                 modifier = Modifier
                     .padding(top = 16.dp)
                     .fillMaxWidth()
-                    .background(translucent, MaterialTheme.shapes.medium)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(translucent)
+                    .clickable(enabled = !hasWristband, onClick = onLinkWristbandClick)
                     .padding(horizontal = 12.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -98,8 +104,16 @@ fun StatusHeroCard(
                 Text(
                     text = stringResource(if (hasWristband) R.string.home_wristband_connected else R.string.home_wristband_missing),
                     style = MaterialTheme.typography.bodySmall,
-                    color = onContainer
+                    color = onContainer,
+                    modifier = Modifier.weight(1f)
                 )
+                if (!hasWristband) {
+                    Text(
+                        text = stringResource(R.string.home_wristband_link),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = onContainer
+                    )
+                }
             }
         }
     }

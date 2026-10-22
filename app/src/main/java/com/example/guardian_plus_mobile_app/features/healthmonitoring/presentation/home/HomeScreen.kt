@@ -41,6 +41,7 @@ import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentati
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.home.component.UpcomingCard
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.home.component.VitalsSummaryCard
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.livevitals.LiveVitalsViewModel
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.wearable.LinkWearableSheet
 import java.time.ZoneId
 
 /** "Inicio" tab: how the care recipient is doing right now. Only reads live vitals, so no ViewModel of its own. */
@@ -55,6 +56,8 @@ fun HomeScreen(
 ) {
     val careContext = LocalCareContext.current
     var isLogoutDialogOpen by rememberSaveable { mutableStateOf(false) }
+    var isLinkWearableOpen by rememberSaveable { mutableStateOf(false) }
+    val linkedMessage = stringResource(R.string.wearable_linked)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val comingSoon = stringResource(R.string.placeholder_soon)
@@ -71,8 +74,20 @@ fun HomeScreen(
         onLocationClick = onLocationClick,
         onSeeVitalsClick = onSeeVitalsClick,
         onSeeAgendaClick = showComingSoon,
-        onAccountClick = { isLogoutDialogOpen = true }
+        onAccountClick = { isLogoutDialogOpen = true },
+        onLinkWristbandClick = { isLinkWearableOpen = true }
     )
+    if (isLinkWearableOpen) {
+        LinkWearableSheet(
+            careRecipientFirstName = careContext.careRecipientFirstName,
+            onLinked = {
+                isLinkWearableOpen = false
+                Toast.makeText(context, linkedMessage, Toast.LENGTH_SHORT).show()
+                viewModel.load()
+            },
+            onDismiss = { isLinkWearableOpen = false }
+        )
+    }
     if (isLogoutDialogOpen) {
         AlertDialog(
             onDismissRequest = { isLogoutDialogOpen = false },
@@ -103,7 +118,8 @@ fun HomeContent(
     onLocationClick: () -> Unit,
     onSeeVitalsClick: () -> Unit,
     onSeeAgendaClick: () -> Unit,
-    onAccountClick: () -> Unit = {}
+    onAccountClick: () -> Unit = {},
+    onLinkWristbandClick: () -> Unit = {}
 ) {
     val careContext = LocalCareContext.current
     val vitals = uiState.vitals
@@ -148,7 +164,8 @@ fun HomeContent(
                     allWithinRange = uiState.allWithinRange,
                     hasLiveSignal = uiState.hasLiveSignal,
                     updatedText = relativeTime(vitals.retrievedAt, uiState.now),
-                    hasWristband = uiState.hasWristband
+                    hasWristband = uiState.hasWristband,
+                    onLinkWristbandClick = onLinkWristbandClick
                 )
             }
             item {
