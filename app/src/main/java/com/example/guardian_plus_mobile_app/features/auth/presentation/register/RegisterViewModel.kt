@@ -2,6 +2,7 @@ package com.example.guardian_plus_mobile_app.features.auth.presentation.register
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.guardian_plus_mobile_app.core.session.SignUpNameStore
 import com.example.guardian_plus_mobile_app.features.auth.application.GetEmailAvailabilityUseCase
 import com.example.guardian_plus_mobile_app.features.auth.application.RegisterUserCredentialsUseCase
 import com.example.guardian_plus_mobile_app.features.auth.presentation.common.MIN_PASSWORD_LENGTH
@@ -17,7 +18,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
     private val getEmailAvailability: GetEmailAvailabilityUseCase,
-    private val registerUserCredentials: RegisterUserCredentialsUseCase
+    private val registerUserCredentials: RegisterUserCredentialsUseCase,
+    private val signUpNameStore: SignUpNameStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RegisterUiState())
@@ -70,6 +72,8 @@ class RegisterViewModel @Inject constructor(
             }
             registerUserCredentials(state.fullName.trim(), email, state.password)
                 .onSuccess { account ->
+                    // Profile is created at the onboarding after the first sign-in, with this same name
+                    signUpNameStore.save(account.id, state.fullName.trim())
                     _uiState.update {
                         it.copy(
                             isLoading = false,
