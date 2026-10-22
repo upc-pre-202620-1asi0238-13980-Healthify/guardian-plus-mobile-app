@@ -7,12 +7,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.example.guardian_plus_mobile_app.R
+import com.example.guardian_plus_mobile_app.features.auth.domain.model.valueobjects.OtpPurpose
 import com.example.guardian_plus_mobile_app.features.auth.presentation.LoginScreen
+import com.example.guardian_plus_mobile_app.features.auth.presentation.otp.OtpVerificationScreen
 import com.example.guardian_plus_mobile_app.features.auth.presentation.passwordreset.ForgotPasswordScreen
 import com.example.guardian_plus_mobile_app.features.auth.presentation.passwordreset.ResetPasswordScreen
 import com.example.guardian_plus_mobile_app.features.auth.presentation.register.RegisterScreen
-import com.example.guardian_plus_mobile_app.features.auth.presentation.twofactor.TwoFactorScreen
-import com.example.guardian_plus_mobile_app.features.auth.presentation.verifyemail.VerifyEmailScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -21,11 +21,9 @@ object LoginRoute
 @Serializable
 object RegisterRoute
 
+/** Code IAM emailed to [email]: the email verification of a new account or the second factor of a sign-in. */
 @Serializable
-data class VerifyEmailRoute(val userAccountId: String, val email: String)
-
-@Serializable
-data class TwoFactorRoute(val userAccountId: String)
+data class OtpVerificationRoute(val userAccountId: String, val email: String, val purpose: OtpPurpose)
 
 @Serializable
 object ForgotPasswordRoute
@@ -44,9 +42,11 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController, onLoginSucces
     composable<LoginRoute> {
         LoginScreen(
             onLoginSuccess = onLoginSuccess,
-            onSecondFactorRequired = { userAccountId -> navController.navigate(TwoFactorRoute(userAccountId)) },
+            onSecondFactorRequired = { userAccountId, email ->
+                navController.navigate(OtpVerificationRoute(userAccountId, email, OtpPurpose.LOGIN))
+            },
             onEmailVerificationRequired = { userAccountId, email ->
-                navController.navigate(VerifyEmailRoute(userAccountId, email))
+                navController.navigate(OtpVerificationRoute(userAccountId, email, OtpPurpose.EMAIL_VERIFICATION))
             },
             onForgotPassword = { navController.navigate(ForgotPasswordRoute) },
             onRegister = { navController.navigate(RegisterRoute) }
@@ -58,33 +58,31 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController, onLoginSucces
             onLoginClick = { navController.popBackStack() },
             onRegistered = { userAccountId, email ->
                 // Back from the verification returns to the login, the account already exists
-                navController.navigate(VerifyEmailRoute(userAccountId, email)) {
+                navController.navigate(OtpVerificationRoute(userAccountId, email, OtpPurpose.EMAIL_VERIFICATION)) {
                     popUpTo<RegisterRoute> { inclusive = true }
                 }
             }
         )
     }
 
-    composable<VerifyEmailRoute> { backStackEntry ->
-        val route: VerifyEmailRoute = backStackEntry.toRoute()
+    composable<OtpVerificationRoute> { backStackEntry ->
+        val route: OtpVerificationRoute = backStackEntry.toRoute()
         val context = LocalContext.current
-        VerifyEmailScreen(
+        OtpVerificationScreen(
             userAccountId = route.userAccountId,
             email = route.email,
+            purpose = route.purpose,
             onBackClick = { navController.popBackStack() },
             onVerified = {
-                Toast.makeText(context, R.string.auth_email_verified, Toast.LENGTH_LONG).show()
-                backToLogin()
+                when (route.purpose) {
+                    // The second factor completes the sign-in
+                    OtpPurpose.LOGIN -> onLoginSuccess()
+                    OtpPurpose.EMAIL_VERIFICATION -> {
+                        Toast.makeText(context, R.string.auth_email_verified, Toast.LENGTH_LONG).show()
+                        backToLogin()
+                    }
+                }
             }
-        )
-    }
-
-    composable<TwoFactorRoute> { backStackEntry ->
-        val route: TwoFactorRoute = backStackEntry.toRoute()
-        TwoFactorScreen(
-            userAccountId = route.userAccountId,
-            onBackClick = { navController.popBackStack() },
-            onAuthenticated = onLoginSuccess
         )
     }
 

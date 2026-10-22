@@ -40,7 +40,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
@@ -256,100 +255,6 @@ fun AuthSheetTitle(
                 lineHeight = 21.sp
             )
         }
-    }
-}
-
-/**
- * Layout shared by the sign-up and recovery steps: the login's off-white sheet with a back button, an
- * optional step ("Paso 2 de 5"), a title and a subtitle above the form.
- */
-@Composable
-fun AuthStepLayout(
-    modifier: Modifier = Modifier,
-    title: String,
-    subtitle: String,
-    step: String? = null,
-    onBackClick: () -> Unit,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(SheetBg)
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 16.dp)
-    ) {
-        OutlinedIconButton(
-            onClick = onBackClick,
-            shape = CircleShape,
-            border = BorderStroke(1.dp, FieldBorder),
-            modifier = Modifier.size(44.dp)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_chevron_left),
-                contentDescription = stringResource(R.string.auth_back),
-                tint = TextPrimary,
-                modifier = Modifier.size(20.dp)
-            )
-        }
-        Spacer(modifier = Modifier.height(28.dp))
-        step?.let {
-            Text(
-                text = it.uppercase(),
-                color = BrandGreen,
-                fontSize = 12.sp,
-                letterSpacing = 1.sp,
-                fontFamily = FontFamily.Monospace
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        Text(text = title, color = TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = subtitle, color = TextMuted, fontSize = 15.sp, lineHeight = 21.sp)
-        Spacer(modifier = Modifier.height(28.dp))
-        content()
-    }
-}
-
-/** Six-digit code field; anything that is not a digit is ignored. */
-@Composable
-fun AuthCodeField(
-    modifier: Modifier = Modifier,
-    value: String,
-    onValueChange: (String) -> Unit,
-    onDone: () -> Unit
-) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        AuthFieldLabel(text = stringResource(R.string.auth_code_label))
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
-            value = value,
-            onValueChange = { input -> onValueChange(input.filter(Char::isDigit).take(AUTH_CODE_LENGTH)) },
-            placeholder = {
-                Text(
-                    text = stringResource(R.string.auth_code_placeholder),
-                    color = TextMuted,
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 24.sp,
-                    letterSpacing = 8.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            textStyle = MaterialTheme.typography.headlineSmall.copy(
-                fontFamily = FontFamily.Monospace,
-                letterSpacing = 8.sp,
-                textAlign = TextAlign.Center
-            ),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { onDone() }),
-            shape = RoundedCornerShape(14.dp),
-            colors = authFieldColors(),
-            modifier = Modifier.fillMaxWidth()
-        )
     }
 }
 

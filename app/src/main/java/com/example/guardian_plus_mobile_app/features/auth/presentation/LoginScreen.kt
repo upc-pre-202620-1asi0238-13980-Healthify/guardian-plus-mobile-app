@@ -228,7 +228,7 @@ fun LoginSurface(
                OutlinedTextField(
                    value = state.password,
                    onValueChange = onPasswordChange,
-                   placeholder = {Text(text= "Ingrese u contrasena aca", color = TextMuted)},
+                   placeholder = {Text(text= "Ingrese su contrasena aca", color = TextMuted)},
                    shape = RoundedCornerShape(14.dp),
                    singleLine = true,
                    modifier = Modifier.fillMaxWidth(),
@@ -485,7 +485,7 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel(),
     onLoginSuccess: () -> Unit = {},
-    onSecondFactorRequired: (userAccountId: String) -> Unit = {},
+    onSecondFactorRequired: (userAccountId: String, email: String) -> Unit = { _, _ -> },
     onEmailVerificationRequired: (userAccountId: String, email: String) -> Unit = { _, _ -> },
     onForgotPassword: () -> Unit = {},
     onRegister: () -> Unit = {}
@@ -496,7 +496,7 @@ fun LoginScreen(
     LaunchedEffect(state.navigation) {
         when (val navigation = state.navigation) {
             LoginNavigation.Home -> onLoginSuccess()
-            is LoginNavigation.TwoFactor -> onSecondFactorRequired(navigation.userAccountId)
+            is LoginNavigation.TwoFactor -> onSecondFactorRequired(navigation.userAccountId, navigation.email)
             is LoginNavigation.VerifyEmail -> onEmailVerificationRequired(navigation.userAccountId, navigation.email)
             null -> return@LaunchedEffect
         }

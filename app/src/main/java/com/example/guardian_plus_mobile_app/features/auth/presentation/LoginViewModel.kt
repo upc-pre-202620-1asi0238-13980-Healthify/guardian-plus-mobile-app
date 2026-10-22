@@ -51,7 +51,7 @@ class LoginViewModel @Inject constructor(
                 .onSuccess { outcome ->
                     val navigation = when (outcome) {
                         is LoginOutcome.Authenticated -> LoginNavigation.Home
-                        is LoginOutcome.SecondFactorRequired -> LoginNavigation.TwoFactor(outcome.userAccountId)
+                        is LoginOutcome.SecondFactorRequired -> LoginNavigation.TwoFactor(outcome.userAccountId, email.value)
                         is LoginOutcome.EmailVerificationRequired ->
                             LoginNavigation.VerifyEmail(outcome.userAccountId, email.value)
                     }

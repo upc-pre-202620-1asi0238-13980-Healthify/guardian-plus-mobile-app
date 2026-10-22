@@ -22,10 +22,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.ForgotPasswordRoute
 import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.LoginRoute
+import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.OtpVerificationRoute
 import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.RegisterRoute
 import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.ResetPasswordRoute
-import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.TwoFactorRoute
-import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.VerifyEmailRoute
 import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.authNavGraph
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.presentation.navigation.careRoutinesWellnessNavGraph
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.navigation.emergencyAlertingNavGraph
@@ -43,8 +42,7 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
     val isOnLogin = listOf(
         LoginRoute::class,
         RegisterRoute::class,
-        VerifyEmailRoute::class,
-        TwoFactorRoute::class,
+        OtpVerificationRoute::class,
         ForgotPasswordRoute::class,
         ResetPasswordRoute::class
     ).any { route -> backStackEntry?.destination?.hasRoute(route) == true }

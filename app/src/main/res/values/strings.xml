@@ -748,14 +748,5 @@
     <string name="auth_reset_password_subtitle">Ingresa el código del correo de recuperación y tu nueva contraseña</string>
     <string name="auth_reset_password_submit">Guardar nueva contraseña</string>
     <string name="auth_reset_password_done">Tu contraseña se actualizó. Ya puedes iniciar sesión.</string>
-    <string name="auth_register_step">Paso 1 de 5</string>
-    <string name="auth_verify_email_title">Código de verificación</string>
-    <string name="auth_verify_email_step">Paso 2 de 5</string>
-    <string name="auth_verify_email_subtitle">Ingresa el código de 6 dígitos que enviamos a %1$s</string>
-    <string name="auth_verify_email_submit">Verificar correo</string>
-    <string name="auth_two_factor_title">Verificación en dos pasos</string>
-    <string name="auth_two_factor_subtitle">Ingresa el código de 6 dígitos que enviamos a tu correo para terminar de iniciar sesión</string>
-    <string name="auth_two_factor_submit">Verificar e ingresar</string>
-    <string name="auth_forgot_password_have_code">Ya tengo un código</string>
     <string name="auth_email_verified">Tu correo quedó verificado. Ya puedes iniciar sesión.</string>
 </resources>
