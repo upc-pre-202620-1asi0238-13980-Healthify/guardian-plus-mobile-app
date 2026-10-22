@@ -2,6 +2,7 @@ package com.example.guardian_plus_mobile_app.core.di
 
 import com.example.guardian_plus_mobile_app.BuildConfig
 import com.example.guardian_plus_mobile_app.core.time.ServerClock
+import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.AuthInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,8 +19,9 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(serverClock: ServerClock): Retrofit {
+    fun provideRetrofit(serverClock: ServerClock, authInterceptor: AuthInterceptor): Retrofit {
         val client = OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
             .addInterceptor { chain ->
                 // The platform localizes its error messages (messages_es.properties) from this header
                 val request = chain.request().newBuilder()

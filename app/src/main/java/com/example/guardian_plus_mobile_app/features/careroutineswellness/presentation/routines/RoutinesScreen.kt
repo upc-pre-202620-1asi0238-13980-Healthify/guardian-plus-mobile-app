@@ -21,7 +21,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.LocalCareContext
 import com.example.guardian_plus_mobile_app.core.text.initials
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.ActivityMonitor
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.ActivityStatus
@@ -75,9 +75,10 @@ fun RoutinesContent(
     onNextClick: () -> Unit,
     onCategoryClick: (RoutineCategory) -> Unit
 ) {
+    val careContext = LocalCareContext.current
     Column(modifier = modifier.fillMaxSize()) {
         RoutinesHeader(
-            userInitials = DemoSession.CURRENT_USER_NAME.initials(),
+            userInitials = careContext.userFullName.initials(),
             careRecipientName = uiState.careRecipientName
         )
         Box(modifier = Modifier.weight(1f)) {

@@ -6,9 +6,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -19,9 +25,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.LocalCareContext
+import com.example.guardian_plus_mobile_app.core.session.callCareRecipient
 import com.example.guardian_plus_mobile_app.core.text.initials
-import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.dial
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.relativeTime
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.ErrorState
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.LiveVitalsUiState
@@ -35,6 +41,7 @@ import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentati
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.home.component.UpcomingCard
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.home.component.VitalsSummaryCard
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.livevitals.LiveVitalsViewModel
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.wearable.LinkWearableSheet
 import java.time.ZoneId
 
 /** "Inicio" tab: how the care recipient is doing right now. Only reads live vitals, so no ViewModel of its own. */
@@ -44,8 +51,13 @@ fun HomeScreen(
     viewModel: LiveVitalsViewModel = hiltViewModel(),
     onSeeVitalsClick: () -> Unit,
     onLocationClick: () -> Unit,
-    onAlertsClick: () -> Unit
+    onAlertsClick: () -> Unit,
+    onLogout: () -> Unit = {}
 ) {
+    val careContext = LocalCareContext.current
+    var isLogoutDialogOpen by rememberSaveable { mutableStateOf(false) }
+    var isLinkWearableOpen by rememberSaveable { mutableStateOf(false) }
+    val linkedMessage = stringResource(R.string.wearable_linked)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val comingSoon = stringResource(R.string.placeholder_soon)
@@ -57,12 +69,41 @@ fun HomeScreen(
         onRetryClick = viewModel::load,
         onBellClick = onAlertsClick,
         onChangeRecipientClick = showComingSoon,
-        onCallClick = { context.dial(DemoSession.CARE_RECIPIENT_PHONE) },
+        onCallClick = { context.callCareRecipient(careContext) },
         onVideoClick = showComingSoon,
         onLocationClick = onLocationClick,
         onSeeVitalsClick = onSeeVitalsClick,
-        onSeeAgendaClick = showComingSoon
+        onSeeAgendaClick = showComingSoon,
+        onAccountClick = { isLogoutDialogOpen = true },
+        onLinkWristbandClick = { isLinkWearableOpen = true }
     )
+    if (isLinkWearableOpen) {
+        LinkWearableSheet(
+            careRecipientFirstName = careContext.careRecipientFirstName,
+            onLinked = {
+                isLinkWearableOpen = false
+                Toast.makeText(context, linkedMessage, Toast.LENGTH_SHORT).show()
+                viewModel.load()
+            },
+            onDismiss = { isLinkWearableOpen = false }
+        )
+    }
+    if (isLogoutDialogOpen) {
+        AlertDialog(
+            onDismissRequest = { isLogoutDialogOpen = false },
+            title = { Text(stringResource(R.string.home_logout_title)) },
+            text = { Text(stringResource(R.string.home_logout_message)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    isLogoutDialogOpen = false
+                    onLogout()
+                }) { Text(stringResource(R.string.home_logout_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { isLogoutDialogOpen = false }) { Text(stringResource(R.string.home_logout_cancel)) }
+            }
+        )
+    }
 }
 
 @Composable
@@ -76,8 +117,11 @@ fun HomeContent(
     onVideoClick: () -> Unit,
     onLocationClick: () -> Unit,
     onSeeVitalsClick: () -> Unit,
-    onSeeAgendaClick: () -> Unit
+    onSeeAgendaClick: () -> Unit,
+    onAccountClick: () -> Unit = {},
+    onLinkWristbandClick: () -> Unit = {}
 ) {
+    val careContext = LocalCareContext.current
     val vitals = uiState.vitals
     when {
         // Old readings stay visible during refreshes; the spinner is only for the very first load
@@ -98,17 +142,18 @@ fun HomeContent(
         ) {
             item {
                 HomeHeader(
-                    userInitials = DemoSession.CURRENT_USER_NAME.initials(),
-                    userFirstName = DemoSession.CURRENT_USER_NAME.substringBefore(" "),
+                    userInitials = careContext.userFullName.initials(),
+                    userFirstName = careContext.userFirstName,
                     careRecipientFirstName = uiState.careRecipientFirstName,
                     allWithinRange = uiState.allWithinRange,
                     hour = uiState.now.atZone(ZoneId.systemDefault()).hour,
-                    onBellClick = onBellClick
+                    onBellClick = onBellClick,
+                    onAvatarClick = onAccountClick
                 )
             }
             item {
                 CareRecipientCard(
-                    name = DemoSession.CARE_RECIPIENT_NAME,
+                    name = careContext.careRecipientName,
                     hasLiveSignal = uiState.hasLiveSignal,
                     onChangeClick = onChangeRecipientClick
                 )
@@ -119,7 +164,8 @@ fun HomeContent(
                     allWithinRange = uiState.allWithinRange,
                     hasLiveSignal = uiState.hasLiveSignal,
                     updatedText = relativeTime(vitals.retrievedAt, uiState.now),
-                    hasWristband = uiState.hasWristband
+                    hasWristband = uiState.hasWristband,
+                    onLinkWristbandClick = onLinkWristbandClick
                 )
             }
             item {

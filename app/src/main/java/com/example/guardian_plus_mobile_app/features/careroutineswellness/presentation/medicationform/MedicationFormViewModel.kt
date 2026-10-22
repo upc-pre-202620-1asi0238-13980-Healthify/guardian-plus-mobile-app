@@ -2,7 +2,7 @@ package com.example.guardian_plus_mobile_app.features.careroutineswellness.prese
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.core.time.ServerClock
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.ScheduleReminderUseCase
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.RecurrenceFrequency
@@ -29,8 +29,12 @@ data class MedicationFormUiState(
 @HiltViewModel
 class MedicationFormViewModel @Inject constructor(
     private val scheduleReminder: ScheduleReminderUseCase,
-    private val serverClock: ServerClock
+    private val serverClock: ServerClock,
+    private val careContextStore: CareContextStore
 ) : ViewModel() {
+
+    // Whose data this screen shows: the signed-in account and the person under its care
+    private val careContext = careContextStore.require()
 
     private val _uiState = MutableStateFlow(MedicationFormUiState())
     val uiState: StateFlow<MedicationFormUiState> = _uiState.asStateFlow()
@@ -51,7 +55,7 @@ class MedicationFormViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true, errorMessage = null) }
             val request = ScheduleReminderRequest(
-                personUnderCareId = DemoSession.CARE_RECIPIENT_PROFILE_ID,
+                personUnderCareId = careContext.careRecipientProfileId,
                 type = ReminderType.MEDICATION,
                 scheduledTime = firstOccurrence(time, frequency, days, serverClock.now()),
                 title = name,

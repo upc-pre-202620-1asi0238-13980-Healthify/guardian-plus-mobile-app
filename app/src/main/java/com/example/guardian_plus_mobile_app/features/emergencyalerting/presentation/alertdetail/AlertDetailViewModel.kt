@@ -2,7 +2,7 @@ package com.example.guardian_plus_mobile_app.features.emergencyalerting.presenta
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.core.time.ServerClock
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.application.AcknowledgeAlertUseCase
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.application.ClaimAlertResponseUseCase
@@ -38,13 +38,17 @@ class AlertDetailViewModel @Inject constructor(
     private val stabilizeIncident: StabilizeIncidentUseCase,
     private val closeIncident: CloseIncidentUseCase,
     // Countdowns follow the backend clock, which decides when an alert escalates
-    private val serverClock: ServerClock
+    private val serverClock: ServerClock,
+    private val careContextStore: CareContextStore
 ) : ViewModel() {
+
+    // Whose data this screen shows: the signed-in account and the person under its care
+    private val careContext = careContextStore.require()
 
     private val _uiState = MutableStateFlow(
         AlertDetailUiState(
-            careRecipientFirstName = DemoSession.CARE_RECIPIENT_FIRST_NAME,
-            currentUserId = DemoSession.CURRENT_USER_ID
+            careRecipientFirstName = careContext.careRecipientFirstName,
+            currentUserId = careContext.userAccountId
         )
     )
     val uiState: StateFlow<AlertDetailUiState> = _uiState.asStateFlow()
@@ -56,9 +60,9 @@ class AlertDetailViewModel @Inject constructor(
         this.alertId = alertId
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            getEmergencyContacts(DemoSession.CARE_RECIPIENT_PROFILE_ID)
+            getEmergencyContacts(careContext.careRecipientProfileId)
                 .onSuccess { contacts -> _uiState.update { it.copy(contacts = contacts) } }
-            getAlertSettings(DemoSession.CARE_RECIPIENT_PROFILE_ID)
+            getAlertSettings(careContext.careRecipientProfileId)
                 .onSuccess { settings ->
                     _uiState.update {
                         it.copy(ackTimeoutSec = settings.primaryAckTimeoutSec, escalationEnabled = settings.escalationEnabled)
@@ -70,11 +74,11 @@ class AlertDetailViewModel @Inject constructor(
     }
 
     fun acknowledge() = runAction(AlertDetailAction.ACKNOWLEDGE) { alertId ->
-        acknowledgeAlert(alertId, DemoSession.CURRENT_USER_ID)
+        acknowledgeAlert(alertId, careContext.userAccountId)
     }
 
     fun claimResponse() = runAction(AlertDetailAction.CLAIM) { alertId ->
-        claimAlertResponse(alertId, DemoSession.CURRENT_USER_ID)
+        claimAlertResponse(alertId, careContext.userAccountId)
     }
 
     fun completeResponse() {

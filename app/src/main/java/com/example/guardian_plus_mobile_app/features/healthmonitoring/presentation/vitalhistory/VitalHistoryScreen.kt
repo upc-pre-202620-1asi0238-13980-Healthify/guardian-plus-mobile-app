@@ -33,7 +33,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.LocalCareContext
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignReading
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.VitalSignType
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.common.ErrorState
@@ -57,6 +57,7 @@ fun VitalHistoryScreen(
     viewModel: VitalHistoryViewModel = hiltViewModel(),
     filter: VitalFilter = VitalFilter()
 ) {
+    val careContext = LocalCareContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     // The ViewModel decides whether the new filter needs another period from the platform
@@ -65,7 +66,7 @@ fun VitalHistoryScreen(
     val exportFailed = stringResource(R.string.report_export_failed)
     LaunchedEffect(uiState.reportToExport) {
         uiState.reportToExport?.let { request ->
-            if (!context.exportHealthReport(request.report, DemoSession.CARE_RECIPIENT_NAME, request.metrics)) {
+            if (!context.exportHealthReport(request.report, careContext.careRecipientName, request.metrics)) {
                 Toast.makeText(context, exportFailed, Toast.LENGTH_LONG).show()
             }
             viewModel.onReportExported()
@@ -91,7 +92,7 @@ fun VitalHistoryScreen(
     if (uiState.isExportSheetOpen) {
         ExportRecordSheet(
             today = uiState.today,
-            careRecipientName = DemoSession.CARE_RECIPIENT_NAME,
+            careRecipientName = careContext.careRecipientName,
             emptyRanges = uiState.emptyRanges,
             isExporting = uiState.busyAction == ReportAction.EXPORT_PDF,
             onExport = viewModel::exportRecord,
@@ -102,7 +103,7 @@ fun VitalHistoryScreen(
     uiState.weeklyReport?.let { weeklyReport ->
         WeeklyReportSheet(
             weeklyReport = weeklyReport,
-            careRecipientName = DemoSession.CARE_RECIPIENT_NAME,
+            careRecipientName = careContext.careRecipientName,
             onDismiss = viewModel::closeWeeklyReport
         )
     }

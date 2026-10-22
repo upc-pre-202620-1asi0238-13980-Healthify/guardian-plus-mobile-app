@@ -2,7 +2,7 @@ package com.example.guardian_plus_mobile_app.features.emergencyalerting.presenta
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.application.ConfigureAlertChannelUseCase
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.application.GetAlertChannelSettingsUseCase
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.application.GetAlertSettingsUseCase
@@ -26,8 +26,12 @@ class AlertSettingsViewModel @Inject constructor(
     private val setSilentMode: SetSilentModeUseCase,
     private val getAlertChannelSettings: GetAlertChannelSettingsUseCase,
     private val configureAlertChannel: ConfigureAlertChannelUseCase,
-    private val getEmergencyContacts: GetEmergencyContactsUseCase
+    private val getEmergencyContacts: GetEmergencyContactsUseCase,
+    private val careContextStore: CareContextStore
 ) : ViewModel() {
+
+    // Whose data this screen shows: the signed-in account and the person under its care
+    private val careContext = careContextStore.require()
 
     private val _uiState = MutableStateFlow(AlertSettingsUiState())
     val uiState: StateFlow<AlertSettingsUiState> = _uiState.asStateFlow()
@@ -39,10 +43,10 @@ class AlertSettingsViewModel @Inject constructor(
     fun loadSettings() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            getAlertChannelSettings(DemoSession.CURRENT_USER_ID)
+            getAlertChannelSettings(careContext.userAccountId)
                 .onSuccess { channels -> _uiState.update { it.copy(configuredChannels = channels) } }
             refreshContacts()
-            getAlertSettings(DemoSession.CARE_RECIPIENT_PROFILE_ID)
+            getAlertSettings(careContext.careRecipientProfileId)
                 .onSuccess { settings -> _uiState.update { it.copy(isLoading = false, settings = settings) } }
                 .onFailure { e ->
                     _uiState.update { it.copy(isLoading = false, errorMessage = e.message ?: "No se pudo cargar la configuración") }
@@ -65,7 +69,7 @@ class AlertSettingsViewModel @Inject constructor(
         val previous = _uiState.value.settings ?: return
         _uiState.update { it.copy(settings = previous.copy(silentModeEnabled = enabled), isSavingSettings = true) }
         viewModelScope.launch {
-            setSilentMode(DemoSession.CARE_RECIPIENT_PROFILE_ID, enabled)
+            setSilentMode(careContext.careRecipientProfileId, enabled)
                 .onSuccess { saved -> _uiState.update { it.copy(settings = saved, isSavingSettings = false) } }
                 .onFailure { e -> revertSettings(previous, e) }
         }
@@ -81,7 +85,7 @@ class AlertSettingsViewModel @Inject constructor(
         }
         viewModelScope.launch {
             _uiState.update { it.copy(savingChannel = channel) }
-            configureAlertChannel(DemoSession.CURRENT_USER_ID, channel, enabled)
+            configureAlertChannel(careContext.userAccountId, channel, enabled)
                 .onSuccess { saved ->
                     _uiState.update { state ->
                         val others = state.configuredChannels.filterNot { it.channel == saved.channel }
@@ -110,7 +114,7 @@ class AlertSettingsViewModel @Inject constructor(
         _uiState.update { it.copy(settings = updated, isSavingSettings = true) }
         viewModelScope.launch {
             updateAlertSettings(
-                DemoSession.CARE_RECIPIENT_PROFILE_ID,
+                careContext.careRecipientProfileId,
                 updated.primaryAckTimeoutSec,
                 updated.escalationEnabled,
                 updated.broadcastCriticalImmediately
@@ -131,7 +135,7 @@ class AlertSettingsViewModel @Inject constructor(
     }
 
     private suspend fun refreshContacts() {
-        getEmergencyContacts(DemoSession.CARE_RECIPIENT_PROFILE_ID)
+        getEmergencyContacts(careContext.careRecipientProfileId)
             .onSuccess { contacts -> _uiState.update { it.copy(contacts = contacts.filter { contact -> contact.active }) } }
     }
 }

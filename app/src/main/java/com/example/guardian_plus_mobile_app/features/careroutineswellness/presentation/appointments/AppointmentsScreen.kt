@@ -47,7 +47,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.JetBrainsMono
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.LocalCareContext
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.Reminder
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.ReminderStatus
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.ReminderType
@@ -139,6 +139,7 @@ private fun AppointmentsList(
     onAddAppointmentClick: () -> Unit,
     onCancelAppointment: (Reminder) -> Unit
 ) {
+    val careContext = LocalCareContext.current
     var expandedId by rememberSaveable { mutableStateOf<String?>(null) }
 
     LazyColumn(
@@ -152,7 +153,7 @@ private fun AppointmentsList(
                 RoutineEmptyState(
                     iconRes = R.drawable.ic_calendar,
                     title = stringResource(R.string.appointments_empty_title),
-                    message = stringResource(R.string.appointments_empty_message, DemoSession.CARE_RECIPIENT_FIRST_NAME),
+                    message = stringResource(R.string.appointments_empty_message, careContext.careRecipientFirstName),
                     actionLabel = stringResource(R.string.appointments_empty_action),
                     onActionClick = onAddAppointmentClick
                 )

@@ -35,7 +35,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.LocalCareContext
+import com.example.guardian_plus_mobile_app.core.session.callCareRecipient
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.Alert
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.AlertContext
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.AlertDelivery
@@ -75,6 +76,7 @@ fun AlertDetailScreen(
     onViewLocationClick: () -> Unit,
     onViewHealthClick: () -> Unit
 ) {
+    val careContext = LocalCareContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
@@ -108,7 +110,7 @@ fun AlertDetailScreen(
                 if (action == AlertDetailAction.STABILIZE) viewModel.stabilize(notes) else viewModel.close(notes)
             },
             onNotesDismiss = { notesDialogAction = null },
-            onCallClick = { context.dial(DemoSession.CARE_RECIPIENT_PHONE) },
+            onCallClick = { context.callCareRecipient(careContext) },
             onCallEmergencyClick = { context.dial(EMERGENCY_SERVICES_NUMBER) },
             onViewLocationClick = onViewLocationClick,
             onViewHealthClick = onViewHealthClick
@@ -136,6 +138,7 @@ fun AlertDetailContent(
     onViewLocationClick: () -> Unit,
     onViewHealthClick: () -> Unit
 ) {
+    val careContext = LocalCareContext.current
     val alert = uiState.alert
     val (statusLabel, statusColors) = statusChip(alert, uiState.incident)
 
@@ -144,7 +147,7 @@ fun AlertDetailContent(
             title = stringResource(
                 if (alert?.sourceType == AlertSourceType.SOS_TRIGGERED) R.string.detail_title_sos else R.string.detail_title
             ),
-            subtitle = DemoSession.CARE_RECIPIENT_NAME,
+            subtitle = careContext.careRecipientName,
             statusLabel = statusLabel,
             statusContainer = statusColors.first,
             statusContent = statusColors.second,

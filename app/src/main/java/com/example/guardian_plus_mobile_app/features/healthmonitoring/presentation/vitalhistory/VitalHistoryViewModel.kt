@@ -2,7 +2,7 @@ package com.example.guardian_plus_mobile_app.features.healthmonitoring.presentat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.GetAdherenceUseCase
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.ReminderType
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.application.GetAlertHistoryUseCase
@@ -34,8 +34,12 @@ class VitalHistoryViewModel @Inject constructor(
     private val getHealthReports: GetHealthReportsUseCase,
     private val getAlertHistory: GetAlertHistoryUseCase,
     private val getAdherence: GetAdherenceUseCase,
-    private val serverClock: ServerClock
+    private val serverClock: ServerClock,
+    private val careContextStore: CareContextStore
 ) : ViewModel() {
+
+    // Whose data this screen shows: the signed-in account and the person under its care
+    private val careContext = careContextStore.require()
 
     private val _uiState = MutableStateFlow(VitalHistoryUiState())
     val uiState: StateFlow<VitalHistoryUiState> = _uiState.asStateFlow()
@@ -55,7 +59,7 @@ class VitalHistoryViewModel @Inject constructor(
             val today = serverClock.now().atZone(_uiState.value.zone).toLocalDate()
 
             // Ranges only colour the badges; without them the history still makes sense
-            val ranges = getLiveVitalSigns(DemoSession.CARE_RECIPIENT_PROFILE_ID)
+            val ranges = getLiveVitalSigns(careContext.careRecipientProfileId)
                 .getOrNull()
                 ?.vitalSigns
                 ?.associate { it.type to it.normalMinimum..it.normalMaximum }
@@ -64,7 +68,7 @@ class VitalHistoryViewModel @Inject constructor(
             // The platform filters by UTC date while the period is drawn on Lima's calendar (UTC−5), so one extra
             // day is asked on each side and the state keeps only the readings that fall inside the local period
             getVitalSignHistory(
-                DemoSession.CARE_RECIPIENT_PROFILE_ID,
+                careContext.careRecipientProfileId,
                 today.minusDays(period.dayCount.toLong()),
                 today.plusDays(1)
             )
@@ -97,11 +101,11 @@ class VitalHistoryViewModel @Inject constructor(
         val zone = _uiState.value.zone
         viewModelScope.launch {
             _uiState.update { it.copy(busyAction = ReportAction.WEEKLY_REPORT) }
-            val latestWeekly = getHealthReports(DemoSession.CARE_RECIPIENT_PROFILE_ID).getOrNull()
+            val latestWeekly = getHealthReports(careContext.careRecipientProfileId).getOrNull()
                 ?.firstOrNull { it.reportType == HealthReportType.WEEKLY_AUTOMATIC && it.periodEnd >= today.minusDays(WEEK_DAYS) }
             val result = latestWeekly?.let { Result.success(it) } ?: generateHealthReport(
-                DemoSession.CARE_RECIPIENT_PROFILE_ID,
-                DemoSession.CURRENT_USER_ID,
+                careContext.careRecipientProfileId,
+                careContext.userAccountId,
                 today.minusDays(WEEK_DAYS - 1),
                 today
             )
@@ -111,14 +115,14 @@ class VitalHistoryViewModel @Inject constructor(
                     val (alerts, adherence) = coroutineScope {
                         val alerts = async {
                             getAlertHistory(
-                                DemoSession.CARE_RECIPIENT_PROFILE_ID,
+                                careContext.careRecipientProfileId,
                                 from = report.periodStart.atStartOfDay(zone).toInstant(),
                                 to = report.periodEnd.plusDays(1).atStartOfDay(zone).toInstant(),
                                 size = 1
                             ).getOrNull()?.totalElements
                         }
                         val adherence = async {
-                            getAdherence(DemoSession.CARE_RECIPIENT_PROFILE_ID, ReminderType.MEDICATION, report.periodStart, report.periodEnd)
+                            getAdherence(careContext.careRecipientProfileId, ReminderType.MEDICATION, report.periodStart, report.periodEnd)
                                 .getOrNull()
                         }
                         alerts.await() to adherence.await()
@@ -150,7 +154,7 @@ class VitalHistoryViewModel @Inject constructor(
         if (_uiState.value.busyAction != null || metrics.isEmpty()) return
         viewModelScope.launch {
             _uiState.update { it.copy(busyAction = ReportAction.EXPORT_PDF) }
-            generateHealthReport(DemoSession.CARE_RECIPIENT_PROFILE_ID, DemoSession.CURRENT_USER_ID, range.start, range.end)
+            generateHealthReport(careContext.careRecipientProfileId, careContext.userAccountId, range.start, range.end)
                 .onSuccess { report ->
                     _uiState.update {
                         it.copy(busyAction = null, isExportSheetOpen = false, reportToExport = ExportRequest(report, metrics))

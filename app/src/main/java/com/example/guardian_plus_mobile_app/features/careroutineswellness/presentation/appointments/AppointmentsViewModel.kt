@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.guardian_plus_mobile_app.R
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.core.time.ServerClock
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.CancelReminderUseCase
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.GetRemindersUseCase
@@ -43,8 +43,12 @@ class AppointmentsViewModel @Inject constructor(
     private val getReminders: GetRemindersUseCase,
     private val cancelReminder: CancelReminderUseCase,
     private val serverClock: ServerClock,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val careContextStore: CareContextStore
 ) : ViewModel() {
+
+    // Whose data this screen shows: the signed-in account and the person under its care
+    private val careContext = careContextStore.require()
 
     private val _uiState = MutableStateFlow(AppointmentsUiState())
     val uiState: StateFlow<AppointmentsUiState> = _uiState.asStateFlow()
@@ -86,7 +90,7 @@ class AppointmentsViewModel @Inject constructor(
         val now = serverClock.now()
         // From the start of today, so an appointment that is about to start still shows
         val (startOfDay, _) = todayBounds(now)
-        getReminders(DemoSession.CARE_RECIPIENT_PROFILE_ID, from = startOfDay, type = ReminderType.APPOINTMENT)
+        getReminders(careContext.careRecipientProfileId, from = startOfDay, type = ReminderType.APPOINTMENT)
             .onSuccess { reminders ->
                 _uiState.update {
                     it.copy(

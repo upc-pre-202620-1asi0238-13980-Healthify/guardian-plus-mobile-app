@@ -7,3 +7,10 @@ data class WearableDeviceDto(
     val deviceType: String,
     val linkedAt: String
 )
+
+// LinkWearableDeviceResource of the platform; deviceType is SMARTWATCH, WRISTBAND or PATCH
+data class LinkWearableDeviceRequestDto(
+    val careRecipientProfileId: String,
+    val serialNumber: String,
+    val deviceType: String
+)

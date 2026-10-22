@@ -2,7 +2,7 @@ package com.example.guardian_plus_mobile_app.features.careroutineswellness.prese
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.core.time.ServerClock
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.GetActivityMonitorUseCase
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.GetHydrationPlanUseCase
@@ -29,10 +29,14 @@ class RoutinesViewModel @Inject constructor(
     private val getSleepCycleRecords: GetSleepCycleRecordsUseCase,
     private val getActivityMonitor: GetActivityMonitorUseCase,
     private val getMedicationStocks: GetMedicationStocksUseCase,
-    private val serverClock: ServerClock
+    private val serverClock: ServerClock,
+    private val careContextStore: CareContextStore
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(RoutinesUiState(careRecipientName = DemoSession.CARE_RECIPIENT_NAME))
+    // Whose data this screen shows: the signed-in account and the person under its care
+    private val careContext = careContextStore.require()
+
+    private val _uiState = MutableStateFlow(RoutinesUiState(careRecipientName = careContext.careRecipientName))
     val uiState: StateFlow<RoutinesUiState> = _uiState.asStateFlow()
 
     init {
@@ -56,7 +60,7 @@ class RoutinesViewModel @Inject constructor(
 
     // The sections are independent, so they are requested together instead of one after another
     private suspend fun refresh() = coroutineScope {
-        val personUnderCareId = DemoSession.CARE_RECIPIENT_PROFILE_ID
+        val personUnderCareId = careContext.careRecipientProfileId
         val now = serverClock.now()
         val (startOfDay, startOfTomorrow) = todayBounds(now)
 

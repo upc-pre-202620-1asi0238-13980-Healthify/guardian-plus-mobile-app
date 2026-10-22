@@ -2,7 +2,7 @@ package com.example.guardian_plus_mobile_app.features.careroutineswellness.prese
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.ConfigureHydrationPlanUseCase
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.application.GetHydrationPlanUseCase
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.HydrationPlan
@@ -41,8 +41,12 @@ data class HydrationUiState(
 @HiltViewModel
 class HydrationViewModel @Inject constructor(
     private val getHydrationPlan: GetHydrationPlanUseCase,
-    private val configureHydrationPlan: ConfigureHydrationPlanUseCase
+    private val configureHydrationPlan: ConfigureHydrationPlanUseCase,
+    private val careContextStore: CareContextStore
 ) : ViewModel() {
+
+    // Whose data this screen shows: the signed-in account and the person under its care
+    private val careContext = careContextStore.require()
 
     private val _uiState = MutableStateFlow(HydrationUiState())
     val uiState: StateFlow<HydrationUiState> = _uiState.asStateFlow()
@@ -54,7 +58,7 @@ class HydrationViewModel @Inject constructor(
     fun load() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            getHydrationPlan(DemoSession.CARE_RECIPIENT_PROFILE_ID)
+            getHydrationPlan(careContext.careRecipientProfileId)
                 .onSuccess { plan ->
                     _uiState.update {
                         it.copy(
@@ -95,7 +99,7 @@ class HydrationViewModel @Inject constructor(
         _uiState.update { it.copy(settings = updated, isSaving = true) }
         viewModelScope.launch {
             configureHydrationPlan(
-                DemoSession.CARE_RECIPIENT_PROFILE_ID,
+                careContext.careRecipientProfileId,
                 updated.active,
                 updated.dailyGoalGlasses,
                 updated.intervalHours,

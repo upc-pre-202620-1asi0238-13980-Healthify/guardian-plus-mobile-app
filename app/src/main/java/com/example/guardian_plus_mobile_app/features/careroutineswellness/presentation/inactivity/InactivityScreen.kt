@@ -39,7 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.dataMetric
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.LocalCareContext
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.ActivityLogEntry
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.ActivityLogEntryType
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.ActivityMonitor
@@ -100,6 +100,7 @@ fun InactivityContent(
     onDetectionChange: (Boolean) -> Unit,
     onThresholdSelect: (Int) -> Unit
 ) {
+    val careContext = LocalCareContext.current
     Column(modifier = modifier.fillMaxSize()) {
         RoutineTopBar(
             title = stringResource(R.string.routines_category_inactivity),
@@ -128,7 +129,7 @@ fun InactivityContent(
                         RoutineBanner(
                             iconRes = R.drawable.ic_triangle_alert,
                             title = stringResource(R.string.inactivity_threshold_title, uiState.thresholdMinutes),
-                            message = stringResource(R.string.inactivity_threshold_message, DemoSession.CARE_RECIPIENT_FIRST_NAME),
+                            message = stringResource(R.string.inactivity_threshold_message, careContext.careRecipientFirstName),
                             tone = RoutineTone.ORANGE
                         )
                     }

@@ -2,7 +2,7 @@ package com.example.guardian_plus_mobile_app.features.emergencyalerting.presenta
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.application.AddEmergencyContactUseCase
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.application.GetAlertSettingsUseCase
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.application.GetEmergencyContactsUseCase
@@ -14,6 +14,9 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -23,24 +26,34 @@ class EmergencyContactsViewModel @Inject constructor(
     private val getAlertSettings: GetAlertSettingsUseCase,
     private val addEmergencyContact: AddEmergencyContactUseCase,
     private val removeEmergencyContact: RemoveEmergencyContactUseCase,
-    private val reorderEmergencyContacts: ReorderEmergencyContactsUseCase
+    private val reorderEmergencyContacts: ReorderEmergencyContactsUseCase,
+    private val careContextStore: CareContextStore
 ) : ViewModel() {
 
+    // Whose data this screen shows: the signed-in account and the person under its care
+    private val careContext = careContextStore.require()
+
     private val _uiState = MutableStateFlow(
-        EmergencyContactsUiState(careRecipientFirstName = DemoSession.CARE_RECIPIENT_FIRST_NAME)
+        EmergencyContactsUiState(careRecipientFirstName = careContext.careRecipientFirstName)
     )
     val uiState: StateFlow<EmergencyContactsUiState> = _uiState.asStateFlow()
 
     init {
         loadContacts()
+        // The "call" buttons dial the primary contact, so every change of the list updates that number
+        viewModelScope.launch {
+            _uiState.map { it.contacts }.distinctUntilChanged().drop(1).collect { contacts ->
+                careContextStore.updateCallNumber(contacts.firstOrNull()?.phoneNumber)
+            }
+        }
     }
 
     fun loadContacts() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            getAlertSettings(DemoSession.CARE_RECIPIENT_PROFILE_ID)
+            getAlertSettings(careContext.careRecipientProfileId)
                 .onSuccess { settings -> _uiState.update { it.copy(ackTimeoutSec = settings.primaryAckTimeoutSec) } }
-            getEmergencyContacts(DemoSession.CARE_RECIPIENT_PROFILE_ID)
+            getEmergencyContacts(careContext.careRecipientProfileId)
                 .onSuccess { contacts ->
                     _uiState.update { it.copy(isLoading = false, contacts = contacts.activeInOrder()) }
                 }
@@ -63,7 +76,7 @@ class EmergencyContactsViewModel @Inject constructor(
         // The new order shows at once; if the platform rejects it, the previous one comes back
         _uiState.update { it.copy(contacts = reordered, isSaving = true) }
         viewModelScope.launch {
-            reorderEmergencyContacts(DemoSession.CARE_RECIPIENT_PROFILE_ID, reordered.map { it.id })
+            reorderEmergencyContacts(careContext.careRecipientProfileId, reordered.map { it.id })
                 .onSuccess { saved -> _uiState.update { it.copy(isSaving = false, contacts = saved.activeInOrder()) } }
                 .onFailure { e ->
                     _uiState.update {
@@ -107,7 +120,7 @@ class EmergencyContactsViewModel @Inject constructor(
         if (_uiState.value.isAdding) return
         viewModelScope.launch {
             _uiState.update { it.copy(isAdding = true) }
-            addEmergencyContact(DemoSession.CARE_RECIPIENT_PROFILE_ID, displayName, relationship, phoneNumber)
+            addEmergencyContact(careContext.careRecipientProfileId, displayName, relationship, phoneNumber)
                 .onSuccess {
                     _uiState.update { it.copy(isAdding = false, isAddSheetOpen = false) }
                     reloadAfterChange()
@@ -126,7 +139,7 @@ class EmergencyContactsViewModel @Inject constructor(
 
     // Adding or removing changes the priorities of the others, so the list is read again
     private suspend fun reloadAfterChange() {
-        getEmergencyContacts(DemoSession.CARE_RECIPIENT_PROFILE_ID)
+        getEmergencyContacts(careContext.careRecipientProfileId)
             .onSuccess { contacts -> _uiState.update { it.copy(isSaving = false, contacts = contacts.activeInOrder()) } }
             .onFailure { _uiState.update { it.copy(isSaving = false) } }
     }

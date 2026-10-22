@@ -16,7 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.LocalCareContext
+import com.example.guardian_plus_mobile_app.core.session.callCareRecipient
 import com.example.guardian_plus_mobile_app.core.text.initials
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.activealerts.ActiveAlertsScreen
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.activealerts.ActiveAlertsViewModel
@@ -24,7 +25,6 @@ import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentat
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alerts.component.AlertsHeader
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alerts.component.AlertsTab
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.alerts.component.AlertsTabRow
-import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.dial
 
 /** Alerts tab of the bottom bar: shared header and the "Activas · Historial" tabs. */
 @Composable
@@ -34,6 +34,7 @@ fun AlertsScreen(
     onSettingsClick: () -> Unit,
     onManageContactsClick: () -> Unit
 ) {
+    val careContext = LocalCareContext.current
     // Same instance that ActiveAlertsScreen uses, since both live in this navigation entry
     val activeAlertsViewModel: ActiveAlertsViewModel = hiltViewModel()
     val activeAlertsState by activeAlertsViewModel.uiState.collectAsStateWithLifecycle()
@@ -51,7 +52,7 @@ fun AlertsScreen(
             AlertsTab.ACTIVE -> ActiveAlertsScreen(
                 viewModel = activeAlertsViewModel,
                 onAlertClick = onAlertClick,
-                onCallClick = { context.dial(DemoSession.CARE_RECIPIENT_PHONE) },
+                onCallClick = { context.callCareRecipient(careContext) },
                 onManageContactsClick = onManageContactsClick
             )
             AlertsTab.HISTORY -> AlertHistoryScreen(onAlertClick = onAlertClick)
@@ -68,10 +69,11 @@ fun AlertsContent(
     onSettingsClick: () -> Unit,
     tabContent: @Composable () -> Unit
 ) {
+    val careContext = LocalCareContext.current
     Column(modifier = modifier.fillMaxSize()) {
         AlertsHeader(
-            userInitials = DemoSession.CURRENT_USER_NAME.initials(),
-            careRecipientName = DemoSession.CARE_RECIPIENT_NAME,
+            userInitials = careContext.userFullName.initials(),
+            careRecipientName = careContext.careRecipientName,
             activeCount = activeCount,
             onSettingsClick = onSettingsClick
         )

@@ -19,10 +19,16 @@ object HealthRoute
 fun NavGraphBuilder.healthMonitoringNavGraph(
     onOpenHealth: () -> Unit,
     onOpenAlerts: () -> Unit,
-    onOpenLocation: () -> Unit
+    onOpenLocation: () -> Unit,
+    onLogout: () -> Unit = {}
 ) {
     composable<HomeRoute> {
-        HomeScreen(onSeeVitalsClick = onOpenHealth, onLocationClick = onOpenLocation, onAlertsClick = onOpenAlerts)
+        HomeScreen(
+            onSeeVitalsClick = onOpenHealth,
+            onLocationClick = onOpenLocation,
+            onAlertsClick = onOpenAlerts,
+            onLogout = onLogout
+        )
     }
 
     composable<HealthRoute> {

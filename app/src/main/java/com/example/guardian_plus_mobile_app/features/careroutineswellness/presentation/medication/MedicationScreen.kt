@@ -31,7 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.dataMetric
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.LocalCareContext
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.Adherence
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.Reminder
 import com.example.guardian_plus_mobile_app.features.careroutineswellness.domain.ReminderStatus
@@ -93,6 +93,7 @@ fun MedicationContent(
     onConfirmDose: (Reminder) -> Unit,
     onMarkDoseAsMissed: (Reminder) -> Unit
 ) {
+    val careContext = LocalCareContext.current
     // Marking a dose as missed closes it for good, so it is asked first
     var reviewingId by rememberSaveable { mutableStateOf<String?>(null) }
 
@@ -127,7 +128,7 @@ fun MedicationContent(
         AlertDialog(
             onDismissRequest = { reviewingId = null },
             title = { Text(text = stringResource(R.string.medication_review_title, dose.displayTitle())) },
-            text = { Text(text = stringResource(R.string.medication_review_message, DemoSession.CARE_RECIPIENT_FIRST_NAME)) },
+            text = { Text(text = stringResource(R.string.medication_review_message, careContext.careRecipientFirstName)) },
             confirmButton = {
                 TextButton(onClick = {
                     reviewingId = null
@@ -208,6 +209,7 @@ private fun MedicationList(
 
 @Composable
 private fun NextDoseBanner(dose: Reminder, now: Instant) {
+    val careContext = LocalCareContext.current
     val issued = dose.status != ReminderStatus.SCHEDULED
     RoutineBanner(
         iconRes = R.drawable.ic_bell,
@@ -217,7 +219,7 @@ private fun NextDoseBanner(dose: Reminder, now: Instant) {
             stringResource(R.string.medication_next_title, durationUntil(dose.scheduledTime, now))
         },
         message = if (issued) {
-            stringResource(R.string.medication_next_issued_message, DemoSession.CARE_RECIPIENT_FIRST_NAME)
+            stringResource(R.string.medication_next_issued_message, careContext.careRecipientFirstName)
         } else {
             stringResource(R.string.medication_next_message)
         },
