@@ -23,6 +23,10 @@ class RegisterViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
 
+    fun onFullNameChange(fullName: String) {
+        _uiState.update { it.copy(fullName = fullName, errorMessage = null) }
+    }
+
     fun onEmailChange(email: String) {
         _uiState.update { it.copy(email = email, errorMessage = null) }
     }
@@ -44,7 +48,7 @@ class RegisterViewModel @Inject constructor(
         if (state.isLoading) return
         val email = parseEmail(state.email)
         val error = when {
-            state.email.isBlank() || state.password.isBlank() || state.confirmPassword.isBlank() ->
+            listOf(state.fullName, state.email, state.password, state.confirmPassword).any { it.isBlank() } ->
                 "Completa todos los campos para continuar"
             email == null -> "Ingresa un correo electrónico válido"
             state.password.length < MIN_PASSWORD_LENGTH ->
@@ -64,7 +68,7 @@ class RegisterViewModel @Inject constructor(
                 _uiState.update { it.copy(isLoading = false, errorMessage = "Ya existe una cuenta con este correo") }
                 return@launch
             }
-            registerUserCredentials(email, state.password)
+            registerUserCredentials(state.fullName.trim(), email, state.password)
                 .onSuccess { account ->
                     _uiState.update {
                         it.copy(

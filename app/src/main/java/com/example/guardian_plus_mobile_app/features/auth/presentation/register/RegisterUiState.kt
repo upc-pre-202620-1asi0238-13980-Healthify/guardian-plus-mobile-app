@@ -1,6 +1,7 @@
 package com.example.guardian_plus_mobile_app.features.auth.presentation.register
 
 data class RegisterUiState(
+    val fullName: String = "",
     val email: String = "",
     val password: String = "",
     val confirmPassword: String = "",

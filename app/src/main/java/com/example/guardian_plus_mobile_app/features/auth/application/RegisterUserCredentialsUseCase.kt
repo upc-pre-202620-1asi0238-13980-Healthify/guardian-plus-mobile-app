@@ -8,6 +8,6 @@ import javax.inject.Inject
 class RegisterUserCredentialsUseCase @Inject constructor(
     private val repository: AuthRepository
 ) {
-    suspend operator fun invoke(email: Email, rawPassword: String): Result<UserAccount> =
-        repository.register(email, rawPassword)
+    suspend operator fun invoke(fullName: String, email: Email, rawPassword: String): Result<UserAccount> =
+        repository.register(fullName, email, rawPassword)
 }

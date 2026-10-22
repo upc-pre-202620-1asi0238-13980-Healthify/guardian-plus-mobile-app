@@ -17,7 +17,7 @@ class SimulatedAuthRepositoryTest {
 
     @Test
     fun `a new account must verify its email before signing in`() = runBlocking {
-        val account = repository.register(email, "Secreta123").getOrThrow()
+        val account = repository.register("María Rodríguez", email, "Secreta123").getOrThrow()
 
         assertEquals(LoginOutcome.EmailVerificationRequired(account.id), repository.login(email, "Secreta123").getOrThrow())
 
@@ -27,14 +27,14 @@ class SimulatedAuthRepositoryTest {
 
     @Test
     fun `the same email cannot be registered twice`() = runBlocking {
-        repository.register(email, "Secreta123").getOrThrow()
+        repository.register("María Rodríguez", email, "Secreta123").getOrThrow()
 
-        assertTrue(repository.register(Email("NUEVO@correo.com"), "Otra12345").isFailure)
+        assertTrue(repository.register("María Rodríguez", Email("NUEVO@correo.com"), "Otra12345").isFailure)
     }
 
     @Test
     fun `a wrong password is rejected`() = runBlocking {
-        repository.register(email, "Secreta123").getOrThrow()
+        repository.register("María Rodríguez", email, "Secreta123").getOrThrow()
 
         assertTrue(repository.login(email, "incorrecta").isFailure)
     }

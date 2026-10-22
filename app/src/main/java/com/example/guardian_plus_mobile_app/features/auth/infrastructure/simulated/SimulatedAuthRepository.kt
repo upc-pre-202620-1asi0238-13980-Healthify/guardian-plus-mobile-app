@@ -18,7 +18,7 @@ class SimulatedAuthRepository @Inject constructor(
     private val store: SimulatedIamStore
 ) : AuthRepository {
 
-    override suspend fun register(email: Email, rawPassword: String): Result<UserAccount> =
+    override suspend fun register(fullName: String, email: Email, rawPassword: String): Result<UserAccount> =
         if (store.findByEmail(email) != null) {
             Result.failure(Exception("Ya existe una cuenta con este correo"))
         } else {

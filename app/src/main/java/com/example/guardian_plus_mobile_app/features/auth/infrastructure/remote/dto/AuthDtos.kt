@@ -1,7 +1,9 @@
 package com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto
 
 // Bodies of the platform's AuthController (report, section 2.6.7.2)
+// fullName travels to Profile with UserAccountRegisteredIntegrationEvent
 data class RegisterUserCredentialsRequestDto(
+    val fullName: String,
     val email: String,
     val password: String
 )

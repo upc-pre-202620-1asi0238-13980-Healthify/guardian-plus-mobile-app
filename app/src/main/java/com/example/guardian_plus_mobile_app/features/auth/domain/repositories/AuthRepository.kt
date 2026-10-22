@@ -6,8 +6,11 @@ import com.example.guardian_plus_mobile_app.features.auth.domain.model.valueobje
 import com.example.guardian_plus_mobile_app.features.auth.domain.model.valueobjects.LoginOutcome
 
 interface AuthRepository {
-    /** The account starts pending, and IAM emails it an EMAIL_VERIFICATION code. */
-    suspend fun register(email: Email, rawPassword: String): Result<UserAccount>
+    /**
+     * The account starts pending, and IAM emails it an EMAIL_VERIFICATION code. The full name is not part of
+     * the credentials: IAM forwards it to Profile, which creates the caregiver's profile.
+     */
+    suspend fun register(fullName: String, email: Email, rawPassword: String): Result<UserAccount>
 
     suspend fun verifyEmail(userAccountId: String, code: String): Result<UserAccount>
 

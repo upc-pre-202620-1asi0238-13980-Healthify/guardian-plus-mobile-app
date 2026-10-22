@@ -22,8 +22,8 @@ class AuthRepositoryImpl @Inject constructor(
     private val service: AuthService
 ) : AuthRepository {
 
-    override suspend fun register(email: Email, rawPassword: String): Result<UserAccount> =
-        apiCall({ service.register(RegisterUserCredentialsRequestDto(email.value, rawPassword)) }) { it.toDomain() }
+    override suspend fun register(fullName: String, email: Email, rawPassword: String): Result<UserAccount> =
+        apiCall({ service.register(RegisterUserCredentialsRequestDto(fullName, email.value, rawPassword)) }) { it.toDomain() }
 
     override suspend fun verifyEmail(userAccountId: String, code: String): Result<UserAccount> =
         apiCall({ service.verifyEmail(VerifyEmailRequestDto(userAccountId, code)) }) { it.toDomain() }
