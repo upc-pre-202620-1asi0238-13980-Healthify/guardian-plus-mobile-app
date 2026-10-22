@@ -72,10 +72,16 @@ fun AppNavHost(
         }
     }
 
+    // The tabs keep their state (and ViewModels) while switching between them. That state belongs to one
+    // account: it is dropped whenever a session ends or starts, or the next account would see the previous one's data
+    val forgetTabStates: () -> Unit = {
+        TopLevelDestination.entries.forEach { destination -> navController.clearBackStack(destination.route) }
+    }
     val signOut: () -> Unit = {
         navController.navigate(LoginRoute) {
             popUpTo(navController.graph.id) { inclusive = true }
         }
+        forgetTabStates()
     }
 
     Scaffold(
@@ -110,6 +116,7 @@ fun AppNavHost(
                 )
                 profileNavGraph(
                     onReady = {
+                        forgetTabStates()
                         // Back from Home leaves the app instead of returning to the loading or the onboarding
                         navController.navigate(HomeRoute) {
                             popUpTo(navController.graph.id) { inclusive = true }
