@@ -38,7 +38,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.LocalCareContext
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.EmergencyContact
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.DetailTopBar
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.emergencycontacts.component.AddContactSheet
@@ -95,10 +95,11 @@ fun EmergencyContactsContent(
     onAddDismiss: () -> Unit,
     onAddSave: (String, String, String) -> Unit
 ) {
+    val careContext = LocalCareContext.current
     Column(modifier = modifier.fillMaxSize()) {
         DetailTopBar(
             title = stringResource(R.string.contacts_title),
-            subtitle = DemoSession.CARE_RECIPIENT_NAME,
+            subtitle = careContext.careRecipientName,
             onBackClick = onBackClick
         )
 

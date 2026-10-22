@@ -28,7 +28,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.LocalCareContext
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.AlertSettings
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.EmergencyContact
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.NotificationChannel
@@ -89,12 +89,13 @@ fun AlertSettingsContent(
     onSilentModeChange: (Boolean) -> Unit,
     onChannelChange: (NotificationChannel, Boolean) -> Unit
 ) {
+    val careContext = LocalCareContext.current
     val settings = uiState.settings
 
     Column(modifier = modifier.fillMaxSize()) {
         DetailTopBar(
             title = stringResource(R.string.settings_title),
-            subtitle = DemoSession.CARE_RECIPIENT_NAME,
+            subtitle = careContext.careRecipientName,
             onBackClick = onBackClick
         )
 
@@ -146,7 +147,7 @@ fun AlertSettingsContent(
                     SettingsSection(title = stringResource(R.string.settings_section_sound)) {
                         SettingSwitchRow(
                             title = stringResource(R.string.settings_silent_mode),
-                            detail = stringResource(R.string.settings_silent_mode_detail, DemoSession.CARE_RECIPIENT_FIRST_NAME),
+                            detail = stringResource(R.string.settings_silent_mode_detail, careContext.careRecipientFirstName),
                             iconRes = R.drawable.ic_bell_off,
                             checked = settings.silentModeEnabled,
                             enabled = !uiState.isSavingSettings,

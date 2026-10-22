@@ -2,7 +2,7 @@ package com.example.guardian_plus_mobile_app.features.emergencyalerting.presenta
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.core.time.ServerClock
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.application.GetAlertHistoryUseCase
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.Alert
@@ -22,11 +22,15 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class AlertHistoryViewModel @Inject constructor(
     private val getAlertHistory: GetAlertHistoryUseCase,
-    private val serverClock: ServerClock
+    private val serverClock: ServerClock,
+    private val careContextStore: CareContextStore
 ) : ViewModel() {
 
+    // Whose data this screen shows: the signed-in account and the person under its care
+    private val careContext = careContextStore.require()
+
     private val _uiState = MutableStateFlow(
-        AlertHistoryUiState(careRecipientFirstName = DemoSession.CARE_RECIPIENT_FIRST_NAME)
+        AlertHistoryUiState(careRecipientFirstName = careContext.careRecipientFirstName)
     )
     val uiState: StateFlow<AlertHistoryUiState> = _uiState.asStateFlow()
 
@@ -65,7 +69,7 @@ class AlertHistoryViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoadingMore = true) }
             getAlertHistory(
-                careRecipientProfileId = DemoSession.CARE_RECIPIENT_PROFILE_ID,
+                careRecipientProfileId = careContext.careRecipientProfileId,
                 severity = state.severityFilter,
                 page = state.page + 1
             )
@@ -88,7 +92,7 @@ class AlertHistoryViewModel @Inject constructor(
 
     private suspend fun loadFirstPage() {
         val severity = _uiState.value.severityFilter
-        getAlertHistory(careRecipientProfileId = DemoSession.CARE_RECIPIENT_PROFILE_ID, severity = severity)
+        getAlertHistory(careRecipientProfileId = careContext.careRecipientProfileId, severity = severity)
             .onSuccess { page ->
                 _uiState.update {
                     it.copy(
@@ -109,7 +113,7 @@ class AlertHistoryViewModel @Inject constructor(
     // Always over every severity: the summary describes the week, not the current filter
     private suspend fun loadSummary() {
         getAlertHistory(
-            careRecipientProfileId = DemoSession.CARE_RECIPIENT_PROFILE_ID,
+            careRecipientProfileId = careContext.careRecipientProfileId,
             from = serverClock.now().minus(Duration.ofDays(SUMMARY_DAYS)),
             size = GetAlertHistoryUseCase.MAX_PAGE_SIZE
         ).onSuccess { page ->

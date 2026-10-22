@@ -2,7 +2,7 @@ package com.example.guardian_plus_mobile_app.features.emergencyalerting.presenta
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
+import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.core.time.ServerClock
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.application.AcknowledgeAlertUseCase
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.application.GetActiveAlertsUseCase
@@ -32,11 +32,15 @@ class ActiveAlertsViewModel @Inject constructor(
     private val getAlertSettings: GetAlertSettingsUseCase,
     private val getAlertContext: GetAlertContextUseCase,
     // Countdowns follow the backend clock, which decides when an alert escalates
-    private val serverClock: ServerClock
+    private val serverClock: ServerClock,
+    private val careContextStore: CareContextStore
 ) : ViewModel() {
 
+    // Whose data this screen shows: the signed-in account and the person under its care
+    private val careContext = careContextStore.require()
+
     private val _uiState = MutableStateFlow(
-        ActiveAlertsUiState(careRecipientFirstName = DemoSession.CARE_RECIPIENT_FIRST_NAME)
+        ActiveAlertsUiState(careRecipientFirstName = careContext.careRecipientFirstName)
     )
     val uiState: StateFlow<ActiveAlertsUiState> = _uiState.asStateFlow()
 
@@ -56,7 +60,7 @@ class ActiveAlertsViewModel @Inject constructor(
     fun acknowledge(alertId: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(acknowledgingAlertId = alertId) }
-            acknowledgeAlert(alertId, DemoSession.CURRENT_USER_ID)
+            acknowledgeAlert(alertId, careContext.userAccountId)
                 .onSuccess {
                     _uiState.update { it.copy(acknowledgingAlertId = null, acknowledgedAlertId = alertId) }
                     refresh()
@@ -78,16 +82,16 @@ class ActiveAlertsViewModel @Inject constructor(
     }
 
     private suspend fun refresh() {
-        getAlertSettings(DemoSession.CARE_RECIPIENT_PROFILE_ID)
+        getAlertSettings(careContext.careRecipientProfileId)
             .onSuccess { settings ->
                 _uiState.update {
                     it.copy(ackTimeoutSec = settings.primaryAckTimeoutSec, escalationEnabled = settings.escalationEnabled)
                 }
             }
 
-        getActiveAlerts(DemoSession.CARE_RECIPIENT_PROFILE_ID)
+        getActiveAlerts(careContext.careRecipientProfileId)
             .onSuccess { alerts ->
-                val myPendingIds = getPendingAlerts(DemoSession.CURRENT_USER_ID)
+                val myPendingIds = getPendingAlerts(careContext.userAccountId)
                     .getOrDefault(emptyList())
                     .map { it.id }
                     .toSet()
