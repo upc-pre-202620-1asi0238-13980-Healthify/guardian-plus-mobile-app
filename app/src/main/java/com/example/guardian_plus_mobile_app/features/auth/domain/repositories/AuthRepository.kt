@@ -18,6 +18,9 @@ interface AuthRepository {
     /** Checks the LOGIN code of an account with two-factor enabled and returns the session. */
     suspend fun verifyOtp(userAccountId: String, code: String): Result<AuthenticatedSession>
 
+    /** Issues a new LOGIN code; the previous one stops being usable. */
+    suspend fun resendOtp(userAccountId: String): Result<Unit>
+
     /** Succeeds whether or not the email belongs to an account, so it never reveals which ones exist. */
     suspend fun requestPasswordReset(email: Email): Result<Unit>
 

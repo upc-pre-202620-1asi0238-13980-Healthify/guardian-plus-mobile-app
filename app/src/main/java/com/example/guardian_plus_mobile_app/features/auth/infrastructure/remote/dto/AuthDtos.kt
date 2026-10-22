@@ -33,6 +33,10 @@ data class VerifyOtpRequestDto(
     val code: String
 )
 
+data class ResendOtpRequestDto(
+    val userAccountId: String
+)
+
 // AuthenticatedSessionResource
 data class AuthenticatedSessionDto(
     val userAccountId: String,

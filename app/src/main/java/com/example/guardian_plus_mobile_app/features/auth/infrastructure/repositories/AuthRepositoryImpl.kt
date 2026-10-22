@@ -10,6 +10,7 @@ import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.RegisterUserCredentialsRequestDto
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.RequestPasswordResetRequestDto
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.ResendEmailVerificationRequestDto
+import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.ResendOtpRequestDto
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.ResetPasswordRequestDto
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.VerifyEmailRequestDto
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.VerifyOtpRequestDto
@@ -35,6 +36,9 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun verifyOtp(userAccountId: String, code: String): Result<AuthenticatedSession> =
         apiCall({ service.verifyOtp(VerifyOtpRequestDto(userAccountId, code)) }) { it.toDomain() }
+
+    override suspend fun resendOtp(userAccountId: String): Result<Unit> =
+        apiCall({ service.resendOtp(ResendOtpRequestDto(userAccountId)) }) { }
 
     override suspend fun requestPasswordReset(email: Email): Result<Unit> =
         apiCall({ service.requestPasswordReset(RequestPasswordResetRequestDto(email.value)) }) { }

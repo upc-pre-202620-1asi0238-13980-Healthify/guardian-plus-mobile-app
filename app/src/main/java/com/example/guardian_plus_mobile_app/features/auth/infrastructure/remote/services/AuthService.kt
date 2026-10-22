@@ -7,6 +7,7 @@ import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.RegisterUserCredentialsRequestDto
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.RequestPasswordResetRequestDto
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.ResendEmailVerificationRequestDto
+import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.ResendOtpRequestDto
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.ResetPasswordRequestDto
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.UserAccountDto
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.VerifyEmailRequestDto
@@ -35,6 +36,10 @@ interface AuthService {
 
     @POST("auth/otp/verify")
     suspend fun verifyOtp(@Body request: VerifyOtpRequestDto): Response<AuthenticatedSessionDto>
+
+    // Not in the report's AuthController yet: the OTP screen of the prototype lets the user ask for a new code
+    @POST("auth/otp/resend")
+    suspend fun resendOtp(@Body request: ResendOtpRequestDto): Response<MessageDto>
 
     @POST("auth/password-reset/request")
     suspend fun requestPasswordReset(@Body request: RequestPasswordResetRequestDto): Response<MessageDto>

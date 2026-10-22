@@ -54,6 +54,9 @@ class SimulatedAuthRepository @Inject constructor(
         else -> Result.success(sessionFor(userAccountId))
     }
 
+    override suspend fun resendOtp(userAccountId: String): Result<Unit> =
+        if (store.findById(userAccountId) != null) Result.success(Unit) else Result.failure(Exception("La cuenta no existe"))
+
     override suspend fun requestPasswordReset(email: Email): Result<Unit> = Result.success(Unit)
 
     // The token is the code of the email; with no account to tie it to, it resets the demo caregiver's
