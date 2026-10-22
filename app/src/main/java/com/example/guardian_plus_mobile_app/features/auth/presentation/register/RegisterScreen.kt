@@ -23,18 +23,23 @@ import com.example.guardian_plus_mobile_app.R
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.BrandGreen
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.TextMuted
+import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthDivider
 import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthErrorMessage
+import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthLayout
 import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthPasswordField
 import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthPrimaryButton
-import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthStepLayout
+import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthSheetTitle
+import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthTermsText
 import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthTextField
+import com.example.guardian_plus_mobile_app.features.auth.presentation.common.GoogleButton
 
 @Composable
 fun RegisterScreen(
     modifier: Modifier = Modifier,
     viewModel: RegisterViewModel = hiltViewModel(),
-    onBackClick: () -> Unit,
-    onRegistered: (userAccountId: String, email: String) -> Unit
+    onLoginClick: () -> Unit,
+    onRegistered: (userAccountId: String, email: String) -> Unit,
+    onGoogleClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -48,12 +53,14 @@ fun RegisterScreen(
     RegisterContent(
         modifier = modifier,
         uiState = uiState,
-        onBackClick = onBackClick,
+        onFullNameChange = viewModel::onFullNameChange,
         onEmailChange = viewModel::onEmailChange,
         onPasswordChange = viewModel::onPasswordChange,
         onConfirmPasswordChange = viewModel::onConfirmPasswordChange,
         onTogglePasswordVisibility = viewModel::togglePasswordVisibility,
-        onRegisterClick = viewModel::register
+        onRegisterClick = viewModel::register,
+        onGoogleClick = onGoogleClick,
+        onLoginClick = onLoginClick
     )
 }
 
@@ -61,20 +68,32 @@ fun RegisterScreen(
 private fun RegisterContent(
     modifier: Modifier = Modifier,
     uiState: RegisterUiState,
-    onBackClick: () -> Unit,
+    onFullNameChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onConfirmPasswordChange: (String) -> Unit,
     onTogglePasswordVisibility: () -> Unit,
-    onRegisterClick: () -> Unit
+    onRegisterClick: () -> Unit,
+    onGoogleClick: () -> Unit,
+    onLoginClick: () -> Unit
 ) {
-    AuthStepLayout(
+    AuthLayout(
         modifier = modifier,
-        title = stringResource(R.string.auth_register_title),
-        subtitle = stringResource(R.string.auth_register_subtitle),
-        step = stringResource(R.string.auth_register_step),
-        onBackClick = onBackClick
+        headerTitle = stringResource(R.string.auth_register_header_title),
+        headerSubtitle = stringResource(R.string.auth_register_header_subtitle)
     ) {
+        AuthSheetTitle(
+            title = stringResource(R.string.auth_register_title),
+            subtitle = stringResource(R.string.auth_register_subtitle)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        AuthTextField(
+            label = stringResource(R.string.auth_full_name_label),
+            value = uiState.fullName,
+            onValueChange = onFullNameChange,
+            placeholder = stringResource(R.string.auth_full_name_placeholder)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
         AuthTextField(
             label = stringResource(R.string.auth_email_label),
             value = uiState.email,
@@ -110,6 +129,10 @@ private fun RegisterContent(
             onClick = onRegisterClick
         )
         Spacer(modifier = Modifier.height(24.dp))
+        AuthDivider(text = stringResource(R.string.auth_register_divider))
+        Spacer(modifier = Modifier.height(24.dp))
+        GoogleButton(text = stringResource(R.string.auth_register_google), onClick = onGoogleClick)
+        Spacer(modifier = Modifier.height(32.dp))
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Text(text = stringResource(R.string.auth_register_have_account), color = TextMuted, fontSize = 15.sp)
             Text(
@@ -117,9 +140,12 @@ private fun RegisterContent(
                 color = BrandGreen,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable(onClick = onBackClick)
+                modifier = Modifier.clickable(onClick = onLoginClick)
             )
         }
+        Spacer(modifier = Modifier.height(24.dp))
+        AuthTermsText()
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -128,13 +154,15 @@ private fun RegisterContent(
 private fun RegisterContentPreview() {
     GuardianTheme(dynamicColor = false) {
         RegisterContent(
-            uiState = RegisterUiState(email = "maria@correo.com", errorMessage = "Las contraseñas no coinciden"),
-            onBackClick = {},
+            uiState = RegisterUiState(fullName = "María Rodríguez"),
+            onFullNameChange = {},
             onEmailChange = {},
             onPasswordChange = {},
             onConfirmPasswordChange = {},
             onTogglePasswordVisibility = {},
-            onRegisterClick = {}
+            onRegisterClick = {},
+            onGoogleClick = {},
+            onLoginClick = {}
         )
     }
 }

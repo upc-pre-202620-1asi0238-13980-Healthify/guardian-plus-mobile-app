@@ -55,7 +55,7 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController, onLoginSucces
 
     composable<RegisterRoute> {
         RegisterScreen(
-            onBackClick = { navController.popBackStack() },
+            onLoginClick = { navController.popBackStack() },
             onRegistered = { userAccountId, email ->
                 // Back from the verification returns to the login, the account already exists
                 navController.navigate(VerifyEmailRoute(userAccountId, email)) {
