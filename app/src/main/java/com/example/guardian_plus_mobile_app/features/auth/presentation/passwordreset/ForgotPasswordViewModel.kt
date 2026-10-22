@@ -37,7 +37,7 @@ class ForgotPasswordViewModel @Inject constructor(
             requestPasswordReset(email)
                 .onSuccess { _uiState.update { it.copy(isLoading = false, isSent = true) } }
                 .onFailure { e ->
-                    _uiState.update { it.copy(isLoading = false, errorMessage = e.message ?: "No se pudo enviar el enlace") }
+                    _uiState.update { it.copy(isLoading = false, errorMessage = e.message ?: "No se pudo enviar el código") }
                 }
         }
     }

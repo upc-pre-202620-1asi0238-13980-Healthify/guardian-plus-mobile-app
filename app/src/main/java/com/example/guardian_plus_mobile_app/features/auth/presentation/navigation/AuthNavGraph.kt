@@ -41,7 +41,6 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController, onLoginSucces
 
     composable<LoginRoute> {
         LoginScreen(
-            onLoginSuccess = onLoginSuccess,
             onSecondFactorRequired = { userAccountId, email ->
                 navController.navigate(OtpVerificationRoute(userAccountId, email, OtpPurpose.LOGIN))
             },

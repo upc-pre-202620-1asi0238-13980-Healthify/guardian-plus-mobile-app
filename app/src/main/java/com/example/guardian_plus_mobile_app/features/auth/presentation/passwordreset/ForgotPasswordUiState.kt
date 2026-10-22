@@ -4,6 +4,6 @@ data class ForgotPasswordUiState(
     val email: String = "",
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    // The link was sent (or would have been, IAM does not say which emails exist)
+    // The recovery code was emailed
     val isSent: Boolean = false
 )

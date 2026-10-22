@@ -11,8 +11,6 @@ data class LoginUiState(
 )
 
 sealed interface LoginNavigation {
-    data object Home : LoginNavigation
-
     data class TwoFactor(val userAccountId: String, val email: String) : LoginNavigation
 
     data class VerifyEmail(val userAccountId: String, val email: String) : LoginNavigation

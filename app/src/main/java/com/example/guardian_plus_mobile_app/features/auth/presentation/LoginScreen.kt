@@ -484,7 +484,6 @@ private fun loginFieldColors() = OutlinedTextFieldDefaults.colors(
 fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel(),
-    onLoginSuccess: () -> Unit = {},
     onSecondFactorRequired: (userAccountId: String, email: String) -> Unit = { _, _ -> },
     onEmailVerificationRequired: (userAccountId: String, email: String) -> Unit = { _, _ -> },
     onForgotPassword: () -> Unit = {},
@@ -492,10 +491,9 @@ fun LoginScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // IAM decides the next step: the app, the OTP challenge or the pending email verification
+    // IAM decides the next step: the OTP it just emailed or the pending email verification
     LaunchedEffect(state.navigation) {
         when (val navigation = state.navigation) {
-            LoginNavigation.Home -> onLoginSuccess()
             is LoginNavigation.TwoFactor -> onSecondFactorRequired(navigation.userAccountId, navigation.email)
             is LoginNavigation.VerifyEmail -> onEmailVerificationRequired(navigation.userAccountId, navigation.email)
             null -> return@LaunchedEffect

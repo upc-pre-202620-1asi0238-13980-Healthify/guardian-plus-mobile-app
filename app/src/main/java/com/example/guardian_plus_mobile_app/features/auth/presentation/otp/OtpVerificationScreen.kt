@@ -40,7 +40,6 @@ import com.example.guardian_plus_mobile_app.core.designsystem.theme.FieldBorder
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.TextMuted
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.TextPrimary
-import com.example.guardian_plus_mobile_app.core.session.DemoSession
 import com.example.guardian_plus_mobile_app.features.auth.domain.model.valueobjects.OtpPurpose
 import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthErrorMessage
 import com.example.guardian_plus_mobile_app.features.auth.presentation.common.AuthLayout
@@ -118,7 +117,6 @@ private fun OtpVerificationContent(
         Spacer(modifier = Modifier.height(28.dp))
         OtpCodeBoxes(value = uiState.code, onValueChange = onCodeChange, onDone = onVerifyClick)
         Spacer(modifier = Modifier.height(12.dp))
-        DemoCodeHint()
         AuthErrorMessage(message = uiState.errorMessage)
         Spacer(modifier = Modifier.height(24.dp))
         AuthPrimaryButton(
@@ -134,22 +132,6 @@ private fun OtpVerificationContent(
         ExpiryNotice()
         Spacer(modifier = Modifier.height(16.dp))
     }
-}
-
-// While the platform sends no emails, the simulated code is shown so the flow can be tried
-@Composable
-private fun DemoCodeHint() {
-    Text(
-        text = buildAnnotatedString {
-            append(stringResource(R.string.auth_otp_demo_code))
-            withStyle(SpanStyle(color = BrandGreen)) { append(DemoSession.VERIFICATION_CODE) }
-        },
-        color = TextMuted,
-        fontSize = 12.sp,
-        fontFamily = FontFamily.Monospace,
-        textAlign = TextAlign.Center,
-        modifier = Modifier.fillMaxWidth()
-    )
 }
 
 @Composable
