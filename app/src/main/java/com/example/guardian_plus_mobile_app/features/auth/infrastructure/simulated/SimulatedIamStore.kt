@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 /**
  * Accounts kept in memory while the platform has no IAM, shared by the simulated repositories. Every code
- * IAM would email (verification, OTP, password reset) is [SIMULATED_CODE].
+ * IAM would email (verification, OTP, password reset) is [SIMULATED_CODE], shown on the OTP screen as the demo code.
  */
 @Singleton
 class SimulatedIamStore @Inject constructor() {
@@ -55,7 +55,7 @@ class SimulatedIamStore @Inject constructor() {
     data class StoredAccount(val account: UserAccount, val password: String)
 
     companion object {
-        const val SIMULATED_CODE = "123456"
+        const val SIMULATED_CODE = DemoSession.VERIFICATION_CODE
         const val DEMO_EMAIL = "maria.rojas@guardianplus.pe"
         const val DEMO_PASSWORD = "Guardian123"
     }

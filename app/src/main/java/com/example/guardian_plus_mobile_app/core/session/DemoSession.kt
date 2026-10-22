@@ -8,4 +8,7 @@ object DemoSession {
     const val CARE_RECIPIENT_NAME = "Elena Rojas"
     const val CARE_RECIPIENT_FIRST_NAME = "Elena"
     const val CARE_RECIPIENT_PHONE = "+51987000111"
+
+    // Every code IAM would email (verification, OTP, password reset) while the platform has no IAM
+    const val VERIFICATION_CODE = "123456"
 }
