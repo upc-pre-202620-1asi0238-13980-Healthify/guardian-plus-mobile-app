@@ -5,15 +5,10 @@ data class UserAccountDto(
     val id: String,
     val email: String,
     val status: String,
-    val emailVerified: Boolean,
-    val twoFactorEnabled: Boolean
+    val emailVerified: Boolean
 )
 
 data class EmailAvailabilityDto(
     val email: String,
     val available: Boolean
-)
-
-data class TwoFactorSettingRequestDto(
-    val enabled: Boolean
 )
