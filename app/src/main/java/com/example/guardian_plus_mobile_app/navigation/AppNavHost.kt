@@ -38,6 +38,7 @@ import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentati
 import com.example.guardian_plus_mobile_app.features.profile.presentation.navigation.OnboardingRoute
 import com.example.guardian_plus_mobile_app.features.profile.presentation.navigation.SessionStartRoute
 import com.example.guardian_plus_mobile_app.features.profile.presentation.navigation.profileNavGraph
+import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.navigation.mobilityGeofencingNavGraph
 
 @Composable
 fun AppNavHost(
@@ -139,7 +140,7 @@ fun AppNavHost(
                     }
                 )
                 careRoutinesWellnessNavGraph(navController = navController)
-                composable<LocationRoute> { PlaceholderScreen(title = stringResource(R.string.nav_location)) }
+                mobilityGeofencingNavGraph(navController = navController)
                 emergencyAlertingNavGraph(
                     navController = navController,
                     onOpenLocation = { openTab(TopLevelDestination.LOCATION) },
