@@ -6,6 +6,8 @@ import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.Al
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.AlertSettingsRepository
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.EmergencyContactRepository
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.IncidentRepository
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.location.GeocoderPlaceNameResolver
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.location.PlaceNameResolver
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.repositories.AlertChannelSettingRepositoryImpl
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.repositories.AlertContextRepositoryImpl
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.repositories.AlertRepositoryImpl
@@ -36,7 +38,10 @@ interface EmergencyAlertingRepositoryModule {
     @Binds
     fun bindEmergencyContactRepository(impl: EmergencyContactRepositoryImpl): EmergencyContactRepository
 
-    // Readings shown with each alert come from Health Monitoring
+    // Readings shown with each alert come from Health Monitoring, the location from Mobility & Geofencing
     @Binds
     fun bindAlertContextRepository(impl: AlertContextRepositoryImpl): AlertContextRepository
+
+    @Binds
+    fun bindPlaceNameResolver(impl: GeocoderPlaceNameResolver): PlaceNameResolver
 }
