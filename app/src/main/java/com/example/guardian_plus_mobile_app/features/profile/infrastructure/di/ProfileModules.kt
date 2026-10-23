@@ -5,6 +5,7 @@ import com.example.guardian_plus_mobile_app.features.profile.infrastructure.remo
 import com.example.guardian_plus_mobile_app.features.profile.infrastructure.remote.services.CareRelationshipService
 import com.example.guardian_plus_mobile_app.features.profile.infrastructure.remote.services.UserProfileService
 import com.example.guardian_plus_mobile_app.features.profile.infrastructure.repositories.ProfileRepositoryImpl
+import com.example.guardian_plus_mobile_app.features.profile.infrastructure.remote.services.UserPreferencesService
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -30,6 +31,13 @@ object ProfileApiModule {
     @Singleton
     fun provideCareRelationshipService(retrofit: Retrofit): CareRelationshipService =
         retrofit.create(CareRelationshipService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideUserPreferencesService(
+        retrofit: Retrofit
+    ): UserPreferencesService =
+        retrofit.create(UserPreferencesService::class.java)
 }
 
 @Module
