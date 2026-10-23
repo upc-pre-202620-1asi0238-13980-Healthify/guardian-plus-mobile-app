@@ -7,11 +7,11 @@ import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.Al
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.EmergencyContactRepository
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.IncidentRepository
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.repositories.AlertChannelSettingRepositoryImpl
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.repositories.AlertContextRepositoryImpl
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.repositories.AlertRepositoryImpl
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.repositories.AlertSettingsRepositoryImpl
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.repositories.EmergencyContactRepositoryImpl
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.repositories.IncidentRepositoryImpl
-import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.simulated.SimulatedAlertContextRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -36,7 +36,7 @@ interface EmergencyAlertingRepositoryModule {
     @Binds
     fun bindEmergencyContactRepository(impl: EmergencyContactRepositoryImpl): EmergencyContactRepository
 
-    // Readings and location shown with each alert come from local sample data
+    // Readings shown with each alert come from Health Monitoring
     @Binds
-    fun bindAlertContextRepository(impl: SimulatedAlertContextRepository): AlertContextRepository
+    fun bindAlertContextRepository(impl: AlertContextRepositoryImpl): AlertContextRepository
 }
