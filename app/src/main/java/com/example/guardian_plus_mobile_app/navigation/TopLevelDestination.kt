@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 
 // Tab that belongs to a bounded context not built yet
 @Serializable
-object LocationRoute
+data object LocationRoute
 
 /** The five destinations of the bottom navigation bar, in the order of the team prototype. */
 enum class TopLevelDestination(

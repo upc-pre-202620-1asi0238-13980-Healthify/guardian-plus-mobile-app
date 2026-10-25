@@ -1,6 +1,7 @@
 package com.example.guardian_plus_mobile_app.features.mobilitygeofencing.infrastructure.remote
 
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.infrastructure.remote.dto.*
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -14,7 +15,7 @@ interface MobilityGeofencingApi {
     @GET("location-tracking/{fragileCitizenId}/status")
     suspend fun getCurrentStatus(
         @Path("fragileCitizenId") fragileCitizenId: String
-    ): Response<String>
+    ): Response<ResponseBody>
 
     @GET("location-tracking/{fragileCitizenId}/history")
     suspend fun getLocationHistory(
