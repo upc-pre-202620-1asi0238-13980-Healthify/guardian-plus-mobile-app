@@ -11,6 +11,7 @@ import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianThem
 import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.features.auth.application.GetCurrentSessionUseCase
 import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.LoginRoute
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.push.PushRegistration
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.navigation.HomeRoute
 import com.example.guardian_plus_mobile_app.features.profile.presentation.navigation.SessionStartRoute
 import com.example.guardian_plus_mobile_app.navigation.AppNavHost
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val careContext by careContextStore.context.collectAsStateWithLifecycle()
             GuardianTheme {
+                PushRegistration(userAccountId = careContext?.userAccountId)
                 AppNavHost(
                     navController = rememberNavController(),
                     startDestination = startDestination,
