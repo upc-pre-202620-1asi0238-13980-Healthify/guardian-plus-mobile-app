@@ -28,7 +28,7 @@ class MobilityGeofencingRepositoryImpl @Inject constructor(
 
     override suspend fun getCurrentStatus(fragileCitizenId: String): Result<String> = runCatching {
         val response = api.getCurrentStatus(fragileCitizenId)
-        response.body() ?: "UNKNOWN"
+        response.body()?.string() ?: "UNKNOWN"
     }
 
     override suspend fun getLocationHistory(

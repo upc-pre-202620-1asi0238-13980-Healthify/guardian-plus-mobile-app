@@ -8,8 +8,6 @@ import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presenta
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.safezone.SafeZonesScreen
 import kotlinx.serialization.Serializable
 
-@Serializable
-data object LocationRoute
 
 @Serializable
 data object SafeZonesRoute
