@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Push alerts (Firebase Cloud Messaging); asked at runtime from Android 13 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".GuardianApplication"
@@ -27,6 +29,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Receives the Firebase Cloud Messaging token rotations and messages -->
+        <service
+            android:name=".features.emergencyalerting.infrastructure.push.GuardianMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
         <!-- Hands the exported health report PDFs to the share sheet without exposing other files -->
         <provider

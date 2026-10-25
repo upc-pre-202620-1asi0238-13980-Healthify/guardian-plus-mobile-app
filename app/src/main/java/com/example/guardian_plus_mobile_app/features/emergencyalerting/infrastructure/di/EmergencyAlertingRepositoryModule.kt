@@ -6,6 +6,8 @@ import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.Al
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.AlertSettingsRepository
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.EmergencyContactRepository
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.IncidentRepository
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.domain.PushTokenProvider
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.push.FirebasePushTokenProvider
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.location.GeocoderPlaceNameResolver
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.location.PlaceNameResolver
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.repositories.AlertChannelSettingRepositoryImpl
@@ -44,4 +46,7 @@ interface EmergencyAlertingRepositoryModule {
 
     @Binds
     fun bindPlaceNameResolver(impl: GeocoderPlaceNameResolver): PlaceNameResolver
+
+    @Binds
+    fun bindPushTokenProvider(impl: FirebasePushTokenProvider): PushTokenProvider
 }
