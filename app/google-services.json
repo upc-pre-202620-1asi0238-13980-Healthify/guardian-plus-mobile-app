@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "461259183476",
+    "project_id": "guardian-plus-1f1dd",
+    "storage_bucket": "guardian-plus-1f1dd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:461259183476:android:51da6c60ce593528f1c821",
+        "android_client_info": {
+          "package_name": "com.healthify.guardianplus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxSmnVE4SkMIumjfapTIbbGmHkucQ1XZs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
