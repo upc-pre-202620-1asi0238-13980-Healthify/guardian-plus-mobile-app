@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import com.example.guardian_plus_mobile_app.core.session.LocalCareContext
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.location.LocationTrackingScreen
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.safezone.SafeZonesScreen
+import com.example.guardian_plus_mobile_app.navigation.LocationRoute
 import kotlinx.serialization.Serializable
 
 

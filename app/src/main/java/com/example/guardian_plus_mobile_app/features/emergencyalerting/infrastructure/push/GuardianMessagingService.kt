@@ -4,6 +4,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.application.RegisterPushDeviceUseCase
 import com.google.firebase.messaging.FirebaseMessagingService
+import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -12,7 +13,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/** Receives Firebase Cloud Messaging events for this phone. */
+/** Receives Firebase Cloud Messaging events for this phone: token rotations and alerts. */
 @AndroidEntryPoint
 class GuardianMessagingService : FirebaseMessagingService() {
 
@@ -29,6 +30,18 @@ class GuardianMessagingService : FirebaseMessagingService() {
         val userId = careContextStore.current()?.userAccountId ?: return
         if (!NotificationManagerCompat.from(this).areNotificationsEnabled()) return
         scope.launch { registerPushDevice(userId, token) }
+    }
+
+    // Only called while the app is in the foreground: in the background Android shows the notification itself
+    override fun onMessageReceived(message: RemoteMessage) {
+        val notification = message.notification ?: return
+        AlertNotifications.show(
+            context = this,
+            alertId = message.data[AlertNotifications.ALERT_ID_EXTRA],
+            title = notification.title,
+            body = notification.body,
+            audible = message.data["audible"] != "false"
+        )
     }
 
     override fun onDestroy() {
