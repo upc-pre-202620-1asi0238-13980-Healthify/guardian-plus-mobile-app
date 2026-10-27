@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -15,7 +16,8 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.guardian_plus_mobile_app"
+        // Registered in the guardian-plus Firebase project; it cannot change without registering a new app
+        applicationId = "com.healthify.guardianplus"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
@@ -86,6 +88,10 @@ dependencies {
     // Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+
+    // Firebase Cloud Messaging (push notifications)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
