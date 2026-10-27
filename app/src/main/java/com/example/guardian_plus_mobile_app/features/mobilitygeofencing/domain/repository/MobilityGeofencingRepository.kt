@@ -14,4 +14,5 @@ interface MobilityGeofencingRepository {
     suspend fun activateSafeZone(safeZoneId: String): Result<Unit>
     suspend fun deactivateSafeZone(safeZoneId: String): Result<Unit>
     suspend fun deleteSafeZone(safeZoneId: String): Result<Unit>
+    suspend fun getSafeZonesByCitizen(fragileCitizenId: String): Result<List<SafeZone>>
 }
