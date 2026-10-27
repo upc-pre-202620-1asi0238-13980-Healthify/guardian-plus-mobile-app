@@ -33,16 +33,14 @@ fun MapViewComposable(
             val centerPoint = GeoPoint(latitude, longitude)
             mapView.controller.setCenter(centerPoint)
 
-            // 1. Agregar círculo de la geocerca (Verde si está seguro, Rojo si salió)
             val safeZonePolygon = Polygon().apply {
                 points = Polygon.pointsAsCircle(centerPoint, safeZoneRadius)
-                fillColor = if (isWithinSafeZone) 0x334CAF50 else 0x33F44336 // Transparente verde o rojo
+                fillColor = if (isWithinSafeZone) 0x334CAF50 else 0x33F44336
                 strokeColor = if (isWithinSafeZone) 0xFF4CAF50.toInt() else 0xFFF44336.toInt()
                 strokeWidth = 3f
             }
             mapView.overlays.add(safeZonePolygon)
 
-            // 2. Agregar marcador de la posición actual del ciudadano
             val marker = Marker(mapView).apply {
                 position = centerPoint
                 setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)

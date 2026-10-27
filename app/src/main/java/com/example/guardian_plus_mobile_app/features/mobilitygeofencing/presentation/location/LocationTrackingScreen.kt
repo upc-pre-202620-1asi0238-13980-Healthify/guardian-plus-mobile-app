@@ -38,7 +38,6 @@ fun LocationTrackingScreen(
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
                 else -> {
-                    // Si es Success o Error con fallback, mostramos la interfaz completa
                     val location = (state as? LocationTrackingUiState.Success)?.location
                     val isWithin = (state as? LocationTrackingUiState.Success)?.isWithinSafeZone ?: true
 
@@ -54,7 +53,6 @@ fun LocationTrackingScreen(
                         )
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // ¡AQUÍ SE INTEGRÓ EL MAPA REAL EN LUGAR DE LA CAJA GRIS!
                         MapViewComposable(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -62,12 +60,11 @@ fun LocationTrackingScreen(
                             latitude = location?.latitude ?: -12.0463,
                             longitude = location?.longitude ?: -77.0427,
                             isWithinSafeZone = isWithin,
-                            safeZoneRadius = 100.0 // O el radio real que obtengas de tu API de Zonas Seguras
+                            safeZoneRadius = 100.0
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Tarjeta de Datos de Ubicación
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
@@ -90,7 +87,6 @@ fun LocationTrackingScreen(
 
                         Spacer(modifier = Modifier.weight(1f))
 
-                        // Botones de acción inferiores
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)

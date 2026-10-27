@@ -17,12 +17,9 @@ desugarJdkLibs = "2.1.5"
 coreSplashscreen = "1.0.1"
 firebaseBom = "35.1.0"
 googleServices = "4.5.0"
-runtimeRxjava3 = "1.12.1"
 osmdroid = "6.1.20"
 
 [libraries]
-androidx-compose-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata", version.ref = "runtimeRxjava3" }
-androidx-compose-runtime-rxjava3 = { module = "androidx.compose.runtime:runtime-rxjava3", version.ref = "runtimeRxjava3" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

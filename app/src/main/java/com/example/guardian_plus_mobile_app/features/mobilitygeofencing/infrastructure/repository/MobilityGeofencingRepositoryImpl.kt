@@ -26,7 +26,6 @@ class MobilityGeofencingRepositoryImpl @Inject constructor(
                 recordedAt = dto.recordedAt ?: "Hace un momento"
             )
         } else {
-            // Datos por defecto (mock visual) si el servidor no devuelve datos aún
             CurrentLocation(
                 fragileCitizenId = fragileCitizenId,
                 latitude = -12.046374,
