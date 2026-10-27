@@ -22,6 +22,7 @@ fun SafeZonesScreen(
     fragileCitizenId: String,
     onBackClick: () -> Unit = {},
     onNavigateToCreate: () -> Unit = {},
+    onNavigateToEdit: (id: String, name: String, lat: Double, lng: Double, radius: Double) -> Unit = { _, _, _, _, _ -> }, // 👈 1. Añadido parámetro de navegación para edición
     viewModel: SafeZoneViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -89,38 +90,66 @@ fun SafeZonesScreen(
                                     .fillMaxWidth(),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
+                                // 👈 2. Bloque de items integrado con acciones
                                 items(zones) { zone ->
                                     Card(
                                         modifier = Modifier.fillMaxWidth(),
                                         shape = RoundedCornerShape(12.dp)
                                     ) {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(16.dp),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Column(modifier = Modifier.weight(1f)) {
-                                                Text(
-                                                    text = zone.name,
-                                                    fontWeight = FontWeight.Bold
-                                                )
-                                                Text(
-                                                    text = "Radio: ${zone.radiusInMeters}m | Lat: ${zone.latitude}",
-                                                    style = MaterialTheme.typography.bodySmall
-                                                )
-                                            }
-                                            Switch(
-                                                checked = zone.status == "ACTIVE",
-                                                onCheckedChange = { isChecked ->
-                                                    viewModel.toggleSafeZoneStatus(
-                                                        zone.id,
-                                                        !isChecked,
-                                                        fragileCitizenId
+                                        Column(modifier = Modifier.padding(16.dp)) {
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Column(modifier = Modifier.weight(1f)) {
+                                                    Text(
+                                                        text = zone.name,
+                                                        fontWeight = FontWeight.Bold
+                                                    )
+                                                    // Nota: Agregué la Latitud/Longitud que tenías en tu diseño previo para no perder la información en pantalla
+                                                    Text(
+                                                        text = "Radio: ${zone.radiusInMeters}m | Lat: ${zone.latitude}",
+                                                        style = MaterialTheme.typography.bodySmall
                                                     )
                                                 }
-                                            )
+                                                Switch(
+                                                    checked = zone.status == "ACTIVE",
+                                                    onCheckedChange = { isChecked ->
+                                                        viewModel.toggleSafeZoneStatus(
+                                                            zone.id,
+                                                            !isChecked,
+                                                            fragileCitizenId
+                                                        )
+                                                    }
+                                                )
+                                            }
+
+                                            Spacer(modifier = Modifier.height(8.dp))
+
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.End
+                                            ) {
+                                                TextButton(onClick = {
+                                                    onNavigateToEdit(
+                                                        zone.id,
+                                                        zone.name,
+                                                        zone.latitude,
+                                                        zone.longitude,
+                                                        zone.radiusInMeters
+                                                    )
+                                                }) {
+                                                    Text("Editar")
+                                                }
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                TextButton(
+                                                    onClick = { viewModel.deleteSafeZone(zone.id, fragileCitizenId) },
+                                                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                                                ) {
+                                                    Text("Eliminar")
+                                                }
+                                            }
                                         }
                                     }
                                 }

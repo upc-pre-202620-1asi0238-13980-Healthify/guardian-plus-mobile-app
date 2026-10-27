@@ -35,6 +35,31 @@ class SafeZoneViewModel @Inject constructor(
                 }
         }
     }
+    fun deleteSafeZone(safeZoneId: String, fragileCitizenId: String) {
+        viewModelScope.launch {
+            repository.deleteSafeZone(safeZoneId)
+                .onSuccess {
+                    _snackbarMessage.value = "Zona segura eliminada con éxito"
+                    loadSafeZones(fragileCitizenId)
+                }
+                .onFailure {
+                    _snackbarMessage.value = "Error al eliminar la zona segura"
+                }
+        }
+    }
+
+    fun updateSafeZone(safeZoneId: String, name: String, latitude: Double, longitude: Double, radius: Double, fragileCitizenId: String) {
+        viewModelScope.launch {
+            repository.updateSafeZone(safeZoneId, name, latitude, longitude, radius)
+                .onSuccess {
+                    _snackbarMessage.value = "Zona segura actualizada con éxito"
+                    loadSafeZones(fragileCitizenId)
+                }
+                .onFailure {
+                    _snackbarMessage.value = "Error al actualizar la zona"
+                }
+        }
+    }
 
     fun toggleSafeZoneStatus(safeZoneId: String, currentActive: Boolean, fragileCitizenId: String) {
         viewModelScope.launch {
