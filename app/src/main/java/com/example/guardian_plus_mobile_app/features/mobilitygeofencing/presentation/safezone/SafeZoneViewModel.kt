@@ -30,8 +30,14 @@ class SafeZoneViewModel @Inject constructor(
                 .onSuccess { zones ->
                     _uiState.value = SafeZonesUiState.Success(zones)
                 }
-                .onFailure { error ->
-                    _uiState.value = SafeZonesUiState.Success(emptyList())
+                .onFailure {
+                    repository.getActiveSafeZone(fragileCitizenId)
+                        .onSuccess { activeZone ->
+                            _uiState.value = SafeZonesUiState.Success(listOf(activeZone))
+                        }
+                        .onFailure {
+                            _uiState.value = SafeZonesUiState.Success(emptyList())
+                        }
                 }
         }
     }

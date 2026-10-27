@@ -51,7 +51,7 @@ fun LocationTrackingScreen(
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(62.dp))
 
                         MapViewComposable(
                             modifier = Modifier

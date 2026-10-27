@@ -34,16 +34,21 @@ class CreateSafeZoneViewModel @Inject constructor(
         lat: Double,
         lng: Double,
         radius: Double,
-        onSuccess: () -> Unit
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
     ) {
         viewModelScope.launch {
             repository.createSafeZone(fragileCitizenId, name, lat, lng, radius)
                 .onSuccess {
                     onSuccess()
                 }
+                .onFailure { exception ->
+                    onError(exception.localizedMessage ?: "Error desconocido al guardar")
+                }
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,6 +61,10 @@ fun CreateSafeZoneScreen(
     var latitude by remember { mutableStateOf("-12.046374") }
     var longitude by remember { mutableStateOf("-77.042793") }
     var radius by remember { mutableStateOf("100.0") }
+
+    // 👈 NUEVOS ESTADOS INTEGRADOS
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
     Scaffold(
@@ -81,7 +90,8 @@ fun CreateSafeZoneScreen(
                 value = name,
                 onValueChange = { name = it },
                 label = { Text("Nombre de la Zona (Ej: Hogar)") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading
             )
 
             OutlinedTextField(
@@ -89,7 +99,8 @@ fun CreateSafeZoneScreen(
                 onValueChange = { latitude = it },
                 label = { Text("Latitud Centro") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading
             )
 
             OutlinedTextField(
@@ -97,7 +108,8 @@ fun CreateSafeZoneScreen(
                 onValueChange = { longitude = it },
                 label = { Text("Longitud Centro") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading
             )
 
             OutlinedTextField(
@@ -105,25 +117,63 @@ fun CreateSafeZoneScreen(
                 onValueChange = { radius = it },
                 label = { Text("Radio en Metros") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading
             )
+
+            // 👈 MOSTRAR MENSAJE DE ERROR SI EXISTE
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage!!,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
 
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
                 onClick = {
-                    val lat = latitude.toDoubleOrNull() ?: 0.0
-                    val lng = longitude.toDoubleOrNull() ?: 0.0
-                    val rad = radius.toDoubleOrNull() ?: 50.0
-                    scope.launch {
-                        viewModel.createSafeZone(fragileCitizenId, name.ifEmpty { "Zona Segura" }, lat, lng, rad) {
-                            onBackClick()
-                        }
+                    val lat = latitude.toDoubleOrNull()
+                    val lng = longitude.toDoubleOrNull()
+                    val rad = radius.toDoubleOrNull()
+
+                    if (name.isBlank() || lat == null || lng == null || rad == null) {
+                        errorMessage = "Por favor ingresa datos válidos."
+                        return@Button
                     }
+
+                    isLoading = true
+                    errorMessage = null
+
+                    viewModel.createSafeZone(
+                        fragileCitizenId = fragileCitizenId,
+                        name = name,
+                        lat = lat,
+                        lng = lng,
+                        radius = rad,
+                        onSuccess = {
+                            isLoading = false
+                            onBackClick()
+                        },
+                        onError = { err ->
+                            isLoading = false
+                            errorMessage = err
+                        }
+                    )
                 },
+                enabled = !isLoading,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Guardar Zona Segura")
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Guardar Zona Segura")
+                }
             }
         }
     }

@@ -21,6 +21,7 @@ data object CreateSafeZoneRoute
 
 @Serializable
 data object LocationHistoryRoute
+
 @Serializable
 data class EditSafeZoneRoute(
     val safeZoneId: String,
@@ -29,12 +30,14 @@ data class EditSafeZoneRoute(
     val longitude: Double,
     val radius: Double
 )
+
 fun NavGraphBuilder.mobilityGeofencingNavGraph(
     navController: NavController
 ) {
     composable<LocationRoute> {
         val careContext = LocalCareContext.current
-        val citizenId = careContext.careRecipientProfileId.ifEmpty { "123e4567-e89b-12d3-a456-426614174000" }
+        val citizenId = careContext.careRecipientProfileId.ifEmpty { "3fa85f64-5717-4562-b3fc-2c963f66afa6" }
+
         LocationTrackingScreen(
             fragileCitizenId = citizenId,
             onNavigateToHistory = {
@@ -45,45 +48,10 @@ fun NavGraphBuilder.mobilityGeofencingNavGraph(
             }
         )
     }
-
     composable<SafeZonesRoute> {
         val careContext = LocalCareContext.current
-        val citizenId = careContext.careRecipientProfileId.ifEmpty { "123e4567-e89b-12d3-a456-426614174000" }
-        SafeZonesScreen(
-            fragileCitizenId = citizenId,
-            onBackClick = {
-                navController.popBackStack()
-            },
-            onNavigateToCreate = {
-                navController.navigate(CreateSafeZoneRoute)
-            }
-        )
-    }
+        val citizenId = careContext.careRecipientProfileId.ifEmpty { "3fa85f64-5717-4562-b3fc-2c963f66afa6" }
 
-    composable<CreateSafeZoneRoute> {
-        val careContext = LocalCareContext.current
-        val citizenId = careContext.careRecipientProfileId.ifEmpty { "123e4567-e89b-12d3-a456-426614174000" }
-        CreateSafeZoneScreen(
-            fragileCitizenId = citizenId,
-            onBackClick = {
-                navController.popBackStack()
-            }
-        )
-    }
-
-    composable<LocationHistoryRoute> {
-        val careContext = LocalCareContext.current
-        val citizenId = careContext.careRecipientProfileId.ifEmpty { "123e4567-e89b-12d3-a456-426614174000" }
-        LocationHistoryScreen(
-            fragileCitizenId = citizenId,
-            onBackClick = {
-                navController.popBackStack()
-            }
-        )
-    }
-    composable<SafeZonesRoute> {
-        val careContext = LocalCareContext.current
-        val citizenId = careContext.careRecipientProfileId.ifEmpty { "123e4567-e89b-12d3-a456-426614174000" }
         SafeZonesScreen(
             fragileCitizenId = citizenId,
             onBackClick = { navController.popBackStack() },
@@ -94,10 +62,34 @@ fun NavGraphBuilder.mobilityGeofencingNavGraph(
         )
     }
 
+    composable<CreateSafeZoneRoute> {
+        val careContext = LocalCareContext.current
+        val citizenId = careContext.careRecipientProfileId.ifEmpty { "3fa85f64-5717-4562-b3fc-2c963f66afa6" }
+
+        CreateSafeZoneScreen(
+            fragileCitizenId = citizenId,
+            onBackClick = {
+                navController.popBackStack()
+            }
+        )
+    }
+
+    composable<LocationHistoryRoute> {
+        val careContext = LocalCareContext.current
+        val citizenId = careContext.careRecipientProfileId.ifEmpty { "3fa85f64-5717-4562-b3fc-2c963f66afa6" }
+
+        LocationHistoryScreen(
+            fragileCitizenId = citizenId,
+            onBackClick = {
+                navController.popBackStack()
+            }
+        )
+    }
+
     composable<EditSafeZoneRoute> { backStackEntry ->
         val route = backStackEntry.toRoute<EditSafeZoneRoute>()
         val careContext = LocalCareContext.current
-        val citizenId = careContext.careRecipientProfileId.ifEmpty { "123e4567-e89b-12d3-a456-426614174000" }
+        val citizenId = careContext.careRecipientProfileId.ifEmpty { "3fa85f64-5717-4562-b3fc-2c963f66afa6" }
 
         EditSafeZoneScreen(
             safeZoneId = route.safeZoneId,
