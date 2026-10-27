@@ -4,6 +4,6 @@ import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.m
 
 sealed interface SafeZonesUiState {
     object Loading : SafeZonesUiState
-    data class Success(val activeZone: SafeZone?) : SafeZonesUiState
+    data class Success(val zones: List<SafeZone>) : SafeZonesUiState
     data class Error(val message: String) : SafeZonesUiState
 }

@@ -1,10 +1,14 @@
 package com.example.guardian_plus_mobile_app.features.mobilitygeofencing.infrastructure.remote
 
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.infrastructure.remote.dto.*
+import com.google.gson.annotations.SerializedName
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
-
+data class LocationStatusDto(
+    @SerializedName("fragileCitizenId") val fragileCitizenId: String,
+    @SerializedName("status") val status: String
+)
 interface MobilityGeofencingApi {
 
     @GET("location-tracking/{fragileCitizenId}/current")
@@ -15,8 +19,7 @@ interface MobilityGeofencingApi {
     @GET("location-tracking/{fragileCitizenId}/status")
     suspend fun getCurrentStatus(
         @Path("fragileCitizenId") fragileCitizenId: String
-    ): Response<ResponseBody>
-
+    ): Response<LocationStatusDto>
     @GET("location-tracking/{fragileCitizenId}/history")
     suspend fun getLocationHistory(
         @Path("fragileCitizenId") fragileCitizenId: String,

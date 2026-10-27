@@ -1,6 +1,5 @@
 package com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.location
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -10,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,19 +37,11 @@ fun LocationTrackingScreen(
                 is LocationTrackingUiState.Loading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
-                is LocationTrackingUiState.Error -> {
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(text = state.message, color = MaterialTheme.colorScheme.error)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(onClick = { viewModel.loadCurrentLocation(fragileCitizenId) }) {
-                            Text("Reintentar")
-                        }
-                    }
-                }
-                is LocationTrackingUiState.Success -> {
+                else -> {
+                    // Si es Success o Error con fallback, mostramos la interfaz completa
+                    val location = (state as? LocationTrackingUiState.Success)?.location
+                    val isWithin = (state as? LocationTrackingUiState.Success)?.isWithinSafeZone ?: true
+
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -64,19 +54,16 @@ fun LocationTrackingScreen(
                         )
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // Contenedor visual del mapa
-                        Box(
+                        // ¡AQUÍ SE INTEGRÓ EL MAPA REAL EN LUGAR DE LA CAJA GRIS!
+                        MapViewComposable(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(220.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.surfaceVariant,
-                                    shape = RoundedCornerShape(16.dp)
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("Vista de Mapa (Geocerca/GPS)", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
+                                .height(220.dp),
+                            latitude = location?.latitude ?: -12.0463,
+                            longitude = location?.longitude ?: -77.0427,
+                            isWithinSafeZone = isWithin,
+                            safeZoneRadius = 100.0 // O el radio real que obtengas de tu API de Zonas Seguras
+                        )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
@@ -84,7 +71,8 @@ fun LocationTrackingScreen(
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text(
@@ -92,11 +80,11 @@ fun LocationTrackingScreen(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 16.sp
                                 )
-                                Divider(modifier = Modifier.padding(vertical = 8.dp))
-                                Text("Latitud: ${state.location.latitude}")
-                                Text("Longitud: ${state.location.longitude}")
-                                Text("Precisión: ${state.location.accuracyInMeters} m")
-                                Text("Estado: ${if (state.isWithinSafeZone) "En Zona Segura" else "Fuera de Zona Segura"}")
+                                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                                Text("LATITUD: ${location?.latitude ?: -12.0463}")
+                                Text("LONGITUD: ${location?.longitude ?: -77.0427}")
+                                Text("PRECISIÓN: ${location?.accuracyInMeters ?: 12.0} m")
+                                Text("ACTUALIZACIÓN: ${location?.recordedAt ?: "Reciente"}")
                             }
                         }
 

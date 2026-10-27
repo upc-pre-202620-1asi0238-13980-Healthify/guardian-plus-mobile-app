@@ -1,6 +1,8 @@
 package com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.safezone
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -12,18 +14,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SafeZonesScreen(
-    fragileCitizenId: String = "123e4567-e89b-12d3-a456-426614174000",
+    fragileCitizenId: String,
     onBackClick: () -> Unit = {},
+    onNavigateToCreate: () -> Unit = {},
     viewModel: SafeZoneViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarMessage by viewModel.snackbarMessage.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(fragileCitizenId) {
-        viewModel.loadActiveSafeZone(fragileCitizenId)
+        viewModel.loadSafeZones(fragileCitizenId)
+    }
+
+    LaunchedEffect(snackbarMessage) {
+        snackbarMessage?.let { message ->
+            scope.launch {
+                snackbarHostState.showSnackbar(message)
+                viewModel.clearMessage()
+            }
+        }
     }
 
     Scaffold(
@@ -36,7 +52,8 @@ fun SafeZonesScreen(
                     }
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -64,49 +81,65 @@ fun SafeZonesScreen(
                         )
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        val activeZone = state.activeZone
-                        if (activeZone != null) {
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp)
+                        val zones = state.zones
+                        if (zones.isNotEmpty()) {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column {
-                                        Text(
-                                            text = activeZone.name,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        Text(
-                                            text = "Radio: ${activeZone.radiusInMeters}m",
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-                                    }
-                                    Switch(
-                                        checked = activeZone.status == "ACTIVE",
-                                        onCheckedChange = { isChecked ->
-                                            viewModel.toggleSafeZoneStatus(
-                                                activeZone.id,
-                                                !isChecked,
-                                                fragileCitizenId
+                                items(zones) { zone ->
+                                    Card(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(16.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                Text(
+                                                    text = zone.name,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                                Text(
+                                                    text = "Radio: ${zone.radiusInMeters}m | Lat: ${zone.latitude}",
+                                                    style = MaterialTheme.typography.bodySmall
+                                                )
+                                            }
+                                            Switch(
+                                                checked = zone.status == "ACTIVE",
+                                                onCheckedChange = { isChecked ->
+                                                    viewModel.toggleSafeZoneStatus(
+                                                        zone.id,
+                                                        !isChecked,
+                                                        fragileCitizenId
+                                                    )
+                                                }
                                             )
                                         }
-                                    )
+                                    }
                                 }
                             }
                         } else {
-                            Text("No hay ninguna zona segura activa configurada.")
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("No hay ninguna zona segura registrada.")
+                            }
                         }
 
-                        Spacer(modifier = Modifier.weight(1f))
+                        Spacer(modifier = Modifier.height(12.dp))
 
                         Button(
-                            onClick = { /* Abrir modal/pantalla de creación */ },
+                            onClick = onNavigateToCreate,
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(Icons.Default.Add, contentDescription = null)
