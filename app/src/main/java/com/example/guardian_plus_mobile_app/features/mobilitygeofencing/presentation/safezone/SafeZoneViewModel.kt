@@ -74,10 +74,15 @@ class SafeZoneViewModel @Inject constructor(
             } else {
                 repository.activateSafeZone(safeZoneId)
             }
-            result.onSuccess {
-                _snackbarMessage.value = "Estado de zona actualizado con éxito"
-                loadSafeZones(fragileCitizenId)
-            }
+            result
+                .onSuccess {
+                    // Activating a zone deactivates the one that was active, so the whole list is read again
+                    _snackbarMessage.value = if (currentActive) "Zona segura desactivada" else "Zona segura activada"
+                    loadSafeZones(fragileCitizenId)
+                }
+                .onFailure {
+                    _snackbarMessage.value = "No se pudo cambiar el estado de la zona segura"
+                }
         }
     }
 
