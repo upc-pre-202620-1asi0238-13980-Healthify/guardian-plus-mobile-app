@@ -36,7 +36,7 @@ fun NavGraphBuilder.mobilityGeofencingNavGraph(
 ) {
     composable<LocationRoute> {
         val careContext = LocalCareContext.current
-        val citizenId = careContext.careRecipientProfileId.ifEmpty { "3fa85f64-5717-4562-b3fc-2c963f66afa6" }
+        val citizenId = careContext.careRecipientProfileId
 
         LocationTrackingScreen(
             fragileCitizenId = citizenId,
@@ -50,7 +50,7 @@ fun NavGraphBuilder.mobilityGeofencingNavGraph(
     }
     composable<SafeZonesRoute> {
         val careContext = LocalCareContext.current
-        val citizenId = careContext.careRecipientProfileId.ifEmpty { "3fa85f64-5717-4562-b3fc-2c963f66afa6" }
+        val citizenId = careContext.careRecipientProfileId
 
         SafeZonesScreen(
             fragileCitizenId = citizenId,
@@ -64,7 +64,7 @@ fun NavGraphBuilder.mobilityGeofencingNavGraph(
 
     composable<CreateSafeZoneRoute> {
         val careContext = LocalCareContext.current
-        val citizenId = careContext.careRecipientProfileId.ifEmpty { "3fa85f64-5717-4562-b3fc-2c963f66afa6" }
+        val citizenId = careContext.careRecipientProfileId
 
         CreateSafeZoneScreen(
             fragileCitizenId = citizenId,
@@ -76,7 +76,7 @@ fun NavGraphBuilder.mobilityGeofencingNavGraph(
 
     composable<LocationHistoryRoute> {
         val careContext = LocalCareContext.current
-        val citizenId = careContext.careRecipientProfileId.ifEmpty { "3fa85f64-5717-4562-b3fc-2c963f66afa6" }
+        val citizenId = careContext.careRecipientProfileId
 
         LocationHistoryScreen(
             fragileCitizenId = citizenId,
@@ -89,7 +89,7 @@ fun NavGraphBuilder.mobilityGeofencingNavGraph(
     composable<EditSafeZoneRoute> { backStackEntry ->
         val route = backStackEntry.toRoute<EditSafeZoneRoute>()
         val careContext = LocalCareContext.current
-        val citizenId = careContext.careRecipientProfileId.ifEmpty { "3fa85f64-5717-4562-b3fc-2c963f66afa6" }
+        val citizenId = careContext.careRecipientProfileId
 
         EditSafeZoneScreen(
             safeZoneId = route.safeZoneId,

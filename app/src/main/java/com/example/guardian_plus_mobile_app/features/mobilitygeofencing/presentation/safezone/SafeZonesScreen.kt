@@ -96,6 +96,11 @@ fun SafeZonesScreen(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
+                        Text(
+                            text = "Solo una zona puede estar activa a la vez: al activar otra, la anterior se desactiva.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                         Spacer(modifier = Modifier.height(12.dp))
 
                         val zones = state.zones
