@@ -3,6 +3,7 @@ package com.example.guardian_plus_mobile_app.features.mobilitygeofencing.present
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.model.SafeZone
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -10,13 +11,17 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polygon
 
+/**
+ * Map centered on the person's last location, with the active safe zone drawn where it really is (its own center
+ * and radius), green while the person is inside and red once they left it.
+ */
 @Composable
 fun MapViewComposable(
     modifier: Modifier = Modifier,
     latitude: Double,
     longitude: Double,
     isWithinSafeZone: Boolean,
-    safeZoneRadius: Double = 100.0
+    safeZone: SafeZone?
 ) {
     AndroidView(
         modifier = modifier,
@@ -30,21 +35,28 @@ fun MapViewComposable(
         },
         update = { mapView ->
             mapView.overlays.clear()
-            val centerPoint = GeoPoint(latitude, longitude)
-            mapView.controller.setCenter(centerPoint)
+            val personPoint = GeoPoint(latitude, longitude)
+            mapView.controller.setCenter(personPoint)
 
-            val safeZonePolygon = Polygon().apply {
-                points = Polygon.pointsAsCircle(centerPoint, safeZoneRadius)
-                fillColor = if (isWithinSafeZone) 0x334CAF50 else 0x33F44336
-                strokeColor = if (isWithinSafeZone) 0xFF4CAF50.toInt() else 0xFFF44336.toInt()
-                strokeWidth = 3f
+            if (safeZone != null) {
+                val safeZonePolygon = Polygon().apply {
+                    points = Polygon.pointsAsCircle(GeoPoint(safeZone.latitude, safeZone.longitude), safeZone.radiusInMeters)
+                    fillColor = if (isWithinSafeZone) 0x334CAF50 else 0x33F44336
+                    strokeColor = if (isWithinSafeZone) 0xFF4CAF50.toInt() else 0xFFF44336.toInt()
+                    strokeWidth = 3f
+                    title = safeZone.name
+                }
+                mapView.overlays.add(safeZonePolygon)
             }
-            mapView.overlays.add(safeZonePolygon)
 
             val marker = Marker(mapView).apply {
-                position = centerPoint
+                position = personPoint
                 setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                title = if (isWithinSafeZone) "Ciudadano en Zona Segura" else "¡Alerta! Fuera de Perímetro"
+                title = when {
+                    safeZone == null -> "Última ubicación"
+                    isWithinSafeZone -> "Dentro de ${safeZone.name}"
+                    else -> "¡Alerta! Fuera de ${safeZone.name}"
+                }
             }
             mapView.overlays.add(marker)
             mapView.invalidate()
