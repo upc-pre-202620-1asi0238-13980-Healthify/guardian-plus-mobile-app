@@ -35,6 +35,14 @@ android {
             "https://guardian-plus-api.chilecentral.cloudapp.azure.com/api/v1/"
         )
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+
+        // Web OAuth client of the Google Cloud project: the audience of the Google ID token the platform verifies.
+        // It is not a secret; google.web.client.id in local.properties overrides it for another project
+        val googleWebClientId = localProperties.getProperty(
+            "google.web.client.id",
+            "556610755211-sjdc401n0439d2psvngt2d7bqenmg97g.apps.googleusercontent.com"
+        )
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientId\"")
     }
 
     buildTypes {
