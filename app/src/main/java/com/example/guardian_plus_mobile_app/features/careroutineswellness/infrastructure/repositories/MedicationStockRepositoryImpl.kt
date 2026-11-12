@@ -16,8 +16,10 @@ class MedicationStockRepositoryImpl @Inject constructor(
     override suspend fun getMedicationStocks(personUnderCareId: String): Result<List<MedicationStock>> =
         apiCall({ service.getMedicationStocks(personUnderCareId) }) { dtos -> dtos.map { it.toDomain() } }
 
-    override suspend fun confirmMedicationAcquisition(medicationStockId: String): Result<MedicationStock> =
-        apiCall({ service.confirmMedicationAcquisition(medicationStockId, ConfirmMedicationAcquisitionRequestDto()) }) { it.toDomain() }
+    override suspend fun confirmMedicationAcquisition(medicationStockId: String, dosesAdded: Int?): Result<MedicationStock> =
+        apiCall({
+            service.confirmMedicationAcquisition(medicationStockId, ConfirmMedicationAcquisitionRequestDto(dosesAdded))
+        }) { it.toDomain() }
 }
 
 private fun MedicationStockDto.toDomain() = MedicationStock(
