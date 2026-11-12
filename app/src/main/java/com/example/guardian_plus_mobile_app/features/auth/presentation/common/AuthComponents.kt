@@ -451,9 +451,10 @@ fun AuthDivider(text: String) {
 }
 
 @Composable
-fun GoogleButton(text: String, onClick: () -> Unit) {
+fun GoogleButton(text: String, onClick: () -> Unit, enabled: Boolean = true) {
     OutlinedButton(
         onClick = onClick,
+        enabled = enabled,
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, FieldBorder),
         colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White, contentColor = TextPrimary),

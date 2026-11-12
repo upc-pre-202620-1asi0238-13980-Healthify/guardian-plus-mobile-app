@@ -9,7 +9,9 @@ data class RegisterUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     // Set once the account exists; the screen moves on to the email verification and clears it
-    val registeredAccount: RegisteredAccount? = null
+    val registeredAccount: RegisteredAccount? = null,
+    // Set once Google returned a session, which needs no email verification; the screen moves on and clears it
+    val signedInWithGoogle: Boolean = false
 )
 
 data class RegisteredAccount(val userAccountId: String, val email: String)

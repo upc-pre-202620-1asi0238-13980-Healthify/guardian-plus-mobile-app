@@ -1,11 +1,14 @@
 package com.example.guardian_plus_mobile_app.features.auth.presentation.register
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.guardian_plus_mobile_app.core.session.SignUpNameStore
 import com.example.guardian_plus_mobile_app.features.auth.application.GetEmailAvailabilityUseCase
 import com.example.guardian_plus_mobile_app.features.auth.application.RegisterUserCredentialsUseCase
+import com.example.guardian_plus_mobile_app.features.auth.presentation.common.ContinueWithGoogle
 import com.example.guardian_plus_mobile_app.features.auth.presentation.common.MIN_PASSWORD_LENGTH
+import com.example.guardian_plus_mobile_app.features.auth.presentation.common.googleSignInErrorMessage
 import com.example.guardian_plus_mobile_app.features.auth.presentation.common.parseEmail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -19,7 +22,8 @@ import kotlinx.coroutines.launch
 class RegisterViewModel @Inject constructor(
     private val getEmailAvailability: GetEmailAvailabilityUseCase,
     private val registerUserCredentials: RegisterUserCredentialsUseCase,
-    private val signUpNameStore: SignUpNameStore
+    private val signUpNameStore: SignUpNameStore,
+    private val continueWithGoogle: ContinueWithGoogle
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RegisterUiState())
@@ -89,7 +93,23 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
+    /** The platform creates the account of a new Google user, so signing up with Google is signing in. */
+    fun signUpWithGoogle(activityContext: Context) {
+        if (_uiState.value.isLoading) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            continueWithGoogle(activityContext)
+                .onSuccess {
+                    _uiState.update { it.copy(isLoading = false, signedInWithGoogle = true) }
+                }
+                .onFailure { e ->
+                    // Closing the account picker just leaves the form as it was
+                    _uiState.update { it.copy(isLoading = false, errorMessage = e.googleSignInErrorMessage()) }
+                }
+        }
+    }
+
     fun onNavigationHandled() {
-        _uiState.update { it.copy(registeredAccount = null) }
+        _uiState.update { it.copy(registeredAccount = null, signedInWithGoogle = false) }
     }
 }

@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -39,13 +40,21 @@ fun RegisterScreen(
     viewModel: RegisterViewModel = hiltViewModel(),
     onLoginClick: () -> Unit,
     onRegistered: (userAccountId: String, email: String) -> Unit,
-    onGoogleClick: () -> Unit = {}
+    onSignedInWithGoogle: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     LaunchedEffect(uiState.registeredAccount) {
         uiState.registeredAccount?.let { account ->
             onRegistered(account.userAccountId, account.email)
+            viewModel.onNavigationHandled()
+        }
+    }
+
+    LaunchedEffect(uiState.signedInWithGoogle) {
+        if (uiState.signedInWithGoogle) {
+            onSignedInWithGoogle()
             viewModel.onNavigationHandled()
         }
     }
@@ -59,7 +68,7 @@ fun RegisterScreen(
         onConfirmPasswordChange = viewModel::onConfirmPasswordChange,
         onTogglePasswordVisibility = viewModel::togglePasswordVisibility,
         onRegisterClick = viewModel::register,
-        onGoogleClick = onGoogleClick,
+        onGoogleClick = { viewModel.signUpWithGoogle(context) },
         onLoginClick = onLoginClick
     )
 }
@@ -84,7 +93,9 @@ private fun RegisterContent(
     ) {
         AuthSheetTitle(
             title = stringResource(R.string.auth_register_title),
-            subtitle = stringResource(R.string.auth_register_subtitle)
+            subtitle = stringResource(R.string.auth_register_subtitle),
+            // Back to the login, e.g. to drop the sign-up or to use another account
+            onBackClick = onLoginClick
         )
         Spacer(modifier = Modifier.height(24.dp))
         AuthTextField(
@@ -131,7 +142,11 @@ private fun RegisterContent(
         Spacer(modifier = Modifier.height(24.dp))
         AuthDivider(text = stringResource(R.string.auth_register_divider))
         Spacer(modifier = Modifier.height(24.dp))
-        GoogleButton(text = stringResource(R.string.auth_register_google), onClick = onGoogleClick)
+        GoogleButton(
+            text = stringResource(R.string.auth_register_google),
+            enabled = !uiState.isLoading,
+            onClick = onGoogleClick
+        )
         Spacer(modifier = Modifier.height(32.dp))
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Text(text = stringResource(R.string.auth_register_have_account), color = TextMuted, fontSize = 15.sp)
