@@ -18,5 +18,3 @@ local.properties
 /guides/
 
 replay_pid*.log
-config.bat
-node_modules
