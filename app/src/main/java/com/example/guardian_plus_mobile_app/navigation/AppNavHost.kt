@@ -144,6 +144,24 @@ fun AppNavHost(
                         navController.navigate(ProfileHomeRoute) {
                             launchSingleTop = true
                         }
+                    },
+                    // Every tab showed the previous person, so they all start again from Home
+                    onCareRecipientChanged = {
+                        forgetTabStates()
+                        navController.navigate(HomeRoute) {
+                            popUpTo(navController.graph.id) { inclusive = true }
+                        }
+                    },
+                    // Same form as the onboarding, asking only for the new person; it ends like a sign-in
+                    onAddCareRecipient = { userAccountId ->
+                        navController.navigate(
+                            OnboardingRoute(
+                                userAccountId,
+                                needsUserProfile = false,
+                                needsCareRecipient = true,
+                                isAddingCareRecipient = true
+                            )
+                        )
                     }
                 )
                 careRoutinesWellnessNavGraph(navController = navController)

@@ -64,8 +64,12 @@ fun OnboardingScreen(
     needsUserProfile: Boolean,
     needsCareRecipient: Boolean,
     suggestedFullName: String?,
+    // Another person for an account that already cares for someone, reached from "Cambiar persona"
+    isAddingCareRecipient: Boolean = false,
     viewModel: OnboardingViewModel = hiltViewModel(),
-    onCompleted: () -> Unit
+    onCompleted: () -> Unit,
+    // Only when adding another person: back to Home without adding anyone
+    onBackClick: (() -> Unit)? = null
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -80,12 +84,15 @@ fun OnboardingScreen(
 
     AuthLayout(
         modifier = modifier,
-        headerTitle = stringResource(R.string.onboarding_header_title),
-        headerSubtitle = stringResource(R.string.onboarding_header_subtitle)
+        headerTitle = stringResource(if (isAddingCareRecipient) R.string.onboarding_add_header_title else R.string.onboarding_header_title),
+        headerSubtitle = stringResource(
+            if (isAddingCareRecipient) R.string.onboarding_add_header_subtitle else R.string.onboarding_header_subtitle
+        )
     ) {
         AuthSheetTitle(
-            title = stringResource(R.string.onboarding_title),
-            subtitle = stringResource(R.string.onboarding_subtitle)
+            title = stringResource(if (isAddingCareRecipient) R.string.onboarding_add_title else R.string.onboarding_title),
+            subtitle = stringResource(if (isAddingCareRecipient) R.string.onboarding_add_subtitle else R.string.onboarding_subtitle),
+            onBackClick = onBackClick
         )
         if (uiState.showUserProfile) {
             SectionTitle(stringResource(R.string.onboarding_you_section))
@@ -150,7 +157,7 @@ fun OnboardingScreen(
         AuthErrorMessage(message = uiState.errorMessage)
         Spacer(modifier = Modifier.height(24.dp))
         AuthPrimaryButton(
-            text = stringResource(R.string.onboarding_submit),
+            text = stringResource(if (isAddingCareRecipient) R.string.switcher_add else R.string.onboarding_submit),
             isLoading = uiState.isLoading,
             onClick = { viewModel.submit(userAccountId) }
         )

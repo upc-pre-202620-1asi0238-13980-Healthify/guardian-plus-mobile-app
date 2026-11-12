@@ -42,6 +42,7 @@ import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentati
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.home.component.VitalsSummaryCard
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.livevitals.LiveVitalsViewModel
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.wearable.LinkWearableSheet
+import com.example.guardian_plus_mobile_app.features.profile.presentation.switcher.CareRecipientSwitcherSheet
 import java.time.ZoneId
 
 /** "Inicio" tab: how the care recipient is doing right now. Only reads live vitals, so no ViewModel of its own. */
@@ -52,10 +53,13 @@ fun HomeScreen(
     onSeeVitalsClick: () -> Unit,
     onLocationClick: () -> Unit,
     onAlertsClick: () -> Unit,
-    onProfileClick: () -> Unit = {}
+    onProfileClick: () -> Unit = {},
+    onCareRecipientChanged: () -> Unit = {},
+    onAddCareRecipientClick: (userAccountId: String) -> Unit = {}
 ) {
     val careContext = LocalCareContext.current
     var isLinkWearableOpen by rememberSaveable { mutableStateOf(false) }
+    var isSwitcherOpen by rememberSaveable { mutableStateOf(false) }
     val linkedMessage = stringResource(R.string.wearable_linked)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -67,7 +71,7 @@ fun HomeScreen(
         uiState = uiState,
         onRetryClick = viewModel::load,
         onBellClick = onAlertsClick,
-        onChangeRecipientClick = showComingSoon,
+        onChangeRecipientClick = { isSwitcherOpen = true },
         onCallClick = { context.callCareRecipient(careContext) },
         onVideoClick = showComingSoon,
         onLocationClick = onLocationClick,
@@ -85,6 +89,19 @@ fun HomeScreen(
                 viewModel.load()
             },
             onDismiss = { isLinkWearableOpen = false }
+        )
+    }
+    if (isSwitcherOpen) {
+        CareRecipientSwitcherSheet(
+            onSwitched = {
+                isSwitcherOpen = false
+                onCareRecipientChanged()
+            },
+            onAddClick = {
+                isSwitcherOpen = false
+                onAddCareRecipientClick(careContext.userAccountId)
+            },
+            onDismiss = { isSwitcherOpen = false }
         )
     }
 

@@ -30,7 +30,8 @@ data class OnboardingRoute(
     val userAccountId: String,
     val needsUserProfile: Boolean,
     val needsCareRecipient: Boolean,
-    val suggestedFullName: String? = null
+    val suggestedFullName: String? = null,
+    val isAddingCareRecipient: Boolean = false
 )
 
 @Serializable
@@ -96,7 +97,14 @@ fun NavGraphBuilder.profileNavGraph(
             needsUserProfile = route.needsUserProfile,
             needsCareRecipient = route.needsCareRecipient,
             suggestedFullName = route.suggestedFullName,
-            onCompleted = onReady
+            isAddingCareRecipient = route.isAddingCareRecipient,
+            onCompleted = onReady,
+            // The first onboarding has nowhere to go back to; adding a person comes from Home
+            onBackClick = if (route.isAddingCareRecipient) {
+                { navController.popBackStack() }
+            } else {
+                null
+            }
         )
     }
 

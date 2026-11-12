@@ -20,14 +20,18 @@ fun NavGraphBuilder.healthMonitoringNavGraph(
     onOpenHealth: () -> Unit,
     onOpenAlerts: () -> Unit,
     onOpenLocation: () -> Unit,
-    onOpenProfile: () -> Unit
+    onOpenProfile: () -> Unit,
+    onCareRecipientChanged: () -> Unit,
+    onAddCareRecipient: (userAccountId: String) -> Unit
 ){
     composable<HomeRoute> {
         HomeScreen(
             onSeeVitalsClick = onOpenHealth,
             onLocationClick = onOpenLocation,
             onAlertsClick = onOpenAlerts,
-            onProfileClick = onOpenProfile
+            onProfileClick = onOpenProfile,
+            onCareRecipientChanged = onCareRecipientChanged,
+            onAddCareRecipientClick = onAddCareRecipient
         )
     }
 

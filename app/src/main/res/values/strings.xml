@@ -236,6 +236,10 @@
     <string name="home_open_alerts">Abrir alertas</string>
     <string name="home_caring_for">Estás cuidando a</string>
     <string name="home_change">Cambiar</string>
+    <string name="switcher_title">Cambiar persona</string>
+    <string name="switcher_subtitle">Elige a quién quieres acompañar ahora.</string>
+    <string name="switcher_current">Persona actual</string>
+    <string name="switcher_add">Agregar persona</string>
     <string name="home_status_online">ESTADO ACTUAL · EN LÍNEA</string>
     <string name="home_status_offline">ESTADO ACTUAL · SIN SEÑAL</string>
     <string name="home_status_ok">%1$s está bien</string>
@@ -771,6 +775,10 @@
     <string name="onboarding_relationship_family">Familiar</string>
     <string name="onboarding_relationship_caregiver">Cuidador</string>
     <string name="onboarding_submit">Empezar a cuidar</string>
+    <string name="onboarding_add_header_title">Agrega a\notra persona.</string>
+    <string name="onboarding_add_header_subtitle">Podrás cambiar entre ellas desde Inicio.</string>
+    <string name="onboarding_add_title">Nueva persona</string>
+    <string name="onboarding_add_subtitle">Cuéntanos a quién más cuidas</string>
     <string name="onboarding_date_confirm">Aceptar</string>
     <string name="onboarding_date_cancel">Cancelar</string>
     <string name="home_logout_title">¿Cerrar sesión?</string>
