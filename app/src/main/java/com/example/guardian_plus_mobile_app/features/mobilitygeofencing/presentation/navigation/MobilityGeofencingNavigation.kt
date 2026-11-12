@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.example.guardian_plus_mobile_app.core.session.LocalCareContext
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.communication.DeviceStatusCheckScreen
+import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.communication.DirectCommunicationEntryScreen
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.communication.UnansweredCallScreen
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.communication.VideoCallScreen
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.communication.VoiceCallScreen
@@ -35,6 +36,10 @@ data class EditSafeZoneRoute(
     val radius: Double
 )
 
+// US-23: Direct Communication Channel Routes
+@Serializable
+data object DirectCommunicationRoute
+
 @Serializable
 data object VideoCallRoute
 
@@ -63,7 +68,7 @@ fun NavGraphBuilder.mobilityGeofencingNavGraph(
                 navController.navigate(SafeZonesRoute)
             },
             onNavigateToVideoCall = {
-                navController.navigate(VideoCallRoute)
+                navController.navigate(DirectCommunicationRoute)
             },
             onNavigateToVoiceCall = {
                 navController.navigate(VoiceCallRoute)
@@ -131,7 +136,33 @@ fun NavGraphBuilder.mobilityGeofencingNavGraph(
         )
     }
 
-    // Direct Communication Screens
+    // US-23: Evaluation & Entry Route connected to LocalCareContext.current.careRecipientProfileId
+    composable<DirectCommunicationRoute> {
+        val careContext = LocalCareContext.current
+        val citizenId = careContext.careRecipientProfileId
+
+        DirectCommunicationEntryScreen(
+            fragileCitizenId = citizenId,
+            onNavigateToVideoCall = {
+                navController.navigate(VideoCallRoute) {
+                    popUpTo<DirectCommunicationRoute> { inclusive = true }
+                }
+            },
+            onNavigateToVoiceCall = {
+                navController.navigate(VoiceCallRoute) {
+                    popUpTo<DirectCommunicationRoute> { inclusive = true }
+                }
+            },
+            onNavigateToDeviceStatusCheck = {
+                navController.navigate(DeviceStatusCheckRoute) {
+                    popUpTo<DirectCommunicationRoute> { inclusive = true }
+                }
+            },
+            onBackClick = { navController.popBackStack() }
+        )
+    }
+
+    // US-23: Direct Communication Screens
     composable<VideoCallRoute> {
         val careContext = LocalCareContext.current
         val citizenId = careContext.careRecipientProfileId
@@ -180,12 +211,14 @@ fun NavGraphBuilder.mobilityGeofencingNavGraph(
             fragileCitizenId = citizenId,
             onBackClick = { navController.popBackStack() },
             onRetryCall = {
-                navController.navigate(VideoCallRoute) {
+                navController.navigate(DirectCommunicationRoute) {
                     popUpTo<UnansweredCallRoute> { inclusive = true }
                 }
             },
             onNavigateToLastLocation = {
-                navController.popBackStack()
+                navController.navigate(LocationRoute) {
+                    popUpTo<UnansweredCallRoute> { inclusive = true }
+                }
             }
         )
     }

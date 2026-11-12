@@ -55,7 +55,8 @@ fun HomeScreen(
     onAlertsClick: () -> Unit,
     onProfileClick: () -> Unit = {},
     onCareRecipientChanged: () -> Unit = {},
-    onAddCareRecipientClick: (userAccountId: String) -> Unit = {}
+    onAddCareRecipientClick: (userAccountId: String) -> Unit = {},
+    onVideoCallClick: () -> Unit = {}
 ) {
     val careContext = LocalCareContext.current
     var isLinkWearableOpen by rememberSaveable { mutableStateOf(false) }
@@ -73,7 +74,7 @@ fun HomeScreen(
         onBellClick = onAlertsClick,
         onChangeRecipientClick = { isSwitcherOpen = true },
         onCallClick = { context.callCareRecipient(careContext) },
-        onVideoClick = showComingSoon,
+        onVideoClick = onVideoCallClick,
         onLocationClick = onLocationClick,
         onSeeVitalsClick = onSeeVitalsClick,
         onSeeAgendaClick = showComingSoon,

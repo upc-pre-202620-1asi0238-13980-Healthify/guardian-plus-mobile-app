@@ -37,8 +37,8 @@ data class CallSessionDto(
     @SerializedName("degradedFromVideo") val degradedFromVideo: Boolean?,
     @SerializedName("startedAt") val startedAt: String?,
     @SerializedName("bpm") val bpm: Int?,
-    @SerializedName("spo2Percentage") val spo2Percentage: Int?,
-    @SerializedName("temperatureCelsius") val temperatureCelsius: Double?,
+    @SerializedName(value = "spo2Percentage", alternate = ["spo2"]) val spo2Percentage: Int?,
+    @SerializedName(value = "temperatureCelsius", alternate = ["temperature"]) val temperatureCelsius: Double?,
     @SerializedName("bloodPressure") val bloodPressure: String?
 )
 
@@ -56,7 +56,7 @@ data class CallLogEntryDto(
     @SerializedName("title") val title: String?,
     @SerializedName("timestamp") val timestamp: String?,
     @SerializedName("statusLabel") val statusLabel: String?,
-    @SerializedName("isMissed") val isMissed: Boolean?
+    @SerializedName(value = "isMissed", alternate = ["missed"]) val isMissed: Boolean?
 )
 
 data class HapticAlertRequestDto(

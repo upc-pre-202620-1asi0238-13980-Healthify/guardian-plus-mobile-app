@@ -35,11 +35,12 @@ import com.example.guardian_plus_mobile_app.features.careroutineswellness.presen
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.navigation.emergencyAlertingNavGraph
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.navigation.HomeRoute
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.navigation.healthMonitoringNavGraph
+import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.navigation.DirectCommunicationRoute
+import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.navigation.mobilityGeofencingNavGraph
 import com.example.guardian_plus_mobile_app.features.profile.presentation.navigation.OnboardingRoute
 import com.example.guardian_plus_mobile_app.features.profile.presentation.navigation.ProfileHomeRoute
 import com.example.guardian_plus_mobile_app.features.profile.presentation.navigation.SessionStartRoute
 import com.example.guardian_plus_mobile_app.features.profile.presentation.navigation.profileNavGraph
-import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.navigation.mobilityGeofencingNavGraph
 
 @Composable
 fun AppNavHost(
@@ -162,6 +163,11 @@ fun AppNavHost(
                                 isAddingCareRecipient = true
                             )
                         )
+                    },
+                    onVideoCallClick = {
+                        navController.navigate(DirectCommunicationRoute) {
+                            launchSingleTop = true
+                        }
                     }
                 )
                 careRoutinesWellnessNavGraph(navController = navController)

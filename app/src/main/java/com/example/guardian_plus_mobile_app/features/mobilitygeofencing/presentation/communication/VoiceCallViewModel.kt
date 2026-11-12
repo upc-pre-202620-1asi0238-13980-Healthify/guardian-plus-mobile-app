@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.application.DirectCommunicationRoutingResult
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.application.InitiateDirectCommunicationUseCase
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.application.ManageCallTimeoutUseCase
-import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.model.DeviceCommunicationCapability
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.model.LiveVitalsSnapshot
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -19,12 +18,12 @@ import javax.inject.Inject
 
 data class VoiceCallUiState(
     val isLoading: Boolean = false,
-    val callId: String = "call-voice-2847",
+    val callId: String = "",
     val citizenName: String = "Elena Martínez",
     val initials: String = "EM",
     val deviceModel: String = "Guardian Band Lite",
     val deviceId: String = "ID #PB-2847",
-    val elapsedSeconds: Int = 86, // Starts at 01:26 as in the mockup
+    val elapsedSeconds: Int = 86,
     val isMicMuted: Boolean = false,
     val isSpeakerEnabled: Boolean = true,
     val waveformBars: List<Float> = listOf(
@@ -34,7 +33,8 @@ data class VoiceCallUiState(
     val vitals: LiveVitalsSnapshot = LiveVitalsSnapshot(
         bpm = 76,
         spo2Percentage = 97
-    )
+    ),
+    val errorMessage: String? = null
 )
 
 @HiltViewModel
@@ -51,28 +51,43 @@ class VoiceCallViewModel @Inject constructor(
 
     fun startVoiceCall(fragileCitizenId: String) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            initiateDirectCommunicationUseCase(
-                fragileCitizenId = fragileCitizenId,
-                simulatedCapability = DeviceCommunicationCapability.AUDIO_ONLY
-            ).onSuccess { result ->
-                if (result is DirectCommunicationRoutingResult.FallbackToVoiceCall) {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            initiateDirectCommunicationUseCase(fragileCitizenId)
+                .onSuccess { result ->
+                    when (result) {
+                        is DirectCommunicationRoutingResult.FallbackToVoiceCall -> {
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    callId = result.session.callId,
+                                    citizenName = result.session.citizenName.ifBlank { it.citizenName },
+                                    deviceModel = result.capabilities.modelName.ifBlank { it.deviceModel },
+                                    deviceId = result.capabilities.citizenCode.ifBlank { it.deviceId },
+                                    vitals = result.session.vitals
+                                )
+                            }
+                        }
+                        is DirectCommunicationRoutingResult.StartVideoCall -> {
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    callId = result.session.callId,
+                                    citizenName = result.session.citizenName.ifBlank { it.citizenName },
+                                    vitals = result.session.vitals
+                                )
+                            }
+                        }
+                        else -> _uiState.update { it.copy(isLoading = false) }
+                    }
+                }
+                .onFailure { error ->
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            callId = result.session.callId,
-                            citizenName = result.session.citizenName,
-                            deviceModel = result.capabilities.modelName,
-                            deviceId = result.capabilities.citizenCode,
-                            vitals = result.session.vitals
+                            errorMessage = error.message
                         )
                     }
-                } else {
-                    _uiState.update { it.copy(isLoading = false) }
                 }
-            }.onFailure {
-                _uiState.update { it.copy(isLoading = false) }
-            }
 
             startTimers()
         }
@@ -115,7 +130,9 @@ class VoiceCallViewModel @Inject constructor(
         viewModelScope.launch {
             timerJob?.cancel()
             waveformJob?.cancel()
-            manageCallTimeoutUseCase.endActiveCall(_uiState.value.callId)
+            if (_uiState.value.callId.isNotBlank()) {
+                manageCallTimeoutUseCase.endActiveCall(_uiState.value.callId)
+            }
             onEnded()
         }
     }

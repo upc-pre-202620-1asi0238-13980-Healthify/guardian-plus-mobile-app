@@ -2,9 +2,9 @@ package com.example.guardian_plus_mobile_app.features.mobilitygeofencing.present
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.application.DirectCommunicationRoutingResult
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.application.InitiateDirectCommunicationUseCase
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.application.ManageCallTimeoutUseCase
-import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.model.DeviceCommunicationCapability
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.model.LiveVitalsSnapshot
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -18,11 +18,11 @@ import javax.inject.Inject
 
 data class VideoCallUiState(
     val isLoading: Boolean = false,
-    val callId: String = "call-video-2847",
+    val callId: String = "",
     val citizenName: String = "Elena Martínez",
     val citizenRoleAndCode: String = "Ciudadana Frágil • ID #2847",
     val deviceModel: String = "Guardian Pro",
-    val elapsedSeconds: Int = 167, // Starts at 02:47 to match design and ticks up
+    val elapsedSeconds: Int = 167,
     val isConnecting: Boolean = false,
     val unansweredWaitSeconds: Int = 0,
     val isMicMuted: Boolean = false,
@@ -34,7 +34,8 @@ data class VideoCallUiState(
         temperatureCelsius = 36.7,
         bloodPressure = "120/80"
     ),
-    val timedOut: Boolean = false
+    val timedOut: Boolean = false,
+    val errorMessage: String? = null
 )
 
 @HiltViewModel
@@ -51,29 +52,33 @@ class VideoCallViewModel @Inject constructor(
 
     fun startVideoCall(fragileCitizenId: String, simulateRingingTimeout: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, timedOut = false) }
-            initiateDirectCommunicationUseCase(
-                fragileCitizenId = fragileCitizenId,
-                simulatedCapability = DeviceCommunicationCapability.VIDEO_AND_AUDIO
-            ).onSuccess { result ->
-                if (result is com.example.guardian_plus_mobile_app.features.mobilitygeofencing.application.DirectCommunicationRoutingResult.StartVideoCall) {
+            _uiState.update { it.copy(isLoading = true, timedOut = false, errorMessage = null) }
+            initiateDirectCommunicationUseCase(fragileCitizenId)
+                .onSuccess { result ->
+                    if (result is DirectCommunicationRoutingResult.StartVideoCall) {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                callId = result.session.callId,
+                                citizenName = result.session.citizenName.ifBlank { it.citizenName },
+                                citizenRoleAndCode = "Ciudadana Frágil • ${result.session.citizenCode.ifBlank { "ID #2847" }}",
+                                deviceModel = result.session.deviceModel.ifBlank { it.deviceModel },
+                                vitals = result.session.vitals,
+                                isConnecting = simulateRingingTimeout
+                            )
+                        }
+                    } else {
+                        _uiState.update { it.copy(isLoading = false) }
+                    }
+                }
+                .onFailure { error ->
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            callId = result.session.callId,
-                            citizenName = result.session.citizenName,
-                            citizenRoleAndCode = "Ciudadana Frágil • ${result.session.citizenCode}",
-                            deviceModel = result.session.deviceModel,
-                            vitals = result.session.vitals,
-                            isConnecting = simulateRingingTimeout
+                            errorMessage = error.message
                         )
                     }
-                } else {
-                    _uiState.update { it.copy(isLoading = false) }
                 }
-            }.onFailure {
-                _uiState.update { it.copy(isLoading = false) }
-            }
 
             if (simulateRingingTimeout) {
                 startThirtySecondTimeoutCountdown(fragileCitizenId)
@@ -90,11 +95,7 @@ class VideoCallViewModel @Inject constructor(
                 delay(1000L)
                 _uiState.update { state ->
                     val nextSeconds = state.elapsedSeconds + 1
-                    val jitterBpm = if (nextSeconds % 5 == 0) 77 else 76
-                    state.copy(
-                        elapsedSeconds = nextSeconds,
-                        vitals = state.vitals.copy(bpm = jitterBpm)
-                    )
+                    state.copy(elapsedSeconds = nextSeconds)
                 }
             }
         }
@@ -133,7 +134,9 @@ class VideoCallViewModel @Inject constructor(
         viewModelScope.launch {
             timerJob?.cancel()
             timeoutJob?.cancel()
-            manageCallTimeoutUseCase.endActiveCall(_uiState.value.callId)
+            if (_uiState.value.callId.isNotBlank()) {
+                manageCallTimeoutUseCase.endActiveCall(_uiState.value.callId)
+            }
             onEnded()
         }
     }

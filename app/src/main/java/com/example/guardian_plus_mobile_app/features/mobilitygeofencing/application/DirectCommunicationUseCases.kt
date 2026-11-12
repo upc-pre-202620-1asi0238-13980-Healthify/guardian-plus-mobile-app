@@ -27,11 +27,8 @@ sealed interface DirectCommunicationRoutingResult {
 class VerifyDeviceCapabilitiesUseCase @Inject constructor(
     private val repository: MobilityGeofencingRepository
 ) {
-    suspend operator fun invoke(
-        fragileCitizenId: String,
-        simulatedCapability: DeviceCommunicationCapability? = null
-    ): Result<DeviceCapabilities> {
-        return repository.getDeviceCapabilities(fragileCitizenId, simulatedCapability)
+    suspend operator fun invoke(fragileCitizenId: String): Result<DeviceCapabilities> {
+        return repository.getDeviceCapabilities(fragileCitizenId)
     }
 }
 
@@ -39,11 +36,10 @@ class InitiateDirectCommunicationUseCase @Inject constructor(
     private val repository: MobilityGeofencingRepository
 ) {
     suspend operator fun invoke(
-        fragileCitizenId: String,
-        simulatedCapability: DeviceCommunicationCapability? = null
+        fragileCitizenId: String
     ): Result<DirectCommunicationRoutingResult> = runCatching {
         val capabilities = repository
-            .getDeviceCapabilities(fragileCitizenId, simulatedCapability)
+            .getDeviceCapabilities(fragileCitizenId)
             .getOrThrow()
 
         when (capabilities.capability) {

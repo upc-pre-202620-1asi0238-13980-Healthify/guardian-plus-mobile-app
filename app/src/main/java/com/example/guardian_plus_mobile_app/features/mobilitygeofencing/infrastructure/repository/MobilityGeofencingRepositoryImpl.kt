@@ -17,32 +17,11 @@ import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.infrastr
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.infrastructure.remote.dto.RegisterCallLogRequestDto
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.infrastructure.remote.dto.StartCallRequestDto
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.infrastructure.remote.dto.UpdateSafeZoneRequest
-import java.time.Instant
-import java.util.UUID
 import javax.inject.Inject
 
 class MobilityGeofencingRepositoryImpl @Inject constructor(
     private val api: MobilityGeofencingApi
 ) : MobilityGeofencingRepository {
-
-    private val localCallLogs = mutableListOf(
-        CallLogEntry(
-            id = "log-1",
-            fragileCitizenId = "default",
-            title = "Videollamada perdida",
-            timestamp = "10:42:00 AM",
-            statusLabel = "Sin respuesta",
-            isMissed = true
-        ),
-        CallLogEntry(
-            id = "log-2",
-            fragileCitizenId = "default",
-            title = "Llamada saliente",
-            timestamp = "10:41:30 AM",
-            statusLabel = "Iniciada",
-            isMissed = false
-        )
-    )
 
     override suspend fun getCurrentLocation(fragileCitizenId: String): Result<CurrentLocation> = runCatching {
         val response = api.getCurrentLocation(fragileCitizenId)
@@ -191,94 +170,85 @@ class MobilityGeofencingRepositoryImpl @Inject constructor(
         Unit
     }
 
+    // US-23: Direct Communication Channel
     override suspend fun getDeviceCapabilities(
-        fragileCitizenId: String,
-        simulatedCapability: DeviceCommunicationCapability?
+        fragileCitizenId: String
     ): Result<DeviceCapabilities> = runCatching {
-        if (simulatedCapability != null) {
-            return@runCatching buildFallbackCapabilities(simulatedCapability)
+        val response = api.getDeviceCapabilities(fragileCitizenId)
+        if (!response.isSuccessful) {
+            val errorMsg = response.errorBody()?.string()?.takeIf { it.isNotBlank() }
+                ?: "Error al consultar las capacidades del dispositivo (${response.code()})"
+            throw Exception(errorMsg)
         }
-        val response = runCatching { api.getDeviceCapabilities(fragileCitizenId) }.getOrNull()
-        val dto = response?.takeIf { it.isSuccessful }?.body()
-        if (dto != null) {
-            val capability = when (dto.capability) {
-                "AUDIO_ONLY" -> DeviceCommunicationCapability.AUDIO_ONLY
-                "TELEMETRY_ONLY" -> DeviceCommunicationCapability.TELEMETRY_ONLY
-                else -> DeviceCommunicationCapability.VIDEO_AND_AUDIO
-            }
-            DeviceCapabilities(
-                deviceId = dto.deviceId ?: "#2847",
-                modelName = dto.modelName ?: "Guardian Pro",
-                citizenName = dto.citizenName ?: "Elena Martínez",
-                citizenCode = dto.citizenCode ?: "ID #2847",
-                capability = capability,
-                hasCamera = dto.hasCamera ?: (capability == DeviceCommunicationCapability.VIDEO_AND_AUDIO),
-                hasBidirectionalAudio = dto.hasBidirectionalAudio ?: (capability != DeviceCommunicationCapability.TELEMETRY_ONLY),
-                hasSpeaker = dto.hasSpeaker ?: (capability != DeviceCommunicationCapability.TELEMETRY_ONLY),
-                hasMicrophone = dto.hasMicrophone ?: (capability != DeviceCommunicationCapability.TELEMETRY_ONLY),
-                hasHapticAlerts = dto.hasHapticAlerts ?: true,
-                hasTelemetry = dto.hasTelemetry ?: true,
-                citizenPhoneNumber = dto.citizenPhoneNumber ?: "+51 987 654 321",
-                caregiverName = dto.caregiverName ?: "Rosa Gómez",
-                caregiverRole = dto.caregiverRole ?: "Cuidadora",
-                caregiverPhoneNumber = dto.caregiverPhoneNumber ?: "+51 912 345 678"
-            )
-        } else {
-            buildFallbackCapabilities(DeviceCommunicationCapability.VIDEO_AND_AUDIO)
+        val dto = response.body() ?: throw Exception("Respuesta vacía al consultar capacidades del dispositivo.")
+        val capability = when (dto.capability) {
+            "AUDIO_ONLY" -> DeviceCommunicationCapability.AUDIO_ONLY
+            "TELEMETRY_ONLY" -> DeviceCommunicationCapability.TELEMETRY_ONLY
+            "VIDEO_AND_AUDIO" -> DeviceCommunicationCapability.VIDEO_AND_AUDIO
+            else -> DeviceCommunicationCapability.valueOf(dto.capability ?: "VIDEO_AND_AUDIO")
         }
+        DeviceCapabilities(
+            deviceId = dto.deviceId ?: "",
+            modelName = dto.modelName ?: "",
+            citizenName = dto.citizenName ?: "",
+            citizenCode = dto.citizenCode ?: "",
+            capability = capability,
+            hasCamera = dto.hasCamera ?: (capability == DeviceCommunicationCapability.VIDEO_AND_AUDIO),
+            hasBidirectionalAudio = dto.hasBidirectionalAudio ?: (capability != DeviceCommunicationCapability.TELEMETRY_ONLY),
+            hasSpeaker = dto.hasSpeaker ?: (capability != DeviceCommunicationCapability.TELEMETRY_ONLY),
+            hasMicrophone = dto.hasMicrophone ?: (capability != DeviceCommunicationCapability.TELEMETRY_ONLY),
+            hasHapticAlerts = dto.hasHapticAlerts ?: true,
+            hasTelemetry = dto.hasTelemetry ?: true,
+            citizenPhoneNumber = dto.citizenPhoneNumber ?: "",
+            caregiverName = dto.caregiverName ?: "",
+            caregiverRole = dto.caregiverRole ?: "",
+            caregiverPhoneNumber = dto.caregiverPhoneNumber ?: ""
+        )
     }
 
     override suspend fun startCall(
         fragileCitizenId: String,
         preferredCallType: CallType
     ): Result<CallSession> = runCatching {
-        val response = runCatching {
-            api.startCall(
-                StartCallRequestDto(
-                    fragileCitizenId = fragileCitizenId,
-                    preferredCallType = preferredCallType.name
-                )
-            )
-        }.getOrNull()
-        val dto = response?.takeIf { it.isSuccessful }?.body()
-        if (dto != null) {
-            CallSession(
-                callId = dto.callId ?: UUID.randomUUID().toString(),
-                fragileCitizenId = dto.fragileCitizenId ?: fragileCitizenId,
-                citizenName = dto.citizenName ?: "Elena Martínez",
-                citizenCode = dto.citizenCode ?: "ID #2847",
-                deviceModel = dto.deviceModel ?: if (preferredCallType == CallType.VIDEO) "Guardian Pro" else "Guardian Band Lite",
-                deviceId = dto.deviceId ?: "#PB-2847",
-                callType = if (dto.callType == "VOICE") CallType.VOICE else preferredCallType,
-                status = CallStatus.CONNECTED,
-                degradedFromVideo = dto.degradedFromVideo ?: (preferredCallType == CallType.VOICE),
-                startedAt = dto.startedAt ?: Instant.now().toString(),
-                vitals = LiveVitalsSnapshot(
-                    bpm = dto.bpm ?: 76,
-                    spo2Percentage = dto.spo2Percentage ?: 97,
-                    temperatureCelsius = dto.temperatureCelsius ?: 36.7,
-                    bloodPressure = dto.bloodPressure ?: "120/80"
-                )
-            )
-        } else {
-            CallSession(
-                callId = UUID.randomUUID().toString(),
+        val response = api.startCall(
+            StartCallRequestDto(
                 fragileCitizenId = fragileCitizenId,
-                citizenName = "Elena Martínez",
-                citizenCode = "ID #2847",
-                deviceModel = if (preferredCallType == CallType.VIDEO) "Guardian Pro" else "Guardian Band Lite",
-                deviceId = "#PB-2847",
-                callType = preferredCallType,
-                status = CallStatus.CONNECTED,
-                degradedFromVideo = preferredCallType == CallType.VOICE,
-                startedAt = Instant.now().toString(),
-                vitals = LiveVitalsSnapshot()
+                preferredCallType = preferredCallType.name
             )
+        )
+        if (!response.isSuccessful) {
+            val errorMsg = response.errorBody()?.string()?.takeIf { it.isNotBlank() }
+                ?: "Error al iniciar la llamada (${response.code()})"
+            throw Exception(errorMsg)
         }
+        val dto = response.body() ?: throw Exception("Respuesta vacía del servidor al iniciar llamada.")
+        CallSession(
+            callId = dto.callId ?: "",
+            fragileCitizenId = dto.fragileCitizenId ?: fragileCitizenId,
+            citizenName = dto.citizenName ?: "",
+            citizenCode = dto.citizenCode ?: "",
+            deviceModel = dto.deviceModel ?: "",
+            deviceId = dto.deviceId ?: "",
+            callType = if (dto.callType == "VOICE") CallType.VOICE else CallType.VIDEO,
+            status = runCatching { CallStatus.valueOf(dto.status ?: "CONNECTED") }.getOrDefault(CallStatus.CONNECTED),
+            degradedFromVideo = dto.degradedFromVideo ?: false,
+            startedAt = dto.startedAt ?: "",
+            vitals = LiveVitalsSnapshot(
+                bpm = dto.bpm ?: 0,
+                spo2Percentage = dto.spo2Percentage ?: 0,
+                temperatureCelsius = dto.temperatureCelsius ?: 0.0,
+                bloodPressure = dto.bloodPressure ?: ""
+            )
+        )
     }
 
     override suspend fun endCall(callId: String): Result<Unit> = runCatching {
-        runCatching { api.endCall(callId) }
+        val response = api.endCall(callId)
+        if (!response.isSuccessful) {
+            val errorMsg = response.errorBody()?.string()?.takeIf { it.isNotBlank() }
+                ?: "Error al finalizar la llamada (${response.code()})"
+            throw Exception(errorMsg)
+        }
         Unit
     }
 
@@ -287,104 +257,60 @@ class MobilityGeofencingRepositoryImpl @Inject constructor(
         callId: String,
         waitDurationSeconds: Int
     ): Result<List<CallLogEntry>> = runCatching {
-        val response = runCatching {
-            api.registerUnansweredCallLog(
-                RegisterCallLogRequestDto(
-                    fragileCitizenId = fragileCitizenId,
-                    callId = callId,
-                    status = CallStatus.UNANSWERED_TIMEOUT.name,
-                    reason = "No hubo respuesta en la pulsera receptora tras ${waitDurationSeconds}s de espera.",
-                    waitDurationSeconds = waitDurationSeconds
-                )
+        val response = api.registerUnansweredCallLog(
+            RegisterCallLogRequestDto(
+                fragileCitizenId = fragileCitizenId,
+                callId = callId,
+                status = CallStatus.UNANSWERED_TIMEOUT.name,
+                reason = "No hubo respuesta en la pulsera receptora tras ${waitDurationSeconds}s de espera.",
+                waitDurationSeconds = waitDurationSeconds
             )
-        }.getOrNull()
-
-        val remoteLogs = response?.takeIf { it.isSuccessful }?.body()
-        if (!remoteLogs.isNullOrEmpty()) {
-            remoteLogs.map { dto ->
-                CallLogEntry(
-                    id = dto.id ?: UUID.randomUUID().toString(),
-                    fragileCitizenId = dto.fragileCitizenId ?: fragileCitizenId,
-                    title = dto.title ?: "Videollamada perdida",
-                    timestamp = dto.timestamp ?: "10:42:00 AM",
-                    statusLabel = dto.statusLabel ?: "Sin respuesta",
-                    isMissed = dto.isMissed ?: true
-                )
-            }
-        } else {
-            localCallLogs.toList()
+        )
+        if (!response.isSuccessful) {
+            val errorMsg = response.errorBody()?.string()?.takeIf { it.isNotBlank() }
+                ?: "Error al registrar llamada no atendida en bitácora (${response.code()})"
+            throw Exception(errorMsg)
+        }
+        val remoteLogs = response.body() ?: emptyList()
+        remoteLogs.map { dto ->
+            CallLogEntry(
+                id = dto.id ?: "",
+                fragileCitizenId = dto.fragileCitizenId ?: fragileCitizenId,
+                title = dto.title ?: "",
+                timestamp = dto.timestamp ?: "",
+                statusLabel = dto.statusLabel ?: "",
+                isMissed = dto.isMissed ?: false
+            )
         }
     }
 
     override suspend fun getCallLogs(fragileCitizenId: String): Result<List<CallLogEntry>> = runCatching {
-        val response = runCatching { api.getCallLogs(fragileCitizenId) }.getOrNull()
-        val remoteLogs = response?.takeIf { it.isSuccessful }?.body()
-        if (!remoteLogs.isNullOrEmpty()) {
-            remoteLogs.map { dto ->
-                CallLogEntry(
-                    id = dto.id ?: UUID.randomUUID().toString(),
-                    fragileCitizenId = dto.fragileCitizenId ?: fragileCitizenId,
-                    title = dto.title ?: "Videollamada perdida",
-                    timestamp = dto.timestamp ?: "10:42:00 AM",
-                    statusLabel = dto.statusLabel ?: "Sin respuesta",
-                    isMissed = dto.isMissed ?: true
-                )
-            }
-        } else {
-            localCallLogs.toList()
+        val response = api.getCallLogs(fragileCitizenId)
+        if (!response.isSuccessful) {
+            val errorMsg = response.errorBody()?.string()?.takeIf { it.isNotBlank() }
+                ?: "Error al consultar el historial de llamadas (${response.code()})"
+            throw Exception(errorMsg)
+        }
+        val remoteLogs = response.body() ?: emptyList()
+        remoteLogs.map { dto ->
+            CallLogEntry(
+                id = dto.id ?: "",
+                fragileCitizenId = dto.fragileCitizenId ?: fragileCitizenId,
+                title = dto.title ?: "",
+                timestamp = dto.timestamp ?: "",
+                statusLabel = dto.statusLabel ?: "",
+                isMissed = dto.isMissed ?: false
+            )
         }
     }
 
     override suspend fun sendHapticAlert(fragileCitizenId: String): Result<Unit> = runCatching {
-        runCatching {
-            api.sendHapticAlert(HapticAlertRequestDto(fragileCitizenId = fragileCitizenId))
+        val response = api.sendHapticAlert(HapticAlertRequestDto(fragileCitizenId = fragileCitizenId))
+        if (!response.isSuccessful) {
+            val errorMsg = response.errorBody()?.string()?.takeIf { it.isNotBlank() }
+                ?: "Error al enviar alerta vibratoria (${response.code()})"
+            throw Exception(errorMsg)
         }
         Unit
-    }
-
-    private fun buildFallbackCapabilities(
-        capability: DeviceCommunicationCapability
-    ): DeviceCapabilities {
-        return when (capability) {
-            DeviceCommunicationCapability.VIDEO_AND_AUDIO -> DeviceCapabilities(
-                deviceId = "#2847",
-                modelName = "Guardian Pro",
-                citizenName = "Elena Martínez",
-                citizenCode = "ID #2847",
-                capability = DeviceCommunicationCapability.VIDEO_AND_AUDIO,
-                hasCamera = true,
-                hasBidirectionalAudio = true,
-                hasSpeaker = true,
-                hasMicrophone = true,
-                hasHapticAlerts = true,
-                hasTelemetry = true
-            )
-            DeviceCommunicationCapability.AUDIO_ONLY -> DeviceCapabilities(
-                deviceId = "#PB-2847",
-                modelName = "Guardian Band Lite",
-                citizenName = "Elena Martínez",
-                citizenCode = "ID #PB-2847",
-                capability = DeviceCommunicationCapability.AUDIO_ONLY,
-                hasCamera = false,
-                hasBidirectionalAudio = true,
-                hasSpeaker = true,
-                hasMicrophone = true,
-                hasHapticAlerts = true,
-                hasTelemetry = true
-            )
-            DeviceCommunicationCapability.TELEMETRY_ONLY -> DeviceCapabilities(
-                deviceId = "#GC-2847",
-                modelName = "Guardian Core",
-                citizenName = "Elena Martínez",
-                citizenCode = "ID #GC-2847",
-                capability = DeviceCommunicationCapability.TELEMETRY_ONLY,
-                hasCamera = false,
-                hasBidirectionalAudio = false,
-                hasSpeaker = false,
-                hasMicrophone = false,
-                hasHapticAlerts = true,
-                hasTelemetry = true
-            )
-        }
     }
 }
