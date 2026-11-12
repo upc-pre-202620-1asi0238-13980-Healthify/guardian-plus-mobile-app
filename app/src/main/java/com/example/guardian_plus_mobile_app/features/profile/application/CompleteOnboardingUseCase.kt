@@ -22,7 +22,8 @@ data class CareRecipientData(
 
 /**
  * Creates in Profile what the account was missing (its profile, the person under care and the care relationship
- * that links them) and then loads the care context with it.
+ * that links them) and then loads the care context with it. It also adds another person to an account that
+ * already cares for someone; the new person becomes the one the app shows.
  */
 class CompleteOnboardingUseCase @Inject constructor(
     private val profileRepository: ProfileRepository,
@@ -32,11 +33,12 @@ class CompleteOnboardingUseCase @Inject constructor(
         data.userProfile?.let {
             profileRepository.createUserProfile(userAccountId, it.firstName, it.lastName, it.phoneNumber).getOrThrow()
         }
-        data.careRecipient?.let {
+        val newCareRecipientId = data.careRecipient?.let {
             val careRecipient = profileRepository
                 .createCareRecipient(userAccountId, it.firstName, it.lastName, it.birthDate).getOrThrow()
             profileRepository.establishCareRelationship(userAccountId, careRecipient.id, it.relationshipType).getOrThrow()
+            careRecipient.id
         }
-        loadCareContext().getOrThrow()
+        loadCareContext(preferredCareRecipientProfileId = newCareRecipientId).getOrThrow()
     }
 }
