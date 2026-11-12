@@ -810,4 +810,6 @@
     <string name="notification_channel_alerts_description">Caídas, SOS y otras alertas de la persona bajo cuidado, con sonido</string>
     <string name="notification_channel_silent_alerts">Alertas silenciosas</string>
     <string name="notification_channel_silent_alerts_description">Alertas no críticas mientras el modo silencioso está activo</string>
+    <string name="notification_channel_reminders">Recordatorios</string>
+    <string name="notification_channel_reminders_description">Avisos preventivos antes de las citas médicas de la persona bajo cuidado</string>
 </resources>

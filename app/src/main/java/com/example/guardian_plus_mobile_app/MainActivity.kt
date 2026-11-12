@@ -16,6 +16,8 @@ import com.example.guardian_plus_mobile_app.core.network.LocalNetworkPermission
 import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.features.auth.application.GetCurrentSessionUseCase
 import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.LoginRoute
+import com.example.guardian_plus_mobile_app.features.careroutineswellness.infrastructure.push.ReminderNotifications
+import com.example.guardian_plus_mobile_app.features.careroutineswellness.presentation.push.OpenAppointmentsFromNotification
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.push.AlertNotifications
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.push.OpenAlertFromNotification
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.push.PushRegistration
@@ -37,11 +39,17 @@ class MainActivity : ComponentActivity() {
     // The alert of the push notification that opened the app, until its detail is shown
     private var notificationAlertId by mutableStateOf<String?>(null)
 
+    // Whether the app was opened from an appointment reminder, until the appointments are shown
+    private var openAppointmentsFromNotification by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         // A recreated activity already handled the notification that started it
-        if (savedInstanceState == null) notificationAlertId = intent.alertId()
+        if (savedInstanceState == null) {
+            notificationAlertId = intent.alertId()
+            openAppointmentsFromNotification = ReminderNotifications.isAppointmentReminder(intent)
+        }
         // Read once: a session that expires later is dropped by the network layer, not by navigation
         val startDestination: Any = when {
             getCurrentSession() == null -> LoginRoute
@@ -68,6 +76,12 @@ class MainActivity : ComponentActivity() {
                     signedIn = careContext != null,
                     onOpened = { notificationAlertId = null }
                 )
+                OpenAppointmentsFromNotification(
+                    navController = navController,
+                    requested = openAppointmentsFromNotification,
+                    signedIn = careContext != null,
+                    onOpened = { openAppointmentsFromNotification = false }
+                )
             }
         }
     }
@@ -76,6 +90,7 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         intent.alertId()?.let { notificationAlertId = it }
+        if (ReminderNotifications.isAppointmentReminder(intent)) openAppointmentsFromNotification = true
     }
 
     private fun Intent.alertId(): String? = getStringExtra(AlertNotifications.ALERT_ID_EXTRA)

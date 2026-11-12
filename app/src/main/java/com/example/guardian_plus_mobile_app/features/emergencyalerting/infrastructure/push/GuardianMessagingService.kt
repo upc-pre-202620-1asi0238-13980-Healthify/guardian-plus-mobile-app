@@ -2,6 +2,7 @@ package com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastr
 
 import androidx.core.app.NotificationManagerCompat
 import com.example.guardian_plus_mobile_app.core.session.CareContextStore
+import com.example.guardian_plus_mobile_app.features.careroutineswellness.infrastructure.push.ReminderNotifications
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.application.RegisterPushDeviceUseCase
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -13,7 +14,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/** Receives Firebase Cloud Messaging events for this phone: token rotations and alerts. */
+/** Receives Firebase Cloud Messaging events for this phone: token rotations, alerts and appointment reminders. */
 @AndroidEntryPoint
 class GuardianMessagingService : FirebaseMessagingService() {
 
@@ -35,6 +36,16 @@ class GuardianMessagingService : FirebaseMessagingService() {
     // Only called while the app is in the foreground: in the background Android shows the notification itself
     override fun onMessageReceived(message: RemoteMessage) {
         val notification = message.notification ?: return
+        // A reminder is not an alert: it goes to its own channel and opens the appointments, not an alert detail
+        if (ReminderNotifications.isAppointmentReminder(message.data)) {
+            ReminderNotifications.showAppointmentReminder(
+                context = this,
+                data = message.data,
+                title = notification.title,
+                body = notification.body
+            )
+            return
+        }
         AlertNotifications.show(
             context = this,
             alertId = message.data[AlertNotifications.ALERT_ID_EXTRA],
