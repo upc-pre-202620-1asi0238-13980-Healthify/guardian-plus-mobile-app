@@ -15,7 +15,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.guardian_plus_mobile_app"
+        applicationId = "com.guardianplus.app"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
@@ -83,6 +83,11 @@ dependencies {
     // Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+
+    // Google Sign-In through Credential Manager
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
