@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Local network (Android 17): the platform on 10.0.2.2 or the LAN is not covered by INTERNET -->
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
     <!-- Push alerts (Firebase Cloud Messaging); asked at runtime from Android 13 -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
