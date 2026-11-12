@@ -52,10 +52,9 @@ fun HomeScreen(
     onSeeVitalsClick: () -> Unit,
     onLocationClick: () -> Unit,
     onAlertsClick: () -> Unit,
-    onLogout: () -> Unit = {}
+    onProfileClick: () -> Unit = {}
 ) {
     val careContext = LocalCareContext.current
-    var isLogoutDialogOpen by rememberSaveable { mutableStateOf(false) }
     var isLinkWearableOpen by rememberSaveable { mutableStateOf(false) }
     val linkedMessage = stringResource(R.string.wearable_linked)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -74,7 +73,7 @@ fun HomeScreen(
         onLocationClick = onLocationClick,
         onSeeVitalsClick = onSeeVitalsClick,
         onSeeAgendaClick = showComingSoon,
-        onAccountClick = { isLogoutDialogOpen = true },
+        onAccountClick = onProfileClick,
         onLinkWristbandClick = { isLinkWearableOpen = true }
     )
     if (isLinkWearableOpen) {
@@ -88,22 +87,7 @@ fun HomeScreen(
             onDismiss = { isLinkWearableOpen = false }
         )
     }
-    if (isLogoutDialogOpen) {
-        AlertDialog(
-            onDismissRequest = { isLogoutDialogOpen = false },
-            title = { Text(stringResource(R.string.home_logout_title)) },
-            text = { Text(stringResource(R.string.home_logout_message)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    isLogoutDialogOpen = false
-                    onLogout()
-                }) { Text(stringResource(R.string.home_logout_confirm)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { isLogoutDialogOpen = false }) { Text(stringResource(R.string.home_logout_cancel)) }
-            }
-        )
-    }
+
 }
 
 @Composable

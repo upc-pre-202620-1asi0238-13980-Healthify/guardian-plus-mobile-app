@@ -5,6 +5,7 @@ import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastru
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.remote.AlertSettingsService
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.remote.EmergencyContactService
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.remote.IncidentService
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.infrastructure.remote.LocationTrackingService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -44,5 +45,11 @@ object EmergencyAlertingApiModule {
     @Singleton
     fun provideEmergencyContactService(retrofit: Retrofit): EmergencyContactService {
         return retrofit.create(EmergencyContactService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocationTrackingService(retrofit: Retrofit): LocationTrackingService {
+        return retrofit.create(LocationTrackingService::class.java)
     }
 }

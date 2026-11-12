@@ -791,4 +791,10 @@
     <string name="wearable_type_patch">Parche</string>
     <string name="wearable_link_submit">Vincular dispositivo</string>
     <string name="wearable_linked">Dispositivo vinculado</string>
+
+    <!-- Push notifications -->
+    <string name="notification_channel_alerts">Alertas</string>
+    <string name="notification_channel_alerts_description">Caídas, SOS y otras alertas de la persona bajo cuidado, con sonido</string>
+    <string name="notification_channel_silent_alerts">Alertas silenciosas</string>
+    <string name="notification_channel_silent_alerts_description">Alertas no críticas mientras el modo silencioso está activo</string>
 </resources>

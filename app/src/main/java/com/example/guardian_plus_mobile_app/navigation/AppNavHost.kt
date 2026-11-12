@@ -36,8 +36,10 @@ import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentat
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.navigation.HomeRoute
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.presentation.navigation.healthMonitoringNavGraph
 import com.example.guardian_plus_mobile_app.features.profile.presentation.navigation.OnboardingRoute
+import com.example.guardian_plus_mobile_app.features.profile.presentation.navigation.ProfileHomeRoute
 import com.example.guardian_plus_mobile_app.features.profile.presentation.navigation.SessionStartRoute
 import com.example.guardian_plus_mobile_app.features.profile.presentation.navigation.profileNavGraph
+import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.navigation.mobilityGeofencingNavGraph
 
 @Composable
 fun AppNavHost(
@@ -115,9 +117,10 @@ fun AppNavHost(
                     }
                 )
                 profileNavGraph(
+                    navController = navController,
                     onReady = {
                         forgetTabStates()
-                        // Back from Home leaves the app instead of returning to the loading or the onboarding
+
                         navController.navigate(HomeRoute) {
                             popUpTo(navController.graph.id) { inclusive = true }
                         }
@@ -127,19 +130,24 @@ fun AppNavHost(
                             popUpTo<SessionStartRoute> { inclusive = true }
                         }
                     },
-                    onSignedOut = signOut
-                )
-                healthMonitoringNavGraph(
-                    onOpenHealth = { openTab(TopLevelDestination.HEALTH) },
-                    onOpenAlerts = { openTab(TopLevelDestination.ALERTS) },
-                    onOpenLocation = { openTab(TopLevelDestination.LOCATION) },
+                    onSignedOut = signOut,
                     onLogout = {
                         logoutViewModel.logout()
                         signOut()
                     }
                 )
+                healthMonitoringNavGraph(
+                    onOpenHealth = { openTab(TopLevelDestination.HEALTH) },
+                    onOpenAlerts = { openTab(TopLevelDestination.ALERTS) },
+                    onOpenLocation = { openTab(TopLevelDestination.LOCATION) },
+                    onOpenProfile = {
+                        navController.navigate(ProfileHomeRoute) {
+                            launchSingleTop = true
+                        }
+                    }
+                )
                 careRoutinesWellnessNavGraph(navController = navController)
-                composable<LocationRoute> { PlaceholderScreen(title = stringResource(R.string.nav_location)) }
+                mobilityGeofencingNavGraph(navController = navController)
                 emergencyAlertingNavGraph(
                     navController = navController,
                     onOpenLocation = { openTab(TopLevelDestination.LOCATION) },

@@ -4,6 +4,9 @@ import com.example.guardian_plus_mobile_app.features.profile.domain.model.CareRe
 import com.example.guardian_plus_mobile_app.features.profile.domain.model.CareRelationship
 import com.example.guardian_plus_mobile_app.features.profile.domain.model.RelationshipType
 import com.example.guardian_plus_mobile_app.features.profile.domain.model.UserProfile
+import com.example.guardian_plus_mobile_app.features.profile.domain.model.AppFontScale
+import com.example.guardian_plus_mobile_app.features.profile.domain.model.AppLanguage
+import com.example.guardian_plus_mobile_app.features.profile.domain.model.UserPreferences
 import java.time.LocalDate
 
 interface ProfileRepository {
@@ -12,9 +15,31 @@ interface ProfileRepository {
 
     suspend fun createUserProfile(userId: String, firstName: String, lastName: String, phoneNumber: String): Result<UserProfile>
 
+    suspend fun updateUserProfile(
+        userProfileId: String,
+        firstName: String,
+        lastName: String
+    ): Result<UserProfile>
+
+    suspend fun updateContactInformation(
+        userProfileId: String,
+        phoneNumber: String
+    ): Result<UserProfile>
+
     suspend fun getCareRelationships(userId: String): Result<List<CareRelationship>>
 
+    suspend fun getCareRelationshipsByCareRecipient(
+        careRecipientProfileId: String
+    ): Result<List<CareRelationship>>
+
     suspend fun getCareRecipient(careRecipientProfileId: String): Result<CareRecipient>
+
+    suspend fun updateCareRecipient(
+        careRecipientProfileId: String,
+        firstName: String,
+        lastName: String,
+        birthDate: LocalDate
+    ): Result<CareRecipient>
 
     suspend fun createCareRecipient(createdByUserId: String, firstName: String, lastName: String, birthDate: LocalDate): Result<CareRecipient>
 
@@ -23,4 +48,16 @@ interface ProfileRepository {
         careRecipientProfileId: String,
         relationshipType: RelationshipType
     ): Result<CareRelationship>
+
+    suspend fun findUserPreferences(
+        userId: String
+    ): Result<UserPreferences?>
+
+    suspend fun updateLanguageAndAccessibilityPreferences(
+        userId: String,
+        language: AppLanguage,
+        highContrastEnabled: Boolean,
+        reduceMotionEnabled: Boolean,
+        fontScale: AppFontScale
+    ): Result<UserPreferences>
 }

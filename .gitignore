@@ -16,3 +16,7 @@ local.properties
 
 # Personal study guides, kept out of the repository
 /guides/
+
+replay_pid*.log
+config.bat
+node_modules

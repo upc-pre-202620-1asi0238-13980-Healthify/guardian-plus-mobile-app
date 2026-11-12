@@ -24,4 +24,13 @@ class AlertChannelSettingRepositoryImpl @Inject constructor(
         apiCall({ service.configureChannel(userId, channel.name, ConfigureAlertChannelRequestDto(enabled)) }) { dto ->
             dto.toDomain()
         }
+
+    override suspend fun registerPushDevice(userId: String, deviceToken: String): Result<AlertChannelSetting> =
+        apiCall({
+            service.configureChannel(
+                userId,
+                NotificationChannel.PUSH.name,
+                ConfigureAlertChannelRequestDto(enabled = true, deviceToken = deviceToken)
+            )
+        }) { dto -> dto.toDomain() }
 }

@@ -63,6 +63,7 @@ import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentat
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.colors
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.dial
 import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.labelRes
+import com.example.guardian_plus_mobile_app.features.emergencyalerting.presentation.common.relativeTime
 import java.time.Instant
 
 private const val EMERGENCY_SERVICES_NUMBER = "106"
@@ -279,7 +280,7 @@ private fun DetailBody(
             item(key = "location") {
                 LocationCard(
                     locationName = context.locationName,
-                    updatedAgo = context.locationUpdatedAgo,
+                    updatedAgo = context.locationUpdatedAt?.let { relativeTime(it, uiState.now).lowercase() },
                     onViewMapClick = onViewLocationClick
                 )
             }
@@ -379,7 +380,7 @@ private val previewFallState = AlertDetailUiState(
         lastDispatchedAt = previewNow.minusSeconds(18),
         deliveries = listOf(previewDelivery("maria", RecipientLevel.PRIMARY, previewNow.minusSeconds(18)))
     ),
-    context = AlertContext(locationName = "Dormitorio · Casa de Elena", locationUpdatedAgo = "hace 30 s", heartRateBpm = 112, oxygenSaturation = 95),
+    context = AlertContext(locationName = "Dormitorio · Casa de Elena", locationUpdatedAt = previewNow.minusSeconds(30), heartRateBpm = 112, oxygenSaturation = 95),
     contacts = previewContacts,
     careRecipientFirstName = "Elena",
     currentUserId = "maria",
@@ -411,7 +412,7 @@ private fun AlertDetailSosPreview() {
                 ),
                 context = AlertContext(
                     locationName = "Parque Kennedy · Miraflores",
-                    locationUpdatedAgo = "hace 10 s",
+                    locationUpdatedAt = previewNow.minusSeconds(10),
                     deviceSummary = "Conectada · Batería 64%"
                 )
             )
