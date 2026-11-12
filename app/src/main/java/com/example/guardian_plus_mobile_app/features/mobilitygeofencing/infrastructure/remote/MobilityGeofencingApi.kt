@@ -5,10 +5,12 @@ import com.google.gson.annotations.SerializedName
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
+
 data class LocationStatusDto(
     @SerializedName("fragileCitizenId") val fragileCitizenId: String,
     @SerializedName("status") val status: String
 )
+
 interface MobilityGeofencingApi {
 
     @GET("location-tracking/{fragileCitizenId}/current")
@@ -62,5 +64,35 @@ interface MobilityGeofencingApi {
     @DELETE("safe-zones/{safeZoneId}")
     suspend fun deleteSafeZone(
         @Path("safeZoneId") safeZoneId: String
+    ): Response<Unit>
+
+    @GET("communication/{fragileCitizenId}/device-capabilities")
+    suspend fun getDeviceCapabilities(
+        @Path("fragileCitizenId") fragileCitizenId: String
+    ): Response<DeviceCapabilitiesDto>
+
+    @POST("communication/calls/start")
+    suspend fun startCall(
+        @Body request: StartCallRequestDto
+    ): Response<CallSessionDto>
+
+    @POST("communication/calls/{callId}/end")
+    suspend fun endCall(
+        @Path("callId") callId: String
+    ): Response<Unit>
+
+    @POST("communication/calls/log-unanswered")
+    suspend fun registerUnansweredCallLog(
+        @Body request: RegisterCallLogRequestDto
+    ): Response<List<CallLogEntryDto>>
+
+    @GET("communication/{fragileCitizenId}/call-logs")
+    suspend fun getCallLogs(
+        @Path("fragileCitizenId") fragileCitizenId: String
+    ): Response<List<CallLogEntryDto>>
+
+    @POST("communication/haptic-alert")
+    suspend fun sendHapticAlert(
+        @Body request: HapticAlertRequestDto
     ): Response<Unit>
 }

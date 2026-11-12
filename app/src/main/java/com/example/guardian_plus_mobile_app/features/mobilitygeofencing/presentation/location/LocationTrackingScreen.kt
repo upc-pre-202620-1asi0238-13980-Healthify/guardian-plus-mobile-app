@@ -3,8 +3,13 @@ package com.example.guardian_plus_mobile_app.features.mobilitygeofencing.present
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.PhoneMissed
+import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,17 +23,101 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationTrackingScreen(
     fragileCitizenId: String,
     onNavigateToHistory: () -> Unit = {},
     onNavigateToSafeZones: () -> Unit = {},
+    onNavigateToVideoCall: () -> Unit = {},
+    onNavigateToVoiceCall: () -> Unit = {},
+    onNavigateToDeviceStatusCheck: () -> Unit = {},
+    onNavigateToUnansweredCall: () -> Unit = {},
     viewModel: LocationTrackingViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showCommunicationSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(fragileCitizenId) {
         viewModel.loadCurrentLocation(fragileCitizenId)
+    }
+
+    if (showCommunicationSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showCommunicationSheet = false },
+            containerColor = Color.White,
+            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 8.dp)
+                    .padding(bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    text = "Canal de comunicación directa (US-23)",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF141E1B)
+                )
+                Text(
+                    text = "Selecciona el modo o escenario de conexión con el dispositivo vinculado:",
+                    fontSize = 13.sp,
+                    color = Color(0xFF6B7B75)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Button(
+                    onClick = {
+                        showCommunicationSheet = false
+                        onNavigateToVideoCall()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E6B52))
+                ) {
+                    Icon(Icons.Default.Videocam, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Videollamada (Guardian Pro)")
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        showCommunicationSheet = false
+                        onNavigateToVoiceCall()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.RecordVoiceOver, contentDescription = null, tint = Color(0xFF1E6B52))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Llamada de voz • Sin cámara (Band Lite)", color = Color(0xFF1E6B52))
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        showCommunicationSheet = false
+                        onNavigateToDeviceStatusCheck()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Watch, contentDescription = null, tint = Color(0xFF96610E))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Verificación de estado • Solo Telemetría", color = Color(0xFF96610E))
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        showCommunicationSheet = false
+                        onNavigateToUnansweredCall()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.PhoneMissed, contentDescription = null, tint = Color(0xFFC53D25))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Llamada no atendida (Timeout 30s)", color = Color(0xFFC53D25))
+                }
+            }
+        }
     }
 
     Scaffold { innerPadding ->
@@ -64,6 +153,21 @@ fun LocationTrackingScreen(
                         }
 
                         Spacer(modifier = Modifier.weight(1f))
+
+                        Button(
+                            onClick = { showCommunicationSheet = true },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF1E6B52),
+                                contentColor = Color.White
+                            )
+                        ) {
+                            Icon(Icons.Default.Call, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Comunicación directa")
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
