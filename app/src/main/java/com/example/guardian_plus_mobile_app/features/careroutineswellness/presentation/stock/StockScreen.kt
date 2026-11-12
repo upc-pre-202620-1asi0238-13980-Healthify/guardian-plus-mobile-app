@@ -21,7 +21,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -62,10 +65,28 @@ fun StockScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     RoutineMessageEffect(uiState.message, snackbarHostState, viewModel::onMessageShown)
+    // Medication whose acquisition is being entered; the id survives rotation, the stock is looked up again
+    var addingPackageToId by rememberSaveable { mutableStateOf<String?>(null) }
 
     Box(modifier = modifier) {
-        StockContent(uiState = uiState, onBackClick = onBackClick, onRetryClick = viewModel::load, onAddPackage = viewModel::addPackage)
+        StockContent(
+            uiState = uiState,
+            onBackClick = onBackClick,
+            onRetryClick = viewModel::load,
+            onAddPackage = { stock -> addingPackageToId = stock.id }
+        )
         SnackbarHost(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
+    }
+
+    uiState.stocks.firstOrNull { it.id == addingPackageToId }?.let { stock ->
+        AddPackageDialog(
+            stock = stock,
+            onConfirm = { unitsAdded ->
+                addingPackageToId = null
+                viewModel.addPackage(stock, unitsAdded)
+            },
+            onDismiss = { addingPackageToId = null }
+        )
     }
 }
 

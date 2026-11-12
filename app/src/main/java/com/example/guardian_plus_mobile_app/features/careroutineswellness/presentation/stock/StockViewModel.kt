@@ -57,12 +57,15 @@ class StockViewModel @Inject constructor(
         }
     }
 
-    /** "Añadir envase": the platform adds a whole package and recalculates the days of supply. */
-    fun addPackage(stock: MedicationStock) {
+    /**
+     * "Añadir envase": the platform adds the [unitsAdded] the family bought and recalculates the days of
+     * supply and the next estimated purchase.
+     */
+    fun addPackage(stock: MedicationStock, unitsAdded: Int) {
         if (_uiState.value.restockingId != null) return
         viewModelScope.launch {
             _uiState.update { it.copy(restockingId = stock.id) }
-            confirmMedicationAcquisition(stock.id)
+            confirmMedicationAcquisition(stock.id, unitsAdded)
                 .onSuccess { updated ->
                     _uiState.update { state ->
                         state.copy(
