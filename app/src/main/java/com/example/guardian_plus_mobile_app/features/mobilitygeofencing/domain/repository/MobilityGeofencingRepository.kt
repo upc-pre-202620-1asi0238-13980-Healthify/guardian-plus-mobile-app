@@ -5,7 +5,6 @@ import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.m
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.model.CallType
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.model.CurrentLocation
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.model.DeviceCapabilities
-import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.model.DeviceCommunicationCapability
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.model.LocationHistoryItem
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.model.SafeZone
 
@@ -22,10 +21,7 @@ interface MobilityGeofencingRepository {
     suspend fun getSafeZonesByCitizen(fragileCitizenId: String): Result<List<SafeZone>>
 
     // US-23: Direct Communication Channel
-    suspend fun getDeviceCapabilities(
-        fragileCitizenId: String,
-        simulatedCapability: DeviceCommunicationCapability? = null
-    ): Result<DeviceCapabilities>
+    suspend fun getDeviceCapabilities(fragileCitizenId: String): Result<DeviceCapabilities>
 
     suspend fun startCall(
         fragileCitizenId: String,

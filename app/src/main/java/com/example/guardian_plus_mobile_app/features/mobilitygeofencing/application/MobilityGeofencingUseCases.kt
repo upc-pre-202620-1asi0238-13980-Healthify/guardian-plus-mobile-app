@@ -5,7 +5,6 @@ import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.m
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.model.CallType
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.model.CurrentLocation
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.model.DeviceCapabilities
-import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.model.DeviceCommunicationCapability
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.model.SafeZone
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.domain.repository.MobilityGeofencingRepository
 import javax.inject.Inject
@@ -29,11 +28,9 @@ class MobilityGeofencingUseCases @Inject constructor(
         }
     }
 
-    suspend fun verifyDeviceCapabilities(
-        fragileCitizenId: String,
-        simulatedCapability: DeviceCommunicationCapability? = null
-    ): Result<DeviceCapabilities> {
-        return repository.getDeviceCapabilities(fragileCitizenId, simulatedCapability)
+    // US-23: Direct Communication Channel
+    suspend fun verifyDeviceCapabilities(fragileCitizenId: String): Result<DeviceCapabilities> {
+        return repository.getDeviceCapabilities(fragileCitizenId)
     }
 
     suspend fun startDirectCall(
