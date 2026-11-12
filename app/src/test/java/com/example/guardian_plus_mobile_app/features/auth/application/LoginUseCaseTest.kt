@@ -26,6 +26,7 @@ class LoginUseCaseTest {
         override suspend fun register(fullName: String, email: Email, rawPassword: String): Result<UserAccount> = error("unused")
         override suspend fun verifyEmail(userAccountId: String, code: String): Result<UserAccount> = error("unused")
         override suspend fun verifyOtp(userAccountId: String, code: String): Result<AuthenticatedSession> = error("unused")
+        override suspend fun signInWithGoogle(idToken: String): Result<AuthenticatedSession> = error("unused")
         override suspend fun resendOtp(userAccountId: String): Result<Unit> = error("unused")
         override suspend fun requestPasswordReset(email: Email): Result<Unit> = error("unused")
         override suspend fun resetPassword(token: String, newRawPassword: String): Result<Unit> = error("unused")

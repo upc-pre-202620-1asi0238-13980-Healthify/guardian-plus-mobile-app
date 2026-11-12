@@ -7,6 +7,7 @@ import com.example.guardian_plus_mobile_app.features.auth.domain.model.valueobje
 import com.example.guardian_plus_mobile_app.features.auth.domain.model.valueobjects.LoginOutcome
 import com.example.guardian_plus_mobile_app.features.auth.domain.repositories.AuthRepository
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.AuthErrorDto
+import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.GoogleSignInRequestDto
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.LoginRequestDto
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.RegisterUserCredentialsRequestDto
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.RequestPasswordResetRequestDto
@@ -65,6 +66,9 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun verifyOtp(userAccountId: String, code: String): Result<AuthenticatedSession> =
         apiCall({ service.verifyOtp(VerifyOtpRequestDto(userAccountId, code)) }) { it.toDomain() }
+
+    override suspend fun signInWithGoogle(idToken: String): Result<AuthenticatedSession> =
+        apiCall({ service.signInWithGoogle(GoogleSignInRequestDto(idToken)) }) { it.toDomain() }
 
     override suspend fun resendOtp(userAccountId: String): Result<Unit> =
         apiCall({ service.resendOtp(ResendOtpRequestDto(userAccountId)) }) { }

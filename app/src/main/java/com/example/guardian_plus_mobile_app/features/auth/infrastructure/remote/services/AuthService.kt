@@ -1,6 +1,7 @@
 package com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.services
 
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.AuthenticatedSessionDto
+import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.GoogleSignInRequestDto
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.LoginRequestDto
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.MessageDto
 import com.example.guardian_plus_mobile_app.features.auth.infrastructure.remote.dto.OtpChallengeDto
@@ -19,6 +20,7 @@ import retrofit2.http.POST
 /**
  * The platform's /auth endpoints. They are public: they are how the app gets its session in the first place.
  * The sign-in has two steps: [login] checks the password and emails the OTP, [verifyOtp] returns the session.
+ * [signInWithGoogle] returns it in one: Google already proved who the user is.
  */
 interface AuthService {
 
@@ -36,6 +38,10 @@ interface AuthService {
 
     @POST("auth/otp/verify")
     suspend fun verifyOtp(@Body request: VerifyOtpRequestDto): Response<AuthenticatedSessionDto>
+
+    // Signs in the account of the Google ID token, creating it the first time
+    @POST("auth/google")
+    suspend fun signInWithGoogle(@Body request: GoogleSignInRequestDto): Response<AuthenticatedSessionDto>
 
     // Only for a sign-in in progress (the password was checked in the last minutes)
     @POST("auth/otp/resend")

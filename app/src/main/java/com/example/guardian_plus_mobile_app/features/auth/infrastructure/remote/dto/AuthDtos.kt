@@ -37,6 +37,11 @@ data class ResendOtpRequestDto(
     val userAccountId: String
 )
 
+/** ID token Google issued to the app for the platform's Web client. */
+data class GoogleSignInRequestDto(
+    val idToken: String
+)
+
 // AuthenticatedSessionResource; expiresAt is an ISO-8601 instant
 data class AuthenticatedSessionDto(
     val userAccountId: String,
