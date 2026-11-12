@@ -98,7 +98,13 @@ fun NavGraphBuilder.profileNavGraph(
             needsCareRecipient = route.needsCareRecipient,
             suggestedFullName = route.suggestedFullName,
             isAddingCareRecipient = route.isAddingCareRecipient,
-            onCompleted = onReady
+            onCompleted = onReady,
+            // The first onboarding has nowhere to go back to; adding a person comes from Home
+            onBackClick = if (route.isAddingCareRecipient) {
+                { navController.popBackStack() }
+            } else {
+                null
+            }
         )
     }
 

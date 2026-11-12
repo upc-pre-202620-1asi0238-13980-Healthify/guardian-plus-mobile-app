@@ -67,7 +67,9 @@ fun OnboardingScreen(
     // Another person for an account that already cares for someone, reached from "Cambiar persona"
     isAddingCareRecipient: Boolean = false,
     viewModel: OnboardingViewModel = hiltViewModel(),
-    onCompleted: () -> Unit
+    onCompleted: () -> Unit,
+    // Only when adding another person: back to Home without adding anyone
+    onBackClick: (() -> Unit)? = null
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -89,7 +91,8 @@ fun OnboardingScreen(
     ) {
         AuthSheetTitle(
             title = stringResource(if (isAddingCareRecipient) R.string.onboarding_add_title else R.string.onboarding_title),
-            subtitle = stringResource(if (isAddingCareRecipient) R.string.onboarding_add_subtitle else R.string.onboarding_subtitle)
+            subtitle = stringResource(if (isAddingCareRecipient) R.string.onboarding_add_subtitle else R.string.onboarding_subtitle),
+            onBackClick = onBackClick
         )
         if (uiState.showUserProfile) {
             SectionTitle(stringResource(R.string.onboarding_you_section))
