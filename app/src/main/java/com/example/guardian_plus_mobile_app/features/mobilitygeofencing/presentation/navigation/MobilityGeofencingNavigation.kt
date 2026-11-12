@@ -5,6 +5,10 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.example.guardian_plus_mobile_app.core.session.LocalCareContext
+import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.communication.DeviceStatusCheckScreen
+import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.communication.UnansweredCallScreen
+import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.communication.VideoCallScreen
+import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.communication.VoiceCallScreen
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.location.LocationHistoryScreen
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.location.LocationTrackingScreen
 import com.example.guardian_plus_mobile_app.features.mobilitygeofencing.presentation.safezone.CreateSafeZoneScreen
@@ -31,6 +35,19 @@ data class EditSafeZoneRoute(
     val radius: Double
 )
 
+// US-23: Direct Communication Channel Routes
+@Serializable
+data object VideoCallRoute
+
+@Serializable
+data object VoiceCallRoute
+
+@Serializable
+data object DeviceStatusCheckRoute
+
+@Serializable
+data object UnansweredCallRoute
+
 fun NavGraphBuilder.mobilityGeofencingNavGraph(
     navController: NavController
 ) {
@@ -45,9 +62,22 @@ fun NavGraphBuilder.mobilityGeofencingNavGraph(
             },
             onNavigateToSafeZones = {
                 navController.navigate(SafeZonesRoute)
+            },
+            onNavigateToVideoCall = {
+                navController.navigate(VideoCallRoute)
+            },
+            onNavigateToVoiceCall = {
+                navController.navigate(VoiceCallRoute)
+            },
+            onNavigateToDeviceStatusCheck = {
+                navController.navigate(DeviceStatusCheckRoute)
+            },
+            onNavigateToUnansweredCall = {
+                navController.navigate(UnansweredCallRoute)
             }
         )
     }
+
     composable<SafeZonesRoute> {
         val careContext = LocalCareContext.current
         val citizenId = careContext.careRecipientProfileId
@@ -99,6 +129,65 @@ fun NavGraphBuilder.mobilityGeofencingNavGraph(
             initialRadius = route.radius,
             fragileCitizenId = citizenId,
             onBackClick = { navController.popBackStack() }
+        )
+    }
+
+    // US-23: Direct Communication Screens
+    composable<VideoCallRoute> {
+        val careContext = LocalCareContext.current
+        val citizenId = careContext.careRecipientProfileId
+
+        VideoCallScreen(
+            fragileCitizenId = citizenId,
+            onBackClick = { navController.popBackStack() },
+            onFallbackToVoice = {
+                navController.navigate(VoiceCallRoute) {
+                    popUpTo<VideoCallRoute> { inclusive = true }
+                }
+            },
+            onCallUnanswered = {
+                navController.navigate(UnansweredCallRoute) {
+                    popUpTo<VideoCallRoute> { inclusive = true }
+                }
+            }
+        )
+    }
+
+    composable<VoiceCallRoute> {
+        val careContext = LocalCareContext.current
+        val citizenId = careContext.careRecipientProfileId
+
+        VoiceCallScreen(
+            fragileCitizenId = citizenId,
+            onBackClick = { navController.popBackStack() }
+        )
+    }
+
+    composable<DeviceStatusCheckRoute> {
+        val careContext = LocalCareContext.current
+        val citizenId = careContext.careRecipientProfileId
+
+        DeviceStatusCheckScreen(
+            fragileCitizenId = citizenId,
+            onBackClick = { navController.popBackStack() }
+        )
+    }
+
+    composable<UnansweredCallRoute> {
+        val careContext = LocalCareContext.current
+        val citizenId = careContext.careRecipientProfileId
+
+        UnansweredCallScreen(
+            fragileCitizenId = citizenId,
+            onBackClick = { navController.popBackStack() },
+            onRetryCall = {
+                navController.navigate(VideoCallRoute) {
+                    popUpTo<UnansweredCallRoute> { inclusive = true }
+                }
+            },
+            onNavigateToLastLocation = {
+                navController.popBackStack()
+            }
         )
     }
 }
