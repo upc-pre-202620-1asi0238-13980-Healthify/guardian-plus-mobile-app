@@ -791,6 +791,11 @@
     <string name="wearable_type_patch">Parche</string>
     <string name="wearable_link_submit">Vincular dispositivo</string>
     <string name="wearable_linked">Dispositivo vinculado</string>
+    <string name="wearable_unlink">Desvincular pulsera</string>
+    <string name="wearable_unlink_title">¿Desvincular la pulsera?</string>
+    <string name="wearable_unlink_message">Guardian+ dejará de recibir las lecturas de %1$s desde %2$s. Su historial se conserva y podrás vincularla de nuevo con su número de serie.</string>
+    <string name="wearable_unlink_confirm">Desvincular</string>
+    <string name="wearable_unlinked">Pulsera desvinculada</string>
 
     <!-- Push notifications -->
     <string name="notification_channel_alerts">Alertas</string>
