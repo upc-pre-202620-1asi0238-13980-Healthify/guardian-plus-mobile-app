@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -60,17 +59,20 @@ fun GuardianBottomBar(
                     .fillMaxWidth()
                     .height(74.dp)
                     .padding(horizontal = 4.dp),
-                horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Equal slots keep the Alerts label (the middle one) under the round button, whatever the
+                // width of the other labels
                 TopLevelDestination.entries.forEach { destination ->
                     if (destination == TopLevelDestination.ALERTS) {
                         AlertsTabLabel(
+                            modifier = Modifier.weight(1f),
                             selected = selected == destination,
                             onClick = { onDestinationClick(destination) }
                         )
                     } else {
                         BottomBarItem(
+                            modifier = Modifier.weight(1f),
                             destination = destination,
                             selected = selected == destination,
                             onClick = { onDestinationClick(destination) }
