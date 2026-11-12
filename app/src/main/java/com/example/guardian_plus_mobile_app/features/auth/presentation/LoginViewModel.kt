@@ -1,9 +1,13 @@
 package com.example.guardian_plus_mobile_app.features.auth.presentation
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.guardian_plus_mobile_app.features.auth.application.LoginUseCase
+import com.example.guardian_plus_mobile_app.features.auth.application.SignInWithGoogleUseCase
 import com.example.guardian_plus_mobile_app.features.auth.domain.model.valueobjects.LoginOutcome
+import com.example.guardian_plus_mobile_app.features.auth.infrastructure.google.GoogleIdTokenProvider
+import com.example.guardian_plus_mobile_app.features.auth.infrastructure.google.GoogleSignInCancelledException
 import com.example.guardian_plus_mobile_app.features.auth.presentation.common.parseEmail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -15,7 +19,9 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val login: LoginUseCase
+    private val login: LoginUseCase,
+    private val signInWithGoogle: SignInWithGoogleUseCase,
+    private val googleIdTokenProvider: GoogleIdTokenProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -59,6 +65,25 @@ class LoginViewModel @Inject constructor(
                 }
                 .onFailure { e ->
                     _uiState.update { it.copy(isLoading = false, errorMessage = e.message ?: "No se pudo iniciar sesión") }
+                }
+        }
+    }
+
+    /** [activityContext] hosts Google's account picker; it is only used during the call, never kept. */
+    fun signInWithGoogle(activityContext: Context) {
+        if (_uiState.value.isLoading) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            googleIdTokenProvider.requestIdToken(activityContext)
+                .mapCatching { idToken -> signInWithGoogle(idToken).getOrThrow() }
+                .onSuccess {
+                    _uiState.update { it.copy(isLoading = false, navigation = LoginNavigation.SignedIn) }
+                }
+                .onFailure { e ->
+                    // Closing the account picker just leaves the login as it was
+                    val message = if (e is GoogleSignInCancelledException) null
+                    else e.message ?: "No se pudo iniciar sesión con Google"
+                    _uiState.update { it.copy(isLoading = false, errorMessage = message) }
                 }
         }
     }

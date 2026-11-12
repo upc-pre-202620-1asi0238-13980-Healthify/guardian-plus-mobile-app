@@ -35,6 +35,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -343,6 +344,7 @@ fun LoginSurface(
                 // Google
                 OutlinedButton(
                     onClick = onGoogleClick,
+                    enabled = !state.isLoading,
                     shape = RoundedCornerShape(12.dp),
                     border = BorderStroke(1.dp, FieldBorder),
                     colors = ButtonDefaults.outlinedButtonColors(
@@ -486,16 +488,19 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     onSecondFactorRequired: (userAccountId: String, email: String) -> Unit = { _, _ -> },
     onEmailVerificationRequired: (userAccountId: String, email: String) -> Unit = { _, _ -> },
+    onLoginSuccess: () -> Unit = {},
     onForgotPassword: () -> Unit = {},
     onRegister: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
-    // IAM decides the next step: the OTP it just emailed or the pending email verification
+    // IAM decides the next step: the OTP it just emailed or the pending email verification. Google skips both
     LaunchedEffect(state.navigation) {
         when (val navigation = state.navigation) {
             is LoginNavigation.TwoFactor -> onSecondFactorRequired(navigation.userAccountId, navigation.email)
             is LoginNavigation.VerifyEmail -> onEmailVerificationRequired(navigation.userAccountId, navigation.email)
+            LoginNavigation.SignedIn -> onLoginSuccess()
             null -> return@LaunchedEffect
         }
         viewModel.onNavigationHandled()
@@ -509,6 +514,7 @@ fun LoginScreen(
         onTogglePasswordVisibility = viewModel::togglePasswordVisibility,
         onLoginClick = viewModel::login,
         onForgotPassword = onForgotPassword,
-        onRegister = onRegister
+        onRegister = onRegister,
+        onGoogleClick = { viewModel.signInWithGoogle(context) }
     )
 }

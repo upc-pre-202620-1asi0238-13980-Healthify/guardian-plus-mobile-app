@@ -22,6 +22,12 @@ interface AuthRepository {
     /** Checks the LOGIN code of the sign-in in progress and returns the session. */
     suspend fun verifyOtp(userAccountId: String, code: String): Result<AuthenticatedSession>
 
+    /**
+     * Signs in with an ID token from Google and returns the session, without OTP: Google already verified the
+     * email. The platform creates the account the first time the email signs in.
+     */
+    suspend fun signInWithGoogle(idToken: String): Result<AuthenticatedSession>
+
     /** Issues a new LOGIN code; the previous one stops being usable. */
     suspend fun resendOtp(userAccountId: String): Result<Unit>
 
