@@ -7,10 +7,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.GuardianTheme
+import com.example.guardian_plus_mobile_app.core.network.LocalNetworkPermission
 import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.features.auth.application.GetCurrentSessionUseCase
 import com.example.guardian_plus_mobile_app.features.auth.presentation.navigation.LoginRoute
@@ -50,8 +52,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             val careContext by careContextStore.context.collectAsStateWithLifecycle()
             val navController = rememberNavController()
+            // The notification permission waits for the local network one: Android drops overlapping requests
+            var localNetworkResolved by remember { mutableStateOf(false) }
             GuardianTheme {
-                PushRegistration(userAccountId = careContext?.userAccountId)
+                LocalNetworkPermission(onResolved = { localNetworkResolved = true })
+                if (localNetworkResolved) PushRegistration(userAccountId = careContext?.userAccountId)
                 AppNavHost(
                     navController = navController,
                     startDestination = startDestination,
