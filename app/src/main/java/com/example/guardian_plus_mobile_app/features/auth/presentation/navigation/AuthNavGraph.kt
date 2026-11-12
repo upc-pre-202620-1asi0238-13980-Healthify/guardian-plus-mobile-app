@@ -61,7 +61,9 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController, onLoginSucces
                 navController.navigate(OtpVerificationRoute(userAccountId, email, OtpPurpose.EMAIL_VERIFICATION)) {
                     popUpTo<RegisterRoute> { inclusive = true }
                 }
-            }
+            },
+            // Google returns the session directly, like the second factor of the login
+            onSignedInWithGoogle = onLoginSuccess
         )
     }
 
