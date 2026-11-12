@@ -697,6 +697,12 @@
     </plurals>
     <string name="stock_next_purchase">Próxima compra estimada: %1$s</string>
     <string name="stock_add_package">Añadir envase</string>
+    <string name="stock_add_package_title">Añadir envase</string>
+    <string name="stock_add_package_message">¿Cuántas unidades de %1$s se compraron?</string>
+    <string name="stock_add_package_units">Unidades añadidas</string>
+    <string name="stock_add_package_units_hint">Un envase completo trae %1$d unidades</string>
+    <string name="stock_add_package_units_error">Ingresa un número entre 1 y %1$d</string>
+    <string name="stock_add_package_confirm">Actualizar stock</string>
     <string name="stock_added_message">Stock actualizado: se añadieron %1$d unidades</string>
     <string name="stock_how_title">Cómo se calcula</string>
     <string name="stock_how_message">El balance se actualiza con cada dosis confirmada y cada nueva adquisición.</string>

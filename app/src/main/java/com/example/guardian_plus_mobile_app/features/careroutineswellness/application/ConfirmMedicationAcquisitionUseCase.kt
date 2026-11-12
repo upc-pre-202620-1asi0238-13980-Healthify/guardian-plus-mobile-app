@@ -7,6 +7,7 @@ import javax.inject.Inject
 class ConfirmMedicationAcquisitionUseCase @Inject constructor(
     private val repository: MedicationStockRepository
 ) {
-    suspend operator fun invoke(medicationStockId: String): Result<MedicationStock> =
-        repository.confirmMedicationAcquisition(medicationStockId)
+    /** @param dosesAdded units the family bought; a whole package when null */
+    suspend operator fun invoke(medicationStockId: String, dosesAdded: Int? = null): Result<MedicationStock> =
+        repository.confirmMedicationAcquisition(medicationStockId, dosesAdded)
 }
