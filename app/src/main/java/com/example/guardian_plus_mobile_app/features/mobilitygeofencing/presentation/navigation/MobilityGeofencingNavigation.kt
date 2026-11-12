@@ -35,7 +35,6 @@ data class EditSafeZoneRoute(
     val radius: Double
 )
 
-// US-23: Direct Communication Channel Routes
 @Serializable
 data object VideoCallRoute
 
@@ -132,7 +131,7 @@ fun NavGraphBuilder.mobilityGeofencingNavGraph(
         )
     }
 
-    // US-23: Direct Communication Screens
+    // Direct Communication Screens
     composable<VideoCallRoute> {
         val careContext = LocalCareContext.current
         val citizenId = careContext.careRecipientProfileId

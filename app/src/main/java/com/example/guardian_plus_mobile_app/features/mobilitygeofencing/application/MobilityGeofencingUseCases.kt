@@ -29,7 +29,6 @@ class MobilityGeofencingUseCases @Inject constructor(
         }
     }
 
-    // US-23: Direct Communication Channel
     suspend fun verifyDeviceCapabilities(
         fragileCitizenId: String,
         simulatedCapability: DeviceCommunicationCapability? = null
