@@ -775,6 +775,10 @@
     <string name="onboarding_relationship_family">Familiar</string>
     <string name="onboarding_relationship_caregiver">Cuidador</string>
     <string name="onboarding_submit">Empezar a cuidar</string>
+    <string name="onboarding_add_header_title">Agrega a\notra persona.</string>
+    <string name="onboarding_add_header_subtitle">Podrás cambiar entre ellas desde Inicio.</string>
+    <string name="onboarding_add_title">Nueva persona</string>
+    <string name="onboarding_add_subtitle">Cuéntanos a quién más cuidas</string>
     <string name="onboarding_date_confirm">Aceptar</string>
     <string name="onboarding_date_cancel">Cancelar</string>
     <string name="home_logout_title">¿Cerrar sesión?</string>

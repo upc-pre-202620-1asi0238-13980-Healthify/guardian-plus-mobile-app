@@ -30,7 +30,8 @@ data class OnboardingRoute(
     val userAccountId: String,
     val needsUserProfile: Boolean,
     val needsCareRecipient: Boolean,
-    val suggestedFullName: String? = null
+    val suggestedFullName: String? = null,
+    val isAddingCareRecipient: Boolean = false
 )
 
 @Serializable
@@ -96,6 +97,7 @@ fun NavGraphBuilder.profileNavGraph(
             needsUserProfile = route.needsUserProfile,
             needsCareRecipient = route.needsCareRecipient,
             suggestedFullName = route.suggestedFullName,
+            isAddingCareRecipient = route.isAddingCareRecipient,
             onCompleted = onReady
         )
     }
