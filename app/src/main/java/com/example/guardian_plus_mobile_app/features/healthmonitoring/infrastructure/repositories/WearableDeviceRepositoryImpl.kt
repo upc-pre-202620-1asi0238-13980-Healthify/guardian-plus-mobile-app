@@ -26,6 +26,9 @@ class WearableDeviceRepositoryImpl @Inject constructor(
             service.linkWearableDevice(LinkWearableDeviceRequestDto(careRecipientProfileId, serialNumber, deviceType.name))
         }) { it.toDomain() }
 
+    override suspend fun unlinkWearableDevice(wearableDeviceId: String): Result<WearableDevice> =
+        apiCall({ service.unlinkWearableDevice(wearableDeviceId) }) { it.toDomain() }
+
     private fun WearableDeviceDto.toDomain() = WearableDevice(
         id = id,
         careRecipientId = careRecipientProfileId,
