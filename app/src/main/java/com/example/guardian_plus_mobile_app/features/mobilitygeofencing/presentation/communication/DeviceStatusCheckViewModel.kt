@@ -37,7 +37,8 @@ data class DeviceStatusCheckUiState(
         bpm = 76,
         spo2Percentage = 97,
         temperatureCelsius = 36.7
-    )
+    ),
+    val errorMessage: String? = null
 )
 
 @HiltViewModel
@@ -50,20 +51,24 @@ class DeviceStatusCheckViewModel @Inject constructor(
 
     fun loadDeviceStatus(fragileCitizenId: String) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            verifyDeviceCapabilitiesUseCase(
-                fragileCitizenId = fragileCitizenId,
-                simulatedCapability = DeviceCommunicationCapability.TELEMETRY_ONLY
-            ).onSuccess { capabilities ->
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        capabilities = capabilities
-                    )
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            verifyDeviceCapabilitiesUseCase(fragileCitizenId)
+                .onSuccess { capabilities ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            capabilities = capabilities
+                        )
+                    }
                 }
-            }.onFailure {
-                _uiState.update { it.copy(isLoading = false) }
-            }
+                .onFailure { error ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = error.message
+                        )
+                    }
+                }
         }
     }
 }
