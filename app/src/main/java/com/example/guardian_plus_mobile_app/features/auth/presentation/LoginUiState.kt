@@ -14,4 +14,7 @@ sealed interface LoginNavigation {
     data class TwoFactor(val userAccountId: String, val email: String) : LoginNavigation
 
     data class VerifyEmail(val userAccountId: String, val email: String) : LoginNavigation
+
+    // Google sign-in returns the session directly, without OTP
+    data object SignedIn : LoginNavigation
 }

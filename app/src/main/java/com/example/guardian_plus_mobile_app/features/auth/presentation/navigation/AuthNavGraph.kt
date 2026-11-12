@@ -47,6 +47,7 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController, onLoginSucces
             onEmailVerificationRequired = { userAccountId, email ->
                 navController.navigate(OtpVerificationRoute(userAccountId, email, OtpPurpose.EMAIL_VERIFICATION))
             },
+            onLoginSuccess = onLoginSuccess,
             onForgotPassword = { navController.navigate(ForgotPasswordRoute) },
             onRegister = { navController.navigate(RegisterRoute) }
         )
