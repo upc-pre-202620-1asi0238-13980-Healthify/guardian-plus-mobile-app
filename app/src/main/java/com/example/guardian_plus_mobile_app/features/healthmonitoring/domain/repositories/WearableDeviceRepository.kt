@@ -12,4 +12,6 @@ interface WearableDeviceRepository {
         serialNumber: String,
         deviceType: DeviceType
     ): Result<WearableDevice>
+
+    suspend fun unlinkWearableDevice(wearableDeviceId: String): Result<WearableDevice>
 }
