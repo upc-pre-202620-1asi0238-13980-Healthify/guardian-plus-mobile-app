@@ -93,7 +93,9 @@ private fun RegisterContent(
     ) {
         AuthSheetTitle(
             title = stringResource(R.string.auth_register_title),
-            subtitle = stringResource(R.string.auth_register_subtitle)
+            subtitle = stringResource(R.string.auth_register_subtitle),
+            // Back to the login, e.g. to drop the sign-up or to use another account
+            onBackClick = onLoginClick
         )
         Spacer(modifier = Modifier.height(24.dp))
         AuthTextField(
