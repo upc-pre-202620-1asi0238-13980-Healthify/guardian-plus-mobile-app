@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.guardian_plus_mobile_app.core.session.CareContextStore
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.GetWearableDevicesUseCase
+import com.example.guardian_plus_mobile_app.features.healthmonitoring.application.UnlinkWearableDeviceUseCase
 import com.example.guardian_plus_mobile_app.features.healthmonitoring.domain.DeviceType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class WearableDetailsViewModel @Inject constructor(
     private val getWearableDevices: GetWearableDevicesUseCase,
+    private val unlinkWearableDevice: UnlinkWearableDeviceUseCase,
     private val careContextStore: CareContextStore
 ) : ViewModel() {
 
@@ -70,5 +72,28 @@ class WearableDetailsViewModel @Inject constructor(
                     }
                 }
         }
+    }
+
+    /** "Desvincular pulsera", once confirmed. Another device of the care recipient takes its place, if any. */
+    fun unlink() {
+        val wearable = _uiState.value.wearable ?: return
+        if (_uiState.value.isUnlinking) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isUnlinking = true) }
+            unlinkWearableDevice(wearable.id)
+                .onSuccess {
+                    _uiState.update { it.copy(isUnlinking = false, actionMessage = "Pulsera desvinculada") }
+                    load()
+                }
+                .onFailure { e ->
+                    _uiState.update {
+                        it.copy(isUnlinking = false, actionMessage = e.message ?: "No se pudo desvincular la pulsera")
+                    }
+                }
+        }
+    }
+
+    fun onActionMessageShown() {
+        _uiState.update { it.copy(actionMessage = null) }
     }
 }
