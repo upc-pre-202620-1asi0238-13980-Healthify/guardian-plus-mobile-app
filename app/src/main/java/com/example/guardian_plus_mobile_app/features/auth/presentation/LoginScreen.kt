@@ -43,7 +43,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.Primary
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.SheetBg
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.VerifiedUser
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
@@ -68,7 +67,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.BrandGreen
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.FieldBorder
-import com.example.guardian_plus_mobile_app.core.designsystem.theme.MintBg
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.TextMuted
 import com.example.guardian_plus_mobile_app.core.designsystem.theme.TextPrimary
 
@@ -165,8 +163,7 @@ fun LoginSurface(
     modifier: Modifier = Modifier,
     onForgotPassword: () -> Unit = {},
     onRegister: () -> Unit = {},
-    onGoogleClick: () -> Unit = {},
-    onBiometricClick: () -> Unit = {}
+    onGoogleClick: () -> Unit = {}
 ) {
 
 
@@ -363,33 +360,6 @@ fun LoginSurface(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(text = "Continuar con Google", fontSize = 16.sp)
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Biometric
-                Button(
-                    onClick = onBiometricClick,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MintBg,
-                        contentColor = BrandGreen
-                    ),
-                    elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = 0.dp,
-                        pressedElevation = 0.dp
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Fingerprint,
-                        contentDescription = null,
-                        modifier = Modifier.size(22.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(text = "Acceso biométrico", fontSize = 16.sp)
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
